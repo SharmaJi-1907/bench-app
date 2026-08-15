@@ -1,0 +1,95 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'index.html'
+      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: Bench
+  APP_ID: com.bench.inventory
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that index.html is here
+        run: |
+          test -f index.html || {
+            echo "::error::index.html was not found in the top folder of this repo. Upload it there and run again."
+            exit 1
+          }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Reuse the same signing key every build
+        run: |
+          if [ ! -f debug.keystore ]; then
+            keytool -genkeypair -keystore debug.keystore -alias androiddebugkey \
+              -storepass android -keypass android -keyalg RSA -keysize 2048 \
+              -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git add debug.keystore
+            git commit -m "Add signing key so updates install over the old app"
+            git push
+          fi
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
+
+      - name: Make the Android project
+        run: |
+          cat > package.json <<'EOF'
+          { "name": "bench-app", "version": "1.0.0", "private": true }
+          EOF
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          npx cap init "$APP_NAME" "$APP_ID" --web-dir=www
+          mkdir -p www
+          cp index.html www/index.html
+          npx cap add android
+          npx cap sync android
+
+      - name: Allow camera and gallery
+        run: |
+          f=android/app/src/main/AndroidManifest.xml
+          grep -q 'permission.CAMERA' "$f" || \
+            sed -i 's|<application|<uses-permission android:name="android.permission.CAMERA"/>\n    <application|' "$f"
+
+      - name: Build it
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Name the file
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "$APP_NAME.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: Bench.apk
+
+      - name: Put it on the Releases page
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest --cleanup-tag -y || true
+          gh release create latest "$APP_NAME.apk" \
+            -t "$APP_NAME — latest APK" \
+            -n "Built from index.html on $(date -u '+%d %b %Y, %H:%M UTC'). Tap the .apk file below to install."

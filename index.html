@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>My Components</title>
+<style>
+:root{
+  --bg:#F6F7F9;--card:#FFFFFF;--line:#E3E6EB;--ink:#1A1D23;--ink2:#6B7280;--ink3:#9AA1AC;
+  --blue:#2563EB;--blue-soft:#EAF0FE;--green:#0E9F6E;--green-soft:#E6F6F0;
+  --amber:#C2760B;--amber-soft:#FDF3E3;--red:#DC2626;--red-soft:#FDECEC;--r:12px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+#app{max-width:680px;margin:0 auto;min-height:100vh}
+header{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:10px}
+header h1{margin:0;font-size:18px;font-weight:700;flex:1}
+header .icobtn{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer}
+header .icobtn svg{width:19px;height:19px;stroke:var(--ink2);fill:none;stroke-width:1.8}
+main{padding:14px 16px 100px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);max-width:680px;margin:0 auto}
+nav button{background:none;border:0;padding:9px 1px;color:var(--ink3);font-size:10px;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav button.on{color:var(--blue)}
+.total{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
+.total .lbl{font-size:13px;color:var(--ink2)}
+.total .amt{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.total .sub{font-size:13px;color:var(--ink3)}
+.tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 8px;text-align:center}
+.tile b{display:block;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.tile span{font-size:11px;color:var(--ink2)}
+h2{font-size:13px;font-weight:700;color:var(--ink2);margin:22px 0 9px}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);padding:10px;margin-bottom:8px}
+.row .tap{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;
+  text-align:left;font:inherit;color:inherit;cursor:pointer}
+.thumb{width:54px;height:54px;flex:0 0 54px;border-radius:10px;background:#F1F3F6;border:1px solid var(--line);
+  display:grid;place-items:center;overflow:hidden;position:relative;cursor:pointer}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb svg.sym{width:40px;height:28px;stroke:#7C8598;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.thumb .cam{position:absolute;right:-1px;bottom:-1px;width:20px;height:20px;border-radius:6px;background:var(--blue);display:grid;place-items:center}
+.thumb .cam svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2}
+.info{flex:1;min-width:0}
+.info .nm{font-size:15px;font-weight:600;line-height:1.25}
+.info .ln{font-size:12.5px;color:var(--ink2);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pr{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto;text-align:right}
+.pr small{display:block;font-size:11px;font-weight:500;color:var(--ink3)}
+.tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px}
+.t-have{background:var(--green-soft);color:var(--green)}
+.t-need{background:var(--blue-soft);color:var(--blue)}
+.t-bad{background:var(--red-soft);color:var(--red)}
+.t-warn{background:var(--amber-soft);color:var(--amber)}
+.t-gray{background:#EFF1F4;color:var(--ink2)}
+.search{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  font-size:15px;color:var(--ink);margin-bottom:10px;font-family:inherit}
+.search::placeholder{color:var(--ink3)}
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--ink2);font-size:13px;
+  font-weight:500;padding:8px 14px;border-radius:20px;cursor:pointer;font-family:inherit}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;background:var(--blue);color:#fff;border:0;
+  border-radius:10px;padding:14px 16px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+.btn.sec{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.btn.grn{background:var(--green)}
+.btn.red{background:var(--card);border:1px solid var(--red);color:var(--red)}
+.btn.wide{width:100%}
+.btn:active{opacity:.85}
+.btnrow{display:flex;gap:9px;margin-top:10px}
+.btnrow .btn{flex:1}
+label.f{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:16px 0 6px}
+input.f,select.f,textarea.f{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:13px;font-size:16px;color:var(--ink);font-family:inherit}
+input.f:focus,select.f:focus,textarea.f:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+textarea.f{min-height:70px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pfx{position:relative}
+.pfx span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink3);font-size:16px}
+.pfx input{padding-left:28px}
+.seg{display:grid;grid-auto-flow:column;gap:8px}
+.seg button{background:var(--card);border:1px solid var(--line);color:var(--ink2);border-radius:10px;padding:13px 4px;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.seg button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.seg.g button.on{background:var(--green);border-color:var(--green)}
+.seg.r button.on{background:var(--red);border-color:var(--red)}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:48px;height:48px;border-radius:10px;background:var(--card);border:1px solid var(--line);
+  font-size:22px;cursor:pointer;color:var(--ink);font-family:inherit}
+.stepper input{flex:1;text-align:center;font-weight:700}
+.sheet{position:fixed;inset:0;z-index:60;background:var(--bg);overflow-y:auto;display:none}
+.sheet.open{display:block}
+.sheet-in{max-width:680px;margin:0 auto;padding:0 16px 40px}
+.sheet-top{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:5;
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px}
+.sheet-top .x{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+  font-size:18px;cursor:pointer;line-height:1;color:var(--ink);font-family:inherit}
+.sheet-top .t{font-size:16px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:14px}
+.hero .pic{aspect-ratio:4/3;background:#F1F3F6;display:grid;place-items:center}
+.hero .pic img{width:100%;height:100%;object-fit:contain;background:#fff}
+.hero .pic .symbox{display:grid;place-items:center;gap:10px;padding:20px}
+.hero .pic .symbox svg{width:min(48vw,180px);height:auto;stroke:#6B7280;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.hero .pic .symbox .cap{font-size:13px;color:var(--ink2);font-weight:600;text-align:center}
+.thumb svg.art{width:100%;height:100%;display:block}
+.hero .pic{position:relative}
+.hero .pic .artbox{display:grid;place-items:center;gap:6px;padding:12px 14px 16px}
+.hero .pic .artbox svg.art{width:min(62vw,260px);height:auto}
+.hero .pic .artbox .cap{font-size:13px;color:var(--ink2);font-weight:600;text-align:center}
+.hero .pic .symtag{position:absolute;left:8px;bottom:8px;display:flex;align-items:center;gap:5px;
+  background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 7px 3px 4px;
+  font-size:10.5px;color:var(--ink2);font-weight:600}
+.hero .pic .symtag svg{width:30px;height:20px;stroke:#6B7280;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.hero .acts{display:flex;border-top:1px solid var(--line)}
+.hero .acts button{flex:1;background:none;border:0;border-right:1px solid var(--line);padding:14px 4px;
+  font-size:13.5px;font-weight:600;color:var(--blue);cursor:pointer;font-family:inherit}
+.hero .acts button:last-child{border-right:0}
+.hero .acts button.dgr{color:var(--red)}
+.pinbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:16px}
+.pinbox .h{font-size:12.5px;font-weight:600;color:var(--ink2);margin-bottom:10px}
+.pinbox svg{width:100%;height:auto}
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2px 14px}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--ink2);flex:0 0 40%}
+.kv .v{text-align:right;flex:1;font-weight:500}
+.empty{text-align:center;padding:56px 24px}
+.empty h3{font-size:17px;margin:0 0 8px}
+.empty p{font-size:14px;color:var(--ink2);margin:0 0 20px;line-height:1.55}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;margin:20px 0 9px}
+.ghead .a{font-size:13px;font-weight:700}
+.ghead .b{font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.bar{height:7px;background:#EDEFF3;border-radius:4px;overflow:hidden;margin-top:9px}
+.bar i{display:block;height:100%;background:var(--green);border-radius:4px}
+.fab{position:fixed;right:16px;bottom:82px;z-index:35;height:50px;padding:0 20px;border-radius:25px;background:var(--blue);
+  color:#fff;border:0;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,.35);
+  display:flex;align-items:center;gap:6px;font-family:inherit}
+@media(min-width:681px){.fab{right:calc(50vw - 324px)}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--ink);color:#fff;font-size:14px;
+  padding:12px 18px;border-radius:10px;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><h1 id="title">My Components</h1>
+    <button class="icobtn" id="moreBtn"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+  </header>
+  <main id="main"></main>
+</div>
+<nav id="nav"></nav>
+<button class="fab" id="fab">+ Add</button>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="globalCam" accept="image/*" hidden>
+
+<script>
+const SYM={
+ res:'<path d="M2 16h8l3-8 5 16 5-16 5 16 3-8h8"/>',
+ pot:'<path d="M2 22h8l3-8 5 16 5-16 5 16 3-8h8"/><path d="M24 2v8"/><path d="M20 10h8l-4 4z" fill="currentColor"/>',
+ capc:'<path d="M2 16h16M30 16h16"/><path d="M18 4v24M30 4v24"/>',
+ cape:'<path d="M2 16h16M30 16h16"/><path d="M18 4v24"/><path d="M30 6c-4 3-4 17 0 20"/><path d="M8 8h6M11 5v6"/>',
+ ind:'<path d="M2 20h6"/><path d="M8 20a5 5 0 0110 0M18 20a5 5 0 0110 0M28 20a5 5 0 0110 0"/><path d="M38 20h8"/>',
+ diode:'<path d="M2 16h14M32 16h14"/><path d="M16 6v20l16-10z"/><path d="M32 6v20"/>',
+ zener:'<path d="M2 16h14M32 16h14"/><path d="M16 6v20l16-10z"/><path d="M32 6v20M32 6h-5M32 26h5"/>',
+ led:'<path d="M2 16h14M32 16h14"/><path d="M16 6v20l16-10z"/><path d="M32 6v20"/><path d="M34 8l6-5M38 12l6-5"/>',
+ bjt:'<circle cx="26" cy="16" r="13"/><path d="M6 16h9M15 8v16M15 12l10-6M15 20l10 6"/>',
+ fet:'<circle cx="26" cy="16" r="13"/><path d="M6 16h9M15 8v16M19 9v14M19 12h9M19 20h9M28 6v20"/>',
+ dip8:'<rect x="9" y="5" width="30" height="22" rx="2"/><path d="M13 5V2M19 5V2M25 5V2M31 5V2M13 27v3M19 27v3M25 27v3M31 27v3"/><circle cx="14" cy="10" r="1.6"/>',
+ dip14:'<rect x="5" y="5" width="38" height="22" rx="2"/><path d="M9 5V2M15 5V2M21 5V2M27 5V2M33 5V2M39 5V2M9 27v3M15 27v3M21 27v3M27 27v3M33 27v3M39 27v3"/><circle cx="10" cy="10" r="1.6"/>',
+ opamp:'<path d="M14 3v26l22-13z"/><path d="M2 10h12M2 22h12M36 16h10"/><path d="M17 11h4M17 20h4M19 18v4"/>',
+ to220:'<rect x="14" y="4" width="20" height="14" rx="1"/><circle cx="24" cy="8" r="2"/><path d="M14 18h20v4H14z"/><path d="M19 22v8M24 22v8M29 22v8"/>',
+ board:'<rect x="4" y="4" width="40" height="24" rx="3"/><rect x="16" y="11" width="16" height="10" rx="1"/><path d="M8 8h4M8 12h4M8 16h4M8 20h4M8 24h4M36 8h4M36 12h4M36 16h4M36 20h4M36 24h4"/>',
+ mcu:'<rect x="10" y="6" width="28" height="20" rx="2"/><rect x="17" y="12" width="14" height="8" rx="1"/><path d="M10 10H4M10 16H4M10 22H4M38 10h6M38 16h6M38 22h6"/>',
+ sensor:'<rect x="8" y="8" width="20" height="16" rx="2"/><circle cx="18" cy="16" r="4"/><path d="M28 16h6M34 10c5 4 5 8 0 12M39 6c7 6 7 14 0 20"/>',
+ module:'<rect x="5" y="6" width="38" height="20" rx="2"/><path d="M11 6v20M11 11h26M11 16h26M11 21h26"/>',
+ relay:'<rect x="6" y="7" width="22" height="18" rx="2"/><path d="M10 12h14M10 20h14"/><path d="M28 12h6l8-5M28 20h14"/>',
+ motor:'<circle cx="20" cy="16" r="12"/><path d="M14 20l6-12 6 12"/><path d="M17 16h6"/><path d="M32 13h10M32 19h10"/>',
+ disp:'<rect x="6" y="5" width="36" height="22" rx="2"/><path d="M13 11h8M13 16h14M13 21h10"/>',
+ seg:'<path d="M16 6h14M14 8v8M32 8v8M16 18h14M14 20v8M32 20v8M16 30h14"/>',
+ xtal:'<path d="M2 16h10M36 16h10"/><path d="M12 8v16M36 8v16"/><rect x="17" y="7" width="14" height="18" rx="1"/>',
+ batt:'<path d="M2 16h8M38 16h8"/><path d="M10 8v16M18 11v10M26 8v16M34 11v10"/>',
+ sw:'<circle cx="10" cy="20" r="2"/><circle cx="38" cy="20" r="2"/><path d="M2 20h6M40 20h6"/><path d="M11 19l24-11"/>',
+ buzz:'<circle cx="20" cy="16" r="11"/><circle cx="20" cy="16" r="3"/><path d="M34 10c4 4 4 8 0 12M39 6c7 6 7 14 0 20"/>',
+ xfmr:'<path d="M14 4v24M34 4v24"/><path d="M14 8a5 5 0 000 8M14 16a5 5 0 000 8"/><path d="M34 8a5 5 0 010 8M34 16a5 5 0 010 8"/><path d="M22 4v24M26 4v24"/>',
+ bread:'<rect x="4" y="4" width="40" height="24" rx="2"/><path d="M4 14h40M4 18h40"/><path d="M10 6v6M16 6v6M22 6v6M28 6v6M34 6v6M10 20v6M16 20v6M22 20v6M28 20v6M34 20v6"/>',
+ wire:'<path d="M2 22c8 0 8-12 16-12s8 12 16 12 8-12 12-12"/><circle cx="4" cy="22" r="2"/><circle cx="44" cy="10" r="2"/>',
+ conn:'<rect x="6" y="9" width="30" height="14" rx="2"/><path d="M36 12h8M36 20h8"/><path d="M12 9v14M18 9v14M24 9v14M30 9v14"/>',
+ tool:'<path d="M30 4a8 8 0 00-9 12L6 31l4 4 15-15a8 8 0 0011-11l-6 6-5-1-1-5z"/>',
+ meter:'<rect x="7" y="4" width="34" height="24" rx="3"/><rect x="12" y="9" width="24" height="8" rx="1"/><circle cx="18" cy="23" r="2"/><circle cx="30" cy="23" r="2"/>',
+ iron:'<path d="M4 28l10-10"/><path d="M14 18l16-14 8 8-14 16z"/><path d="M20 12l8 8"/>',
+ scope:'<rect x="4" y="5" width="40" height="22" rx="3"/><path d="M9 18c4 0 4-7 8-7s4 12 8 12 4-9 7-9 3 4 6 4"/>',
+ psu:'<rect x="4" y="6" width="40" height="20" rx="3"/><path d="M11 12h12v8H11z"/><circle cx="32" cy="16" r="4"/>',
+ ic:'<rect x="9" y="5" width="30" height="22" rx="2"/><path d="M15 5V2M23 5V2M31 5V2M15 27v3M23 27v3M31 27v3"/><circle cx="14" cy="10" r="1.6"/>'};
+const sym=(k,c)=>'<svg class="'+(c===''?'':'sym')+'" viewBox="0 0 48 32">'+(SYM[k]||SYM.ic)+'</svg>';
+
+/* ================= default component pictures =================
+   Draws a realistic package picture for every part, from its own
+   symbol key + name. No network, no stored bytes. Used wherever
+   the user has not added their own photo. */
+const AC={blk:'#282C31',blk2:'#3C424A',ink:'#0E1114',pin:'#BAC1C9',pin2:'#8D949D',
+ sil:'#C7CDD4',sil2:'#9AA2AB',gold:'#D2AC3E',grn:'#1E6B45',grn2:'#2A8557',
+ blu:'#1F4E9C',blu2:'#2E6FB8',tea:'#00979D',red:'#D2402F',wht:'#EEF0F3',
+ ylw:'#E8B31E',beige:'#D8C3A0',cop:'#B87333',glass:'#0F1418',pad:'#E4E7EB'};
+
+const _r=(x,y,w,h,f,rx,op)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx||0}" fill="${f}"${op!=null?` fill-opacity="${op}"`:''}/>`;
+const _c=(x,y,r,f,op)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"${op!=null?` fill-opacity="${op}"`:''}/>`;
+const _e=(x,y,rx,ry,f,op)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${f}"${op!=null?` fill-opacity="${op}"`:''}/>`;
+const _p=(d,f,s,w)=>`<path d="${d}"${f?` fill="${f}"`:' fill="none"'}${s?` stroke="${s}" stroke-width="${w||2}" stroke-linecap="round"`:''}/>`;
+const _tx=(s,x,y,sz,f,a)=>s?`<text x="${x}" y="${y}" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="${sz}" font-weight="700" fill="${f}" text-anchor="${a||'middle'}" letter-spacing=".4">${esc(s)}</text>`:'';
+const _legs=(xs,y1,y2,w,c)=>xs.map(x=>_r(x-(w||4.4)/2,y1,w||4.4,y2-y1,c||AC.pin,1)).join('');
+const _gloss=(x,y,w,h)=>_r(x,y,w,h,'#FFFFFF',3,.07);
+const _fit=(t,w,max)=>Math.max(7,Math.min(max||14,w/(Math.max(1,t.length)*.66)));
+
+/* pick a printable part marking out of the name: "NE555 timer" -> NE555 */
+function _mark(n){
+  const bad=/^(\d+(\.\d+)?)(v|w|a|ma|mm|k|m|f|uf|nf|pf|awg|mhz|khz|hz|x|pcs)?$/i;
+  for(const raw of String(n).split(/[\s,\/]+/)){
+    const w=raw.replace(/[()]/g,'');
+    if(w.length<2||w.length>11)continue;
+    if(!/\d/.test(w))continue;
+    if(bad.test(w))continue;
+    return w.toUpperCase();
+  }
+  return '';
+}
+function _boardLab(n){
+  const P=['ESP32-CAM','ESP32-S3','ESP32-C3','ESP32-C6','ESP8266','ESP32','Tang Nano','Zero 2','Pico 2','Pico',
+   'Blue Pill','Black Pill','Nucleo','STM32','Teensy','Uno','Nano','Mega','EPM240','nRF52840','CH32V003',
+   'AT89S52','ATtiny85','ATmega328P','Raspberry','Arduino'];
+  for(const k of P){if(new RegExp(k.replace(/[-]/g,'\\-'),'i').test(n))return k.toUpperCase();}
+  return (_mark(n)||String(n).split(' ')[0]).toUpperCase().slice(0,9);
+}
+function _pins(it){
+  const hay=(it.d||'')+' '+it.n;
+  let m=hay.match(/(?:DIP|SOIC|SOP|PDIP)[\s-]?(\d{1,2})/i)||hay.match(/(\d{1,2})[\s-]?pin/i);
+  if(m)return Math.max(4,Math.min(40,+m[1]));
+  const k=Object.keys(PINS).filter(k=>it.n.toUpperCase().indexOf(k.toUpperCase())>=0)[0];
+  if(k&&PINS[k].length>3)return PINS[k].length;
+  return it.s==='dip8'||it.s==='opamp'?8:14;
+}
+function _ohms(n){
+  const m=String(n).match(/(\d+(?:\.\d+)?)\s*(k|m)?\s*(?:ohm|Ω|R\b)/i);
+  if(!m)return null;
+  let v=parseFloat(m[1]);
+  if(/k/i.test(m[2]||''))v*=1e3; if(/m/i.test(m[2]||''))v*=1e6;
+  return v;
+}
+const _BAND=['#17191C','#6B3A16','#C0392B','#DE7B1E','#E3C31C','#2E8B45','#2A5FB8','#7B4FA8','#8C9196','#F2F4F6'];
+function _bands(v){
+  if(v==null||v<=0)return [_BAND[1],_BAND[0],_BAND[3],AC.gold];
+  const e=Math.floor(Math.log10(v));
+  let mant=Math.round(v/Math.pow(10,e-1));
+  if(mant>99){mant=Math.round(mant/10)}
+  const d1=Math.floor(mant/10),d2=mant%10,mul=Math.max(0,Math.min(9,e-1));
+  return [_BAND[d1],_BAND[d2],_BAND[mul],AC.gold];
+}
+function _ledCol(n){
+  const s=n.toLowerCase();
+  if(/\bir\b|infrared|tsop/.test(s))return ['#3C2A57','#5A4080'];
+  if(/rgb/.test(s))return ['#C8CDD4','#E4E8EC'];
+  if(/ws2812|neopixel/.test(s))return ['#E9ECEF','#FFFFFF'];
+  if(/laser/.test(s))return ['#C0392B','#E4574A'];
+  if(/green/.test(s))return ['#2FA85A','#57D183'];
+  if(/blue/.test(s))return ['#2E6FB8','#5C9BE0'];
+  if(/white/.test(s))return ['#DFE3E8','#FFFFFF'];
+  if(/yellow/.test(s))return ['#E0B31C','#F3D45A'];
+  return ['#CE3A2C','#EE6A5A'];
+}
+
+/* ---- packages ---- */
+const PKG={};
+
+PKG.dip=(it)=>{
+  const n=_pins(it),per=Math.max(2,Math.ceil(n/2));
+  const bw=Math.max(52,Math.min(158,per*12+14)),bh=50,x=(200-bw)/2,y=45,step=(bw-12)/per;
+  let p='';
+  for(let i=0;i<per;i++){const px=x+6+step*(i+.5);
+    p+=_r(px-2.7,y-13,5.4,14,AC.pin,1)+_r(px-2.7,y+bh-1,5.4,14,AC.pin,1);}
+  const lab=_mark(it.n);
+  return p+_r(x,y,bw,bh,AC.blk,4)+_gloss(x+4,y+4,bw-8,11)
+   +_p(`M ${x} ${y+bh/2-9} A 9 9 0 0 0 ${x} ${y+bh/2+9} Z`,AC.ink)
+   +_c(x+16,y+bh-13,3.2,AC.ink)
+   +_tx(lab,100,y+bh/2+5,_fit(lab,bw-26,15),'#E9ECEF');
+};
+PKG.to92=(it)=>{
+  const lab=_mark(it.n);
+  return _legs([82,100,118],96,130)
+   +_p('M 68 98 L 68 64 A 32 27 0 0 1 132 64 L 132 98 Z',AC.blk)
+   +_r(70,44,18,54,'#FFFFFF',8,.06)
+   +_tx(lab,100,80,_fit(lab,54,12),'#D8DCE1');
+};
+PKG.to220=(it)=>{
+  const lab=_mark(it.n);
+  return _legs([80,100,120],92,132)
+   +_r(66,20,68,32,AC.sil,3)+_c(100,33,6.5,AC.pad)+_r(66,20,68,8,'#FFFFFF',3,.35)
+   +_r(66,48,68,46,AC.blk,3)+_gloss(70,52,60,9)
+   +_tx(lab,100,76,_fit(lab,58,13),'#DDE1E6');
+};
+PKG.res=(it)=>{
+  const v=_ohms(it.n),b=_bands(v);
+  if(v!=null&&v<1)return _legs([70,130],92,130,5)+_r(56,42,88,52,'#EDEFF1',4)+_tx('R'+v,100,74,13,'#4A5058');
+  return _r(10,66,180,5,AC.pin,2)
+   +_r(56,50,88,38,AC.beige,18)+_gloss(62,54,76,10)
+   +b.map((c,i)=>_r([66,80,94,124][i],50,i===3?6:8,38,c,1)).join('');
+};
+PKG.pot=()=>_legs([80,100,120],104,132)
+ +_r(94,14,12,24,AC.sil2,3)
+ +_c(100,68,38,'#2D6FA8')+_c(100,68,30,'#3E85C0')+_c(100,68,9,AC.sil)
+ +_r(62,96,76,12,AC.blk,2);
+PKG.capc=(it)=>{
+  const lab=_mark(it.n);
+  return _legs([86,114],86,132)
+   +_e(100,56,36,34,'#2C63A8')+_e(100,52,30,26,'#3C79C2')
+   +_tx(lab||'104',100,60,12,'#E8EDF4');
+};
+PKG.cape=(it)=>{
+  const lab=_mark(it.n);
+  return _legs([88,112],108,134)
+   +_r(62,26,76,84,'#122748',10)+_r(62,26,20,84,'#93A2B8',0)
+   +[46,62,78,94].map(y=>_r(68,y,8,3,'#4A5568',1)).join('')
+   +_e(100,28,38,10,'#1C355C')+_p('M 72 28 H 128',null,'#33507E',2)
+   +_tx(lab,112,74,11,'#CFE0F5');
+};
+PKG.ind=(it)=>{
+  if(/bead|ferrite/i.test(it.n))return _r(10,66,180,5,AC.pin,2)+_r(66,46,68,44,'#3A4048',8)+_gloss(70,50,60,10);
+  return _c(100,70,44,'#2E3238')+_c(100,70,20,'#F1F3F6')
+   +[0,1,2,3,4,5,6,7].map(i=>{const a=i*Math.PI/4,x=100+Math.cos(a)*32,y=70+Math.sin(a)*32;
+     return _r(x-5,y-11,10,22,AC.cop,4);}).join('');
+};
+PKG.xtal=(it)=>{
+  const lab=(it.n.match(/([\d.]+\s?[MK]?Hz)/i)||[])[1]||_mark(it.n);
+  return _legs([84,116],92,132)
+   +_r(60,42,80,50,AC.sil,24)+_r(60,42,80,16,'#FFFFFF',24,.45)+_r(64,46,72,42,AC.sil2,22,.35)
+   +_tx(lab?lab.replace(/\s/g,''):'',100,74,_fit(lab||'',62,13),'#3B4148');
+};
+PKG.diode=(it)=>{
+  const lab=_mark(it.n);
+  return _r(10,66,180,5,AC.pin,2)
+   +_r(62,50,76,38,'#1C1F24',5)+_gloss(66,54,68,9)
+   +_r(122,50,8,38,AC.sil,1)
+   +_tx(lab,96,74,_fit(lab,52,11),'#D6DAE0');
+};
+PKG.zener=PKG.diode;
+PKG.led=(it)=>{
+  const [c1,c2]=_ledCol(it.n);
+  if(/ws2812|strip/i.test(it.n))return _r(14,52,172,40,'#16181B',5)
+    +[0,1,2].map(i=>_r(38+i*52,60,26,24,'#F2F4F7',3)+_c(51+i*52,72,7,'#DDE1E6')).join('')
+    +[0,1,2].map(i=>_r(38+i*52,84,26,3,AC.gold,1)).join('');
+  return _legs([88,132],96,124)+_legs([112,132],96,136)
+   +_p('M 76 98 L 76 62 A 24 24 0 0 1 124 62 L 124 98 Z',c1)
+   +_p('M 82 92 L 82 62 A 18 18 0 0 1 100 44 L 100 92 Z',c2,null,0)
+   +_r(70,92,60,10,c1,3)+_r(70,92,60,10,'#000000',3,.18)
+   +_c(92,64,6,'#FFFFFF',.45);
+};
+PKG.bjt=(it)=>/to-?220|tip|power/i.test((it.d||'')+it.n)?PKG.to220(it):PKG.to92(it);
+PKG.fet=(it)=>/2N7000|BF245|J201|to-?92/i.test((it.d||'')+it.n)?PKG.to92(it):PKG.to220(it);
+
+PKG.board=(it)=>{
+  const s=it.n.toLowerCase();
+  if(/perfboard|zero pcb|vero/.test(s)){
+    let h='';for(let r=0;r<7;r++)for(let c=0;c<15;c++)h+=_c(26+c*11,32+r*12,2.6,'#0C3D26');
+    return _r(14,20,172,96,'#1B6B44',4)+h;
+  }
+  if(/enclosure|box/.test(s))return _r(20,28,160,86,'#3A4046',8)+_r(20,28,160,14,'#4A5158',8)
+   +[0,1].map(i=>_c(38+i*124,102,5,'#2A2F34')).join('')+_r(70,60,60,26,'#2A2F34',3);
+  const dark=/esp|teensy|tang|fpga|cpld|nucleo/.test(s);
+  const col=/arduino|uno|nano|mega/.test(s)?AC.tea:(/raspberry|pico/.test(s)?'#8C1F45':(dark?'#1A1D22':AC.grn));
+  const lab=_boardLab(it.n);
+  return _r(14,26,172,92,col,6)+_gloss(20,30,160,10)
+   +_r(24,28,152,7,AC.blk,2)+[...Array(11)].map((_,i)=>_r(28+i*13,29,7,5,AC.gold,1)).join('')
+   +_r(24,109,152,7,AC.blk,2)+[...Array(11)].map((_,i)=>_r(28+i*13,110,7,5,AC.gold,1)).join('')
+   +_r(76,52,62,40,AC.blk,3)+_c(84,60,2.6,'#4A5058')
+   +_r(16,48,26,26,AC.sil,3)
+   +_c(158,52,5,'#2FA85A')+_c(158,68,5,'#D2402F')
+   +_tx(lab,100,104,_fit(lab,120,12),'#F2F5F8');
+};
+PKG.mcu=(it)=>{
+  const lab=_boardLab(it.n);
+  const pico=/pico/i.test(it.n);
+  return _r(30,18,140,104,pico?'#8C1F45':'#1A1D22',6)+_gloss(36,22,128,10)
+   +_r(32,20,10,100,AC.blk2,2)+[...Array(9)].map((_,i)=>_r(33,26+i*11,8,7,AC.gold,1)).join('')
+   +_r(158,20,10,100,AC.blk2,2)+[...Array(9)].map((_,i)=>_r(159,26+i*11,8,7,AC.gold,1)).join('')
+   +_r(62,30,76,44,AC.sil,3)+_r(62,30,76,10,'#FFFFFF',3,.3)
+   +_r(84,80,32,16,AC.sil2,2)
+   +_tx(lab,100,110,_fit(lab,96,12),'#EDF0F3');
+};
+PKG.module=(it)=>{
+  const lab=_mark(it.n)||it.n.split(' ')[0].toUpperCase();
+  return _r(28,32,144,74,AC.blu,5)+_gloss(34,36,132,9)
+   +_r(34,96,132,8,AC.blk,2)+[...Array(9)].map((_,i)=>_r(38+i*15,97,8,6,AC.gold,1)).join('')
+   +_r(70,44,60,34,AC.blk,3)+_c(77,51,2.4,'#4A5058')
+   +_c(44,50,5,AC.sil2)+_c(44,70,5,AC.sil2)
+   +_tx(lab,100,90,_fit(lab,120,12),'#DCE6F5');
+};
+PKG.sensor=(it)=>{
+  const s=it.n.toLowerCase();
+  if(/hc-sr04|ultrasonic/.test(s))return _r(24,34,152,70,AC.blu,5)
+    +_c(66,66,26,AC.sil)+_c(66,66,20,'#8E969F')+_c(134,66,26,AC.sil)+_c(134,66,20,'#8E969F')
+    +_r(76,96,48,8,AC.blk,2)+[...Array(4)].map((_,i)=>_r(80+i*12,97,7,6,AC.gold,1)).join('');
+  if(/dht|am2302/.test(s)){
+    let g='';for(let r=0;r<5;r++)for(let c=0;c<5;c++)g+=_c(72+c*14,42+r*13,3.4,'#0E2E5C');
+    return _r(60,28,84,80,/dht22|am2302/.test(s)?'#E8EAED':'#2E6FB8',4)+g+_legs([76,92,108,124],108,132);
+  }
+  if(/pir|hc-sr501/.test(s))return _r(40,40,120,64,AC.blu,4)
+    +_c(100,70,40,'#EDEFF2')+[0,1,2,3,4,5].map(i=>{const a=i*Math.PI/3;
+      return _c(100+Math.cos(a)*20,70+Math.sin(a)*20,10,'#D6DBE1');}).join('')+_c(100,70,11,'#DEE2E7');
+  if(/mq-|gas/.test(s))return _r(26,54,148,50,AC.blu,4)
+    +_c(76,54,30,AC.sil2)+_c(76,54,23,'#B4BBC3')+[0,1,2,3].map(i=>_r(56+i*11,32,5,44,'#8A9199',2)).join('')
+    +_r(120,66,44,26,AC.blk,3);
+  if(/lm35|ds18b20|a3144|hall/.test(s))return PKG.to92(it);
+  if(/ldr/.test(s))return _legs([88,112],92,132)
+    +_c(100,60,32,'#E8E3D2')+_p('M 74 48 q 26 14 52 0 M 74 62 q 26 14 52 0 M 74 76 q 26 -14 52 0',null,'#B08A3A',5);
+  return PKG.module(it);
+};
+PKG.relay=()=>_legs([64,84,104,124,144],100,132)
+ +_r(52,26,96,76,'#1E4FA0',4)+_gloss(58,30,84,10)
+ +_r(60,44,80,26,'#EEF1F5',2)+_tx('RELAY',100,62,13,'#1E2A3C')
+ +_r(60,78,80,8,'#16407F',2);
+PKG.motor=(it)=>{
+  if(/servo/i.test(it.n))return _r(46,36,86,72,/mg99|metal/i.test(it.n)?'#1B1E23':'#2E6FB8',4)
+   +_r(46,44,86,10,'#FFFFFF',2,.12)+_c(112,52,16,'#D8DCE1')+_c(112,52,6,'#8D949D')
+   +_r(104,20,60,8,'#E8EAED',3)+_c(160,24,4,'#C7CDD4')
+   +[0,1,2].map(i=>_r(24,54+i*14,24,6,[AC.red,'#B4262A','#E8B31E'][i]||AC.red,3)).join('')
+   +_r(36,54,12,34,'#2A2E33',2);
+  if(/stepper|28byj/i.test(it.n))return _c(88,70,42,AC.sil)+_c(88,70,30,'#AEB5BD')+_c(88,70,10,'#7B838C')
+   +_r(126,60,40,20,AC.blu,3)+_r(78,20,20,10,'#3A4046',2);
+  return _r(44,40,104,60,AC.sil,28)+_r(44,40,104,16,'#FFFFFF',28,.4)
+   +_r(148,64,26,12,'#8D949D',3)+_r(30,50,16,40,'#3A4046',3)
+   +_legs([56,76],100,120,5,'#C0392B');
+};
+PKG.seg=()=>{
+  const seg=(x,y,w,h)=>_r(x,y,w,h,'#E0483A',3);
+  return _r(52,18,96,110,'#17191C',5)
+   +seg(76,30,44,9)+seg(70,36,9,32)+seg(120,36,9,32)+seg(76,70,44,9)
+   +seg(70,76,9,32)+seg(120,76,9,32)+seg(76,110,44,9)+_c(134,116,4.5,'#E0483A')
+   +_legs([64,84,104,124],128,138,4,AC.pin);
+};
+PKG.disp=(it)=>{
+  const s=it.n.toLowerCase();
+  if(/oled|tft|e-paper|epaper/.test(s))return _r(30,24,140,92,/oled/.test(s)?'#1B4E9C':AC.grn,4)
+   +_r(40,34,120,60,/e-?paper/.test(s)?'#EDEFF2':AC.glass,2)
+   +(/e-?paper/.test(s)?_p('M 54 54 H 146 M 54 68 H 126 M 54 82 H 138',null,'#3A4046',4)
+     :_p('M 54 54 H 146 M 54 68 H 120',null,/tft/.test(s)?'#4AC0E0':'#7FE3FF',4))
+   +[...Array(6)].map((_,i)=>_r(58+i*14,104,8,7,AC.gold,1)).join('');
+  if(/matrix/.test(s)){let g='';for(let r=0;r<8;r++)for(let c=0;c<8;c++)g+=_c(48+c*15,28+r*13,4.6,'#B02A20');
+    return _r(32,14,136,112,'#17191C',5)+g;}
+  return _r(20,26,160,88,AC.grn,4)+_r(30,38,140,50,'#4FA83A',2)
+   +_p('M 44 56 H 156 M 44 74 H 130',null,'#123C0E',5)
+   +[...Array(8)].map((_,i)=>_r(38+i*17,98,9,8,AC.gold,1)).join('');
+};
+PKG.sw=(it)=>{
+  const s=it.n.toLowerCase();
+  if(/keypad/.test(s)){let g='';for(let r=0;r<4;r++)for(let c=0;c<4;c++)g+=_r(40+c*30,26+r*22,24,17,'#2A2E33',3);
+    return _r(28,16,144,104,'#E8EAED',4)+g;}
+  if(/dip switch/.test(s))return _r(34,44,132,52,'#C0392B',3)
+   +[...Array(8)].map((_,i)=>_r(42+i*16,50,10,18,'#EDEFF2',2)).join('')+_r(34,86,132,10,'#8E2A22',2);
+  if(/encoder/.test(s))return _r(58,58,84,50,AC.blu,3)+_c(100,52,26,AC.sil)+_c(100,52,18,'#AEB5BD')
+   +_r(96,16,8,22,AC.sil2,2)+_legs([74,100,126],108,132);
+  return _r(58,44,84,58,'#1C1F24',5)+_c(100,72,15,'#E8EAED')+_c(100,72,11,'#C7CDD4')
+   +_legs([66,134],102,128,5)+_legs([66,134],18,44,5);
+};
+PKG.buzz=()=>_legs([88,112],104,134)
+ +_c(100,62,40,'#1C1F24')+_c(100,62,34,'#26292E')+_c(100,30,5,'#0A0C0E')
+ +_tx('+',80,50,16,'#C7CDD4');
+PKG.batt=(it)=>{
+  if(/18650/i.test(it.n))return _r(24,48,152,50,'#1F5E3E',8)+_r(24,48,152,14,'#FFFFFF',8,.14)
+   +_r(168,60,12,26,AC.sil,3)+_r(20,58,10,30,AC.sil2,3)+_tx('18650',100,80,15,'#D6E6DC');
+  return _r(30,34,140,74,'#2A2E33',6)+_r(40,44,120,54,'#3A4046',4)
+   +_c(70,71,20,AC.sil2)+_c(130,71,20,AC.sil2)+_r(30,34,140,10,'#FFFFFF',6,.1);
+};
+PKG.xfmr=()=>_r(34,24,132,92,'#4A5058',3)
+ +[0,1,2,3].map(i=>_r(38+i*32,24,10,92,'#5C636B',1)).join('')
+ +_r(62,44,76,52,'#1C1F24',3)+_gloss(66,48,68,10)
+ +_legs([76,100,124],116,134,5,AC.cop);
+PKG.bread=()=>{
+  let h='';for(let r=0;r<8;r++)for(let c=0;c<17;c++){const y=24+r*11+(r>3?12:0);h+=_c(26+c*9.4,y,2.3,'#B9BEC6');}
+  return _r(14,14,172,112,'#EDEFF2',5)+h+_r(14,66,172,10,'#DCE0E5',0)
+   +_p('M 20 20 H 180 M 20 122 H 180',null,'#C0392B',2.5);
+};
+PKG.wire=()=>[0,1,2].map(i=>_p(`M 18 ${44+i*26} C 70 ${18+i*26} 130 ${72+i*26} 182 ${44+i*26}`,null,[AC.red,'#2E6FB8','#E8B31E'][i],7)).join('')
+ +[0,1,2].map(i=>_r(12,36+i*26,14,16,'#2A2E33',3)+_r(174,36+i*26,14,16,'#2A2E33',3)).join('');
+PKG.conn=(it)=>{
+  if(/socket/i.test(it.n))return _r(40,46,120,48,'#1C1F24',3)+_r(52,54,96,32,'#0E1114',2)
+   +[...Array(8)].map((_,i)=>_r(46+i*14,38,7,10,AC.sil,1)+_r(46+i*14,92,7,10,AC.sil,1)).join('');
+  if(/terminal|jst|barrel/i.test(it.n))return _r(46,52,108,52,'#1F6B45',3)
+   +[0,1,2].map(i=>_c(74+i*26,70,11,'#C7CDD4')).join('')+_r(46,96,108,10,'#14512F',2);
+  if(/standoff|screw|spacer/i.test(it.n))return [0,1,2].map(i=>_r(52+i*36,38,16,64,AC.gold,3)).join('')
+   +[0,1,2].map(i=>_c(60+i*36,34,10,AC.gold)).join('');
+  return _r(30,58,140,26,'#1C1F24',2)+[...Array(10)].map((_,i)=>_r(36+i*14,24,7,60,AC.gold,1)).join('');
+};
+PKG.meter=()=>_r(38,12,124,116,'#E8B31E',10)+_r(46,20,108,10,'#FFFFFF',6,.35)
+ +_r(50,26,100,36,'#1C1F24',4)+_r(56,32,88,24,'#5FA37A',2)+_tx('8.8.8',100,50,15,'#16301F')
+ +_c(100,92,26,'#2A2E33')+_p('M 100 92 L 100 72',null,AC.sil,4)
+ +[0,1].map(i=>_c(64+i*72,116,6,'#3A4046')).join('');
+PKG.iron=()=>_p('M 22 122 L 60 84',null,AC.sil2,6)
+ +_p('M 58 86 L 116 28 L 150 62 L 92 120 Z',AC.blk)+_gloss(66,44,60,12)
+ +_p('M 116 28 L 150 62',null,'#B87333',10)+_r(146,58,22,22,AC.sil,4);
+PKG.psu=(it)=>/adapter|smps|charger/i.test((it&&it.n)||'')?
+ _r(30,22,96,74,'#2A2E33',8)+_gloss(36,26,84,10)+_r(46,10,18,14,AC.sil,2)+_r(92,10,18,14,AC.sil,2)
+ +_p('M 126 62 C 152 62 152 104 172 104',null,'#2A2E33',7)+_r(168,96,18,16,AC.sil2,3)
+ +_tx('12V',78,64,15,'#C7CDD4')
+ :_r(18,26,164,88,'#3A4046',6)+_r(18,26,164,12,'#FFFFFF',6,.1)
+ +_r(30,42,84,40,'#1C1F24',3)+_tx('30.0',56,64,15,'#E0483A')+_tx('1.50',96,64,15,'#4AC0E0')
+ +[0,1].map(i=>_c(136+i*30,60,13,'#2A2E33')+_p(`M ${136+i*30} 60 L ${136+i*30} 50`,null,AC.sil,3)).join('')
+ +_c(140,96,7,'#C0392B')+_c(166,96,7,'#1C1F24');
+PKG.scope=()=>_r(16,20,168,100,'#2A2E33',6)
+ +_r(26,30,104,72,AC.glass,3)+_p('M 34 66 C 50 66 50 42 62 42 S 74 90 86 90 S 98 46 110 46 122 66 126 66',null,'#4AE08A',3)
+ +[0,1,2,3].map(i=>_c(150+(i%2)*20,44+Math.floor(i/2)*24,8,'#3F464E')).join('')
+ +_r(140,86,38,22,'#1C1F24',3);
+PKG.tool=(it)=>{
+  const s=it.n.toLowerCase();
+  if(/tweezer/.test(s))return _p('M 60 22 L 96 108 M 140 22 L 104 108',null,AC.sil,7)+_p('M 96 108 L 104 108',null,AC.sil2,7);
+  if(/flux|paste|alcohol|isopropyl/.test(s))return _r(66,34,68,92,'#3A4046',8)+_r(78,14,44,22,'#C0392B',4)
+   +_r(74,58,52,40,'#EDEFF2',3)+_tx('FLUX',100,84,13,'#2A2E33');
+  if(/screwdriver/.test(s))return _p('M 100 18 L 100 78',null,AC.sil,9)+_r(84,78,32,46,'#C0392B',6)+_p('M 100 12 L 100 24',null,AC.sil2,12);
+  if(/heat sink|thermal/.test(s))return [...Array(7)].map((_,i)=>_r(36+i*20,26,12,72,AC.sil,2)).join('')+_r(30,96,140,16,AC.sil2,3);
+  return _p('M 42 118 L 92 68 M 158 118 L 108 68',null,'#C0392B',12)
+   +_p('M 92 68 L 60 30 M 108 68 L 140 30',null,AC.sil2,10)+_c(100,72,7,'#3A4046');
+};
+PKG.opamp=PKG.dip;
+PKG.dip8=PKG.dip;
+PKG.dip14=PKG.dip;
+PKG.ic=PKG.dip;
+
+/* resolver: symbol key first, then a few name overrides */
+function pkgOf(it){
+  const s=it.s||'ic',n=(it.n||'').toLowerCase();
+  if(/^(dip8|dip14|ic|opamp)$/.test(s)&&/module|board/.test(n))return PKG.module;
+  if(s==='to220'&&/tl431/.test(n))return PKG.to92;
+  if(s==='res'&&/thermistor|ntc|fuse|ptc/.test(n))return PKG.diode;
+  if(s==='board'&&/esp32-cam/.test(n))return PKG.mcu;
+  return PKG[s]||PKG.ic;
+}
+function art(it){
+  let body='';
+  try{body=pkgOf(it)(it)}catch(e){body=PKG.ic(it)}
+  return `<svg class="art" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+}
+
+
+const PINS={
+ 'NE555':['GND','TRIG','OUT','RESET','CTRL','THRES','DISCH','VCC'],
+ 'LM741':['OFFSET','IN −','IN +','V−','OFFSET','OUT','V+','NC'],
+ 'LM358':['OUT A','IN A−','IN A+','GND','IN B+','IN B−','OUT B','VCC'],
+ 'LM393':['OUT A','IN A−','IN A+','GND','IN B+','IN B−','OUT B','VCC'],
+ 'LM386':['GAIN','IN −','IN +','GND','OUT','VS','BYPASS','GAIN'],
+ 'TL072':['OUT A','IN A−','IN A+','V−','IN B+','IN B−','OUT B','V+'],
+ 'LM324':['OUT A','IN A−','IN A+','VCC','IN B+','IN B−','OUT B','OUT C','IN C−','IN C+','GND','IN D+','IN D−','OUT D'],
+ 'LM339':['OUT B','OUT A','VCC','IN A−','IN A+','IN B−','IN B+','GND','IN C+','IN C−','IN D+','IN D−','OUT D','OUT C'],
+ '7400':['1A','1B','1Y','2A','2B','2Y','GND','3Y','3A','3B','4Y','4A','4B','VCC'],
+ '7402':['1Y','1A','1B','2Y','2A','2B','GND','3A','3B','3Y','4A','4B','4Y','VCC'],
+ '7404':['1A','1Y','2A','2Y','3A','3Y','GND','4Y','4A','5Y','5A','6Y','6A','VCC'],
+ '7408':['1A','1B','1Y','2A','2B','2Y','GND','3Y','3A','3B','4Y','4A','4B','VCC'],
+ '7432':['1A','1B','1Y','2A','2B','2Y','GND','3Y','3A','3B','4Y','4A','4B','VCC'],
+ '7486':['1A','1B','1Y','2A','2B','2Y','GND','3Y','3A','3B','4Y','4A','4B','VCC'],
+ '74HC14':['1A','1Y','2A','2Y','3A','3Y','GND','4Y','4A','5Y','5A','6Y','6A','VCC'],
+ '74HC595':['Q1','Q2','Q3','Q4','Q5','Q6','Q7','GND','Q7S','MR','SHCP','STCP','OE','DS','Q0','VCC'],
+ 'CD4017':['Q5','Q1','Q0','Q2','Q6','Q7','Q3','GND','Q8','Q4','Q9','CO','CLK EN','CLK','RESET','VDD'],
+ 'CD4093':['1A','1B','1Y','2A','2B','2Y','GND','3Y','3A','3B','4Y','4A','4B','VDD'],
+ 'ULN2803':['IN1','IN2','IN3','IN4','IN5','IN6','IN7','IN8','GND','COM','OUT8','OUT7','OUT6','OUT5','OUT4','OUT3','OUT2','OUT1'],
+ 'PC817':['ANODE','CATHODE','EMITTER','COLLECTOR'],
+ 'LM317':['ADJ','VOUT','VIN'],'7805':['IN','GND','OUT'],'TL431':['REF','ANODE','CATHODE'],
+ 'ATmega328P':['RESET','RXD','TXD','D2','D3','D4','VCC','GND','XTAL1','XTAL2','D5','D6','D7','D8','D9','D10','D11','D12','D13','AVCC','AREF','GND','A0','A1','A2','A3','A4','A5']};
+
+function I(i,n,c,l,s,p,q,w,d,t){return{i,n,c,l,s,p,q,w,d,t:t||''}}
+const CATS={tool:'Tools',pass:'Passives',disc:'Discretes',ana:'Analog IC',pwr:'Power IC',logic:'Logic IC',mix:'Interface IC',mot:'Motors & Drive',mcu:'Boards & MCU',sens:'Sensors',disp:'Display & Input',mech:'Wires & Parts'};
+const LVL={B:'Beginner',I:'Intermediate',A:'Advanced'};
+const CATALOG=[
+I('t1','Digital Multimeter (auto-range)','tool','B','meter',700,1,'The most-used tool on any bench. Ranked first in every guide.','Auto-range, capacitance, hFE','★'),
+I('t2','Soldering iron, temp-controlled 60W','tool','B','iron',900,1,'Cheap fixed-temp irons make soldering miserable.','200–450°C ceramic','★'),
+I('t3','Solder wire 63/37, 0.8mm','tool','B','wire',250,1,'Leaded solder flows better and melts lower.','50g roll',''),
+I('t4','Flux paste or pen','tool','B','tool',120,1,'Fixes most "why will it not solder" problems.','No-clean rosin',''),
+I('t5','Desoldering pump + wick','tool','B','tool',150,1,'You will make mistakes constantly.','Pump + 2mm braid',''),
+I('t6','Brass wool tip cleaner','tool','B','tool',100,1,'Does not shock-cool the tip like a wet sponge.','',''),
+I('t7','Plier, cutter, wire stripper set','tool','B','tool',200,1,'Forming and trimming component leads.','Set of 3',''),
+I('t8','Precision screwdriver set','tool','B','tool',250,1,'Opening everything.','30+ magnetic bits',''),
+I('t9','Anti-static tweezers set','tool','B','tool',120,1,'SMD handling and fine placement.','Straight + curved',''),
+I('t10','IC extractor tool','tool','B','tool',50,1,'Pulls DIP chips without bending pins.','',''),
+I('t11','Helping hands with magnifier','tool','B','tool',250,1,'A third hand while soldering.','',''),
+I('t12','Digital calipers','tool','I','tool',400,1,'Measuring pin pitch and enclosures.','0–150mm',''),
+I('t13','Bench power supply 0–30V 5A','tool','I','psu',3000,1,'Current limit stops a wiring mistake from cooking the board.','CC/CV digital','★'),
+I('t14','Component tester LCR-T4','tool','I','meter',700,1,'Identifies unknown transistors, measures L, C and ESR.','Auto-detect',''),
+I('t15','Logic analyzer 8-channel USB','tool','I','scope',600,1,'Essential once you touch I2C, SPI or UART.','24MHz, PulseView','★'),
+I('t16','Hot air rework station','tool','I','iron',2500,1,'For SMD work and multi-pin desoldering.','858D, 100–480°C',''),
+I('t17','ESD wrist strap + mat','tool','I','tool',400,1,'MOSFETs and CMOS die silently from static.','1M ohm grounded',''),
+I('t18','USB power meter','tool','I','meter',400,1,'Measures real current draw of an IoT device.','V, A, mAh',''),
+I('t19','Digital oscilloscope 2-channel','tool','A','scope',15000,1,'Buy this last, not first.','50MHz or more','★'),
+I('t20','Function generator','tool','A','scope',700,1,'AC test signals for amplifiers and filters.','Sine/square/triangle',''),
+I('t21','Isolation transformer','tool','A','xfmr',3000,1,'Working safely on mains-referenced circuits.','1:1, 500VA',''),
+I('t22','USB microscope','tool','A','tool',2000,1,'Fine-pitch inspection.','1000x',''),
+I('t23','IR thermometer','tool','A','meter',1500,1,'Finds the hot component on a failing board.','-50 to 400°C',''),
+I('p1','Resistor kit 1/4W 600 pcs','pass','B','res',150,1,'Buy as a kit — cheaper than 40 loose resistors.','10 ohm–1M, 30 values','★📘'),
+I('p2','Resistor kit 1/2W and 1W','pass','B','res',180,1,'For regulators and LED drivers.','Higher wattage',''),
+I('p3','Metal film 1% 1k + 2k','pass','I','res',70,1,'R-2R ladder DAC needs matched resistors.','20 pcs each','📘'),
+I('p4','Precision 0.1% resistors','pass','A','res',200,1,'Instrumentation and current sensing.','Selected values',''),
+I('p5','Shunt resistors 0.1 / 0.01 ohm','pass','A','res',150,1,'Current measurement in power circuits.','3W',''),
+I('p6','Ceramic capacitor kit','pass','B','capc',120,1,'Put 100nF next to every IC power pin.','300 pcs','★📘'),
+I('p7','Electrolytic capacitor kit','pass','B','cape',130,1,'Filtering, coupling, bulk storage.','10uF–1000uF','📘'),
+I('p8','Film capacitor kit (MKT)','pass','I','capc',200,1,'Audio and timing — better tolerance.','1nF–1uF',''),
+I('p9','Tantalum and low-ESR caps','pass','I','cape',200,1,'Switching regulator outputs.','Assorted',''),
+I('p10','Supercapacitor 1F–5F','pass','A','cape',150,2,'Backup power for IoT nodes.','5.5V',''),
+I('p11','Potentiometers 1k, 10k, 100k','pass','B','pot',90,7,'User input, calibration, biasing.','Linear taper','📘'),
+I('p12','Trimpot preset assortment','pass','B','pot',60,1,'Fine adjustment on breadboard.','10 pcs','📘'),
+I('p13','Inductor kit 10uH–1mH','pass','I','ind',150,1,'Buck and boost converters need these.','Radial',''),
+I('p14','Ferrite beads','pass','I','ind',100,1,'Kills high-frequency noise on power lines.','Assorted',''),
+I('p15','Toroid cores + enamel wire','pass','I','ind',200,1,'Winding your own inductors.','',''),
+I('p16','Crystal 16MHz + 12MHz','pass','I','xtal',60,4,'Clock source for bare MCUs.','HC-49 + 22pF',''),
+I('p17','Crystal 32.768 kHz','pass','I','xtal',40,4,'RTC timekeeping.','Cylindrical',''),
+I('p18','Ceramic resonator 8MHz','pass','A','xtal',100,2,'Fewer parts than crystal plus caps.','',''),
+I('d1','1N4007 rectifier diode','disc','B','diode',30,25,'Rectification and flyback protection.','1000V 1A','★📘'),
+I('d2','1N4148 signal diode','disc','B','diode',25,20,'Fast switching and precision rectifiers.','100V 200mA','★📘'),
+I('d3','Zener diode kit 3.3–12V','disc','B','zener',70,30,'Voltage reference and clamping.','1W, 6 values','📘'),
+I('d4','Bridge rectifier DB107','disc','B','diode',35,3,'AC to DC without four loose diodes.','1000V 1A','📘'),
+I('d5','Schottky 1N5819 / SS34','disc','I','diode',45,10,'Mandatory in buck converters.','40V 1A/3A','📘'),
+I('d6','TVS diode and MOV kit','disc','I','zener',150,1,'Surge and ESD protection.','Assorted',''),
+I('d7','TL431 shunt reference','disc','I','to220',40,5,'Precision 2.5V reference.','TO-92','★'),
+I('d8','LED 5mm assorted 100 pcs','disc','B','led',90,1,'Status, debug and indicators.','R/G/B/Y/W','★📘'),
+I('d9','RGB LED common cathode','disc','B','led',60,10,'Multi-state indication from one part.','5mm 4-pin',''),
+I('d10','WS2812B strip 1m','disc','I','led',250,1,'Addressable LEDs — a rite of passage.','60 LED/m',''),
+I('d11','IR LED + TSOP1738','disc','I','led',60,4,'Remote control projects.','38kHz',''),
+I('d12','Photodiode BPW34','disc','I','diode',90,2,'Fast light-to-current conversion.','Silicon PIN','📘'),
+I('d13','LDR 5mm','disc','B','sensor',30,5,'Cheap ambient light sensing.','5–10k ohm','📘'),
+I('d14','Phototransistor','disc','I','bjt',60,5,'More sensitive than a photodiode.','NPN 3mm',''),
+I('d15','Laser diode and receiver','disc','A','led',150,1,'Optical trip-wire experiments.','650nm 5mW',''),
+I('d16','BC547 NPN transistor','disc','B','bjt',40,20,'The universal small-signal NPN.','45V 100mA','★📘'),
+I('d17','BC557 PNP transistor','disc','B','bjt',30,10,'Complementary partner to BC547.','45V 100mA','📘'),
+I('d18','2N2222 / 2N3904 NPN','disc','B','bjt',45,10,'Faster switching than BC547.','40V 600mA','📘'),
+I('d19','2N3906 PNP','disc','B','bjt',25,5,'Complement to 2N3904.','40V 200mA','📘'),
+I('d20','TIP122 Darlington','disc','I','to220',40,2,'Drives relays and motors from a logic pin.','100V 5A','📘'),
+I('d21','TIP41C / TIP42C pair','disc','I','to220',80,4,'Audio output stages and H-bridges.','100V 6A',''),
+I('d22','2N7000 logic MOSFET','disc','I','fet',60,10,'Level shifting and low-side switching.','60V 200mA','📘'),
+I('d23','IRLZ44N power MOSFET','disc','I','fet',70,2,'High current switching from a 3.3V pin.','55V 47A','★📘'),
+I('d24','BF245 / J201 JFET','disc','I','fet',70,5,'High input impedance stages.','N-channel','📘'),
+I('d25','IGBT IRG4BC30','disc','A','fet',200,2,'Motor drives and induction heating.','600V 12A',''),
+I('d26','SCR BT151','disc','A','to220',80,3,'AC power control and latching.','800V 12A',''),
+I('d27','TRIAC BT136 and DIAC','disc','A','to220',80,3,'AC dimmers and phase control.','600V 4A',''),
+I('d28','NTC thermistor 10k','disc','I','res',50,5,'Cheap temperature sensing.','B3950',''),
+I('d29','PTC resettable fuse kit','disc','I','res',60,1,'Overcurrent protection that resets itself.','0.5–2A',''),
+I('a1','NE555 timer','ana','B','dip8',40,5,'The most-recommended IC in existence. Timer, PWM, oscillator.','DIP-8, 4.5–16V','★📘'),
+I('a2','NE556 dual timer','ana','I','dip14',40,2,'Two 555s in one package.','DIP-14',''),
+I('a3','LM741 op-amp','ana','B','opamp',90,5,'The classic op-amp your syllabus requires. Needs plus-minus 12V.','DIP-8','★📘'),
+I('a4','LM358 dual op-amp','ana','B','opamp',50,5,'Runs at 5V single supply. What you will actually use.','DIP-8, 3–32V','★📘'),
+I('a5','LM324 quad op-amp','ana','B','dip14',60,5,'Four op-amps per chip.','DIP-14','★📘'),
+I('a6','LM393 dual comparator','ana','I','dip8',40,5,'On every must-have list. Comparators and oscillators.','DIP-8','★'),
+I('a7','LM339 quad comparator','ana','I','dip14',50,3,'Schmitt trigger and zero-crossing experiments.','DIP-14','📘'),
+I('a8','LM386 audio amplifier','ana','I','dip8',50,3,'Drives a small speaker from an MCU.','DIP-8, gain 20–200','★'),
+I('a9','TL072 / TL074 JFET op-amp','ana','I','opamp',120,4,'Low noise, high input impedance. The audio default.','DIP-8/14',''),
+I('a10','MCP6002 rail-to-rail op-amp','ana','I','opamp',100,3,'Modern 741 replacement for battery designs.','1.8–5.5V',''),
+I('a11','NE5532 audio op-amp','ana','A','opamp',250,2,'Genuine hi-fi grade.','Low noise',''),
+I('a12','AD620 instrumentation amp','ana','A','dip8',400,1,'Strain gauges, ECG, precision sensing.','DIP-8',''),
+I('a13','INA219 current monitor','ana','A','module',200,1,'I2C current, voltage and power measurement.','plus-minus 3.2A',''),
+I('a14','CD4046 PLL','ana','A','dip14',60,2,'FM demodulation and clock recovery.','DIP-16',''),
+I('a15','XR2206 function generator IC','ana','A','dip14',200,1,'Sine, square and triangle generation.','DIP-16',''),
+I('a16','LM3914 LED bar driver','ana','A','dip14',120,2,'Drives an LED bar from a voltage.','DIP-18',''),
+I('w1','7805 5V regulator','pwr','B','to220',25,5,'Fixed 5V. Simple, wasteful, indispensable.','TO-220 1A','★📘'),
+I('w2','7809 / 7812 regulators','pwr','B','to220',50,4,'Fixed 9V and 12V rails.','TO-220 1A','📘'),
+I('w3','7905 / 7912 negative regulators','pwr','B','to220',60,4,'Negative rail for dual-supply op-amps.','TO-220 1A','📘'),
+I('w4','LM317T adjustable regulator','pwr','B','to220',60,5,'Two resistors set 1.25–37V out.','TO-220 1.5A','★📘'),
+I('w5','AMS1117 3.3V LDO','pwr','I','to220',60,10,'The regulator on every ESP32 board.','SOT-223 800mA',''),
+I('w6','LM723 regulator','pwr','I','dip14',70,2,'Classic precision regulator from your syllabus.','DIP-14','📘'),
+I('w7','LM2596 buck module','pwr','I','module',80,3,'Step-down at about 90% efficiency instead of a hot 7805.','4–35V in, 3A','★'),
+I('w8','MT3608 boost module','pwr','I','module',80,2,'Step-up: 3.7V Li-ion to 5V.','2–24V in',''),
+I('w9','TP4056 charger module','pwr','I','module',40,3,'USB charging for battery projects.','1A with protection','★'),
+I('w10','MP1584 mini buck','pwr','I','module',60,2,'Tiny high-efficiency step-down.','3A',''),
+I('w11','IR2110 gate driver','pwr','A','dip14',150,2,'High-side MOSFET driving for H-bridges.','DIP-14',''),
+I('w12','TC4427 MOSFET driver','pwr','A','dip8',120,2,'Fast gate drive for converters.','DIP-8 1.5A',''),
+I('w13','BMS battery protection board','pwr','A','module',300,1,'Proper power-path battery management.','1S–3S',''),
+I('w14','Heat sinks and thermal paste','pwr','B','tool',100,5,'Regulators shut down without them.','TO-220 clip-on','📘'),
+I('l1','7400 quad NAND','logic','B','dip14',25,4,'The universal gate — build any other gate from it.','DIP-14 74HC','📘'),
+I('l2','7402 quad NOR','logic','B','dip14',25,3,'All-NOR realisation.','DIP-14','📘'),
+I('l3','7404 hex inverter','logic','B','dip14',25,3,'Needed in almost every digital circuit.','DIP-14','📘'),
+I('l4','7408 quad AND','logic','B','dip14',25,3,'Basic gate set and mux building.','DIP-14','📘'),
+I('l5','7432 quad OR','logic','B','dip14',25,3,'Basic gate set.','DIP-14','📘'),
+I('l6','7486 quad XOR','logic','B','dip14',25,4,'Adders, Gray code, comparators.','DIP-14','📘'),
+I('l7','74266 quad XNOR','logic','I','dip14',25,2,'Equality detection.','DIP-14','📘'),
+I('l8','7410 triple 3-input NAND','logic','I','dip14',25,2,'Three-input truth tables.','DIP-14','📘'),
+I('l9','7411 triple 3-input AND','logic','I','dip14',25,2,'Three-input truth tables.','DIP-14','📘'),
+I('l10','7420 dual 4-input NAND','logic','I','dip14',25,2,'Four-input truth tables.','DIP-14','📘'),
+I('l11','7421 dual 4-input AND','logic','I','dip14',25,2,'Four-input truth tables.','DIP-14','📘'),
+I('l12','7427 triple 3-input NOR','logic','I','dip14',25,2,'Three-input NOR.','DIP-14','📘'),
+I('l13','74HC14 hex Schmitt inverter','logic','I','dip14',30,3,'Cleans noisy signals and makes oscillators.','DIP-14','★'),
+I('l14','74HC132 Schmitt NAND','logic','I','dip14',30,2,'Debouncing and oscillators.','DIP-14','★'),
+I('l15','7483 4-bit full adder','logic','I','dip14',35,2,'4-bit ripple adder and subtractor.','DIP-16','📘'),
+I('l16','7485 4-bit comparator','logic','I','dip14',35,2,'Magnitude comparison.','DIP-16','📘'),
+I('l17','74151 8-to-1 mux','logic','I','dip14',30,2,'Data selection and logic generation.','DIP-16','📘'),
+I('l18','74153 dual 4-to-1 mux','logic','I','dip14',30,2,'Cascade two for an 8-to-1.','DIP-16','📘'),
+I('l19','74138 3-to-8 decoder','logic','I','dip14',30,2,'Demultiplexing and address decoding.','DIP-16','📘'),
+I('l20','74139 dual 2-to-4 decoder','logic','I','dip14',30,2,'1-to-4 demultiplexer.','DIP-16','📘'),
+I('l21','7447 BCD to 7-segment','logic','I','dip14',35,2,'Drives a common-anode display.','DIP-16','📘'),
+I('l22','7473 / 7476 dual JK flip-flop','logic','I','dip14',35,3,'JK flip-flop and counters.','DIP-16','📘'),
+I('l23','7474 dual D flip-flop','logic','I','dip14',30,3,'D flip-flop and ring counter.','DIP-14','📘'),
+I('l24','7490 decade counter','logic','I','dip14',30,2,'Divide by 2, 5 and 10.','DIP-14','📘'),
+I('l25','7493 4-bit binary counter','logic','I','dip14',30,2,'Divide by 2, 4 and 8.','DIP-14','📘'),
+I('l26','7495 / 74194 shift register','logic','I','dip14',35,2,'PIPO and SISO operations.','DIP-14','📘'),
+I('l27','74HC595 shift register','logic','I','dip14',30,5,'Drive 8 outputs from 3 MCU pins. Most-used 74xx today.','DIP-16','★'),
+I('l28','74HC165 shift register','logic','I','dip14',30,3,'Read many buttons with 3 pins.','DIP-16',''),
+I('l29','74HC245 bus transceiver','logic','I','dip14',30,2,'Bidirectional bus buffering.','DIP-20',''),
+I('l30','74HC4051 analog mux','logic','I','dip14',30,3,'Route 8 analog signals to one ADC pin.','DIP-16',''),
+I('l31','74181 4-bit ALU','logic','A','dip14',250,1,'Obsolete and often fake. Use Logisim or an FPGA instead.','DIP-24','📘'),
+I('l32','CD4017 decade counter','logic','I','dip14',25,3,'LED chaser and sequencing.','DIP-16',''),
+I('l33','CD4511 BCD to 7-segment','logic','I','dip14',30,2,'Common-cathode display driver.','DIP-16',''),
+I('l34','CD4013 dual D flip-flop','logic','I','dip14',25,3,'CMOS flip-flop, wider voltage range.','DIP-14',''),
+I('l35','CD4011 / CD4001 gates','logic','I','dip14',30,4,'CMOS NAND and NOR, 3–15V.','DIP-14',''),
+I('l36','CD4093 Schmitt NAND','logic','I','dip14',30,2,'CMOS oscillators and debouncing.','DIP-14','★'),
+I('l37','CD4066 analog switch','logic','I','dip14',30,3,'Route analog signals digitally.','DIP-14',''),
+I('l38','CD4060 counter and oscillator','logic','A','dip14',30,2,'Long timing delays from one chip.','DIP-16',''),
+I('m1','ADC0804 8-bit ADC','mix','I','dip14',140,1,'Successive-approximation ADC experiment.','DIP-20','📘'),
+I('m2','DAC0808 8-bit DAC','mix','I','dip14',100,1,'Digital to analog conversion.','DIP-16','📘'),
+I('m3','ADS1115 16-bit ADC module','mix','I','module',250,1,'Far better than an MCU built-in ADC.','I2C 4-channel',''),
+I('m4','MCP4725 I2C DAC','mix','I','module',200,1,'Real analog output from a microcontroller.','12-bit',''),
+I('m5','PC817 optocoupler','mix','I','dip8',40,10,'Isolation between mains and logic. Safety-critical.','DIP-4 5kV','★'),
+I('m6','4N35 opto-isolator','mix','I','dip8',60,5,'Transistor-output isolation.','DIP-6',''),
+I('m7','MOC3021 opto-TRIAC','mix','A','dip8',60,3,'Isolated AC load switching.','DIP-6',''),
+I('m8','ULN2803 Darlington array','mix','I','dip14',60,3,'Drives 8 relays or motors from MCU pins.','DIP-18','★'),
+I('m9','ULN2003 7-channel array','mix','I','dip14',40,3,'Stepper driving; pairs with 28BYJ-48.','DIP-16',''),
+I('m10','MAX232 RS-232 converter','mix','I','dip14',50,2,'Legacy serial level conversion.','DIP-16',''),
+I('m11','CH340 / CP2102 USB-UART','mix','I','module',150,2,'Programming bare MCUs and serial debug.','USB to TTL','★'),
+I('m12','PCF8574 port expander','mix','I','dip14',60,2,'Eight extra GPIO over two wires.','DIP-16',''),
+I('m13','DS3231 RTC module','mix','I','module',120,1,'Accurate clock with battery backup.','I2C',''),
+I('m14','MAX485 RS-485 module','mix','A','module',80,2,'Industrial bus over long distance.','Half-duplex',''),
+I('m15','MCP2515 CAN module','mix','A','module',250,2,'Automotive and industrial CAN bus.','SPI to CAN',''),
+I('m16','Logic level shifter','mix','I','module',100,2,'3.3V to 5V translation.','4-channel',''),
+I('m17','24LC256 EEPROM','mix','A','dip8',60,2,'External storage over I2C.','32KB',''),
+I('m18','W25Q64 SPI flash','mix','A','dip8',80,2,'8MB flash for data logging.','SPI',''),
+I('m19','SD card module','mix','I','module',100,1,'Bulk data logging.','SPI',''),
+I('o1','5V relay module','mot','B','relay',150,2,'Switching mains loads safely.','1/2/4 ch, 10A',''),
+I('o2','SG90 micro servo','mot','B','motor',120,2,'Position control basics.','180 degree 5V',''),
+I('o3','MG996R metal-gear servo','mot','I','motor',350,1,'Higher torque for real mechanisms.','10kg-cm',''),
+I('o4','L293D motor driver IC','mot','I','dip14',80,2,'Classic dual H-bridge.','DIP-16 600mA','★'),
+I('o5','L298N motor driver module','mot','I','module',150,1,'Dual H-bridge for bigger motors.','2A per channel','★'),
+I('o6','TB6612FNG driver','mot','I','module',200,1,'Cooler, more efficient L298N replacement.','1.2A per ch',''),
+I('o7','A4988 / DRV8825 stepper driver','mot','I','module',150,2,'Microstepping for 3D printers and CNC.','Up to 2A',''),
+I('o8','28BYJ-48 stepper and board','mot','I','motor',200,1,'Cheapest way to learn steppers.','5V 64:1',''),
+I('o9','N20 / BO gear motors','mot','I','motor',150,2,'Robot drive wheels.','6V',''),
+I('o10','Solenoid or linear actuator','mot','A','motor',300,1,'Locking and mechatronics.','12V',''),
+I('o11','BLDC motor and ESC','mot','A','motor',800,1,'Drones and high-performance robotics.','2200KV + 30A',''),
+I('c1','Arduino Uno R3','mcu','B','board',600,1,'Largest library ecosystem on earth. Best first board.','ATmega328P 16MHz','★'),
+I('c2','ESP32 DevKit','mcu','B','mcu',400,2,'Best value in electronics: Wi-Fi, BLE, dual core, cheaper than an Uno.','240MHz dual core','★'),
+I('c3','Raspberry Pi Pico / Pico W','mcu','B','mcu',400,2,'MicroPython-friendly with a unique PIO block.','RP2040 133MHz','★'),
+I('c4','ATmega328P bare chip and crystal','mcu','B','dip14',200,2,'Build your own Arduino on a breadboard.','DIP-28',''),
+I('c5','ESP32-S3 DevKit','mcu','I','mcu',900,1,'Most capable IoT MCU at its price. USB-OTG and PSRAM.','240MHz 8MB','★'),
+I('c6','ESP32-C3 / C6 board','mcu','I','mcu',450,1,'Lowest-cost wireless RISC-V. C6 adds Thread and Zigbee.','RISC-V',''),
+I('c7','Raspberry Pi Pico 2 / 2W','mcu','I','mcu',750,1,'Choose ARM or RISC-V cores at boot.','RP2350 150MHz',''),
+I('c8','STM32 Blue Pill F103','mcu','I','mcu',300,2,'The professional path: bare-metal C and real datasheets.','Cortex-M3 72MHz','★'),
+I('c9','ST-Link V2 programmer','mcu','I','module',200,1,'Required to flash STM32 boards.','SWD/JTAG',''),
+I('c10','STM32 Black Pill F411','mcu','I','mcu',500,1,'Better Blue Pill: USB and floating point.','Cortex-M4',''),
+I('c11','NodeMCU ESP8266','mcu','I','mcu',250,2,'Cheapest Wi-Fi for simple sensor nodes.','160MHz',''),
+I('c12','ATtiny85 and USBasp','mcu','I','dip8',250,2,'Tiny projects; teaches working under constraints.','8-pin AVR',''),
+I('c13','Arduino Nano','mcu','B','board',300,2,'Breadboard-friendly Uno.','ATmega328P',''),
+I('c14','AT89S52 8051 and programmer','mcu','I','dip14',300,1,'Only if your university insists.','DIP-40',''),
+I('c15','STM32 Nucleo board','mcu','A','board',2500,1,'Professional workflow with on-board debugger.','F4 / H7',''),
+I('c16','nRF52840 dev board','mcu','A','mcu',2000,1,'Bluetooth LE done properly.','Cortex-M4 BLE5',''),
+I('c17','Teensy 4.x','mcu','A','board',3500,1,'Fastest Arduino-compatible board.','600MHz M7',''),
+I('c18','CH32V003 RISC-V board','mcu','A','mcu',150,2,'Bottom-of-BOM RISC-V.','48MHz',''),
+I('c19','Raspberry Pi Zero 2 W','mcu','I','board',1800,1,'Full Linux at the lowest price.','Quad A53',''),
+I('c20','Raspberry Pi 4 / 5','mcu','A','board',5500,1,'Edge AI, vision and IoT gateway.','4GB',''),
+I('c21','FPGA Tang Nano 9K','mcu','A','board',1800,1,'Run your VHDL adder, comparator and ALU in real hardware.','Gowin 8640 LUT','★'),
+I('c22','CPLD board EPM240','mcu','A','board',800,1,'Cheaper step into programmable logic.','MAX II',''),
+I('s1','DHT11 temperature and humidity','sens','B','sensor',80,2,'The starter environmental sensor.','plus-minus 2C',''),
+I('s2','DHT22 / AM2302','sens','B','sensor',250,1,'The accurate version of DHT11.','plus-minus 0.5C',''),
+I('s3','LM35 analog temperature','sens','B','sensor',80,2,'Linear 10mV per degree — no library needed.','TO-92',''),
+I('s4','DS18B20 1-Wire temperature','sens','B','sensor',120,2,'Many sensors on one data pin.','Waterproof',''),
+I('s5','HC-SR04 ultrasonic','sens','B','sensor',80,2,'Distance and obstacle avoidance.','2–400cm',''),
+I('s6','PIR HC-SR501 motion','sens','B','sensor',90,2,'Human motion detection.','7m',''),
+I('s7','IR obstacle and line sensor','sens','B','sensor',60,4,'Line-following robots.','3–5cm',''),
+I('s8','Soil moisture sensor','sens','B','sensor',80,2,'Plant watering and agri-IoT.','Capacitive',''),
+I('s9','Rain and water level sensor','sens','B','sensor',70,2,'Weather stations and tank monitoring.','',''),
+I('s10','MPU6050 6-axis IMU','sens','I','module',150,1,'Accelerometer and gyroscope.','I2C',''),
+I('s11','MPU9250 9-axis IMU','sens','I','module',350,1,'Adds magnetometer for true heading.','I2C',''),
+I('s12','BMP280 pressure sensor','sens','I','module',200,1,'Pressure and altitude.','I2C/SPI',''),
+I('s13','BME280 environment sensor','sens','I','module',350,1,'Temperature, humidity and pressure in one good part.','I2C/SPI',''),
+I('s14','MQ-2 / MQ-135 gas sensor','sens','I','sensor',150,2,'Smoke, LPG and air quality.','Analog',''),
+I('s15','Load cell and HX711','sens','I','module',250,1,'Weight and strain measurement.','5kg/20kg',''),
+I('s16','ACS712 current sensor','sens','I','module',150,1,'Isolated current measurement.','5A/20A',''),
+I('s17','RFID RC522 module','sens','I','module',150,1,'Access control and tagging.','13.56MHz',''),
+I('s18','Sound sensor / MAX9814','sens','I','module',150,1,'Audio input and sound triggering.','Auto gain',''),
+I('s19','Hall sensor A3144','sens','I','sensor',50,5,'Magnet detection and RPM counting.','Digital',''),
+I('s20','Rotary encoder module','sens','I','sw',80,2,'Menu input and motor position.','20 steps',''),
+I('s21','Flame and UV sensor','sens','I','sensor',100,2,'Fire detection and UV index.','',''),
+I('s22','NEO-6M GPS module','sens','A','module',500,1,'Position and time from satellites.','UART',''),
+I('s23','MLX90614 IR thermometer','sens','A','module',700,1,'Non-contact temperature.','I2C',''),
+I('s24','VL53L0X laser distance','sens','A','module',400,1,'Millimetre-accurate ranging.','I2C 2m',''),
+I('s25','TCS3200 colour sensor','sens','A','module',250,1,'Colour recognition and sorting.','',''),
+I('s26','ESP32-CAM','sens','A','board',500,1,'Vision at the edge with Wi-Fi.','OV2640 2MP',''),
+I('s27','HC-05 Bluetooth module','sens','B','module',250,1,'Bluetooth serial link to a phone.','SPP UART',''),
+I('s28','NRF24L01+ radio pair','sens','I','module',200,2,'Cheap 2.4GHz link between boards.','SPI 100m',''),
+I('s29','433MHz RF pair + HT12E/D','sens','I','module',150,1,'Simple remote control.','ASK',''),
+I('s30','LoRa SX1278 module','sens','A','module',500,2,'Kilometre-scale low-power IoT.','433MHz',''),
+I('s31','SIM800L GSM module','sens','A','module',800,1,'SMS and cellular data.','2G UART',''),
+I('s32','W5500 Ethernet module','sens','A','module',350,1,'Wired networking.','SPI',''),
+I('y1','7-segment display CC and CA','disp','B','seg',60,4,'Numeric output; pairs with 7447 or CD4511.','0.56 inch','📘'),
+I('y2','4-digit display TM1637','disp','B','seg',120,1,'Clocks and counters with 2-wire control.','0.56 inch',''),
+I('y3','16x2 LCD with I2C backpack','disp','B','disp',150,1,'Text output using two pins.','HD44780',''),
+I('y4','0.96 inch OLED SSD1306','disp','I','disp',200,1,'Crisp graphics, very low power.','128x64 I2C',''),
+I('y5','8x8 LED matrix MAX7219','disp','I','disp',200,1,'Scrolling text and animation.','Cascadable',''),
+I('y6','4x4 membrane keypad','disp','I','sw',80,1,'Numeric input for locks and menus.','16 key',''),
+I('y7','Tactile push buttons','disp','B','sw',50,20,'Manual clock pulses and user input.','6x6mm','📘'),
+I('y8','8-way DIP switch','disp','B','sw',60,3,'Setting logic input combinations.','SPST x8','📘'),
+I('y9','Buzzer active and passive','disp','B','buzz',40,4,'Alarms and simple tones.','5V',''),
+I('y10','2.4 inch TFT touchscreen','disp','A','disp',600,1,'Colour graphics and touch.','320x240 SPI',''),
+I('y11','E-paper display','disp','A','disp',1200,1,'Zero-power static display.','2.9 inch SPI',''),
+I('n1','Breadboard 830-point','mech','B','bread',60,2,'Every circuit starts here.','MB-102','★📘'),
+I('n2','Breadboard power module','mech','B','module',80,1,'Clean 3.3V and 5V rails.','MB102','📘'),
+I('n3','Jumper wire kit 140 pcs','mech','B','wire',90,1,'Neat wiring. Messy wiring causes most faults.','22AWG solid','📘'),
+I('n4','Dupont wires M-M, M-F, F-F','mech','B','wire',200,1,'Connecting modules and probes.','40 each','📘'),
+I('n5','Male and female header pins','mech','B','conn',100,1,'Making modules removable.','2.54mm',''),
+I('n6','IC sockets 8/14/16/28 pin','mech','B','conn',80,1,'Protects ICs and lets you swap them.','DIP','📘'),
+I('n7','Zero PCB / perfboard','mech','B','board',150,1,'Making a circuit permanent.','Assorted',''),
+I('n8','Hookup wire 22AWG','mech','B','wire',150,1,'Clean point-to-point wiring.','3 colours',''),
+I('n9','9V / 12V 1A DC adapter','mech','B','psu',150,1,'Powers the breadboard supply.','Barrel jack','📘'),
+I('n10','Battery holders and 9V snap','mech','B','batt',150,1,'Portable power.','AA, 9V, 18650',''),
+I('n11','Transformer 12-0-12V 1A','mech','I','xfmr',220,1,'Real AC input for rectifier experiments. Mains side — be careful.','Centre-tapped','📘'),
+I('n12','Screw terminal blocks','mech','I','conn',100,1,'Removable power and sensor wiring.','5mm',''),
+I('n13','JST and barrel connectors','mech','I','conn',150,1,'Clean polarised connections.','JST-XH',''),
+I('n14','Heat shrink tube kit','mech','I','wire',120,1,'Insulating joints properly.','1–10mm',''),
+I('n15','18650 cells, holder and BMS','mech','I','batt',400,1,'Rechargeable power for portable builds.','3.7V',''),
+I('n16','Standoffs, M3 screws, spacers','mech','I','conn',150,1,'Mounting boards in enclosures.','Nylon and brass',''),
+I('n17','Project enclosure boxes','mech','I','board',200,2,'Turning a project into a finished thing.','ABS',''),
+I('n18','Isopropyl alcohol 99%','mech','A','tool',200,1,'Cleaning flux off boards.','100ml',''),
+I('n19','Solder paste and stencil','mech','A','tool',500,1,'SMD reflow assembly.','Sn63Pb37',''),
+I('n20','SMD component book 0805','mech','A','res',800,1,'Resistor and capacitor kit for SMD.','170 values','')];
+
+
+
+const DB={db:null,mem:{},ok:false};
+function dbOpen(){return new Promise(r=>{try{if(!indexedDB)return r(false);
+ const q=indexedDB.open('bench2',1);
+ q.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv')};
+ q.onsuccess=e=>{DB.db=e.target.result;DB.ok=true;r(true)};q.onerror=()=>r(false);
+ setTimeout(()=>r(DB.ok),1200)}catch(e){r(false)}})}
+function dbGet(k){return new Promise(r=>{if(!DB.ok)return r(DB.mem[k]??null);
+ try{const t=DB.db.transaction('kv','readonly').objectStore('kv').get(k);t.onsuccess=()=>r(t.result??null);t.onerror=()=>r(null)}catch(e){r(null)}})}
+function dbSet(k,v){DB.mem[k]=v;return new Promise(r=>{if(!DB.ok)return r(1);
+ try{const t=DB.db.transaction('kv','readwrite').objectStore('kv').put(v,k);t.onsuccess=()=>r(1);t.onerror=()=>r(0)}catch(e){r(0)}})}
+function dbDel(k){delete DB.mem[k];return new Promise(r=>{if(!DB.ok)return r();
+ try{const t=DB.db.transaction('kv','readwrite').objectStore('kv').delete(k);t.onsuccess=()=>r();t.onerror=()=>r()}catch(e){r()}})}
+
+let S={u:{},custom:[],photos:{},projects:[],view:'home',f:{cat:'',q:''}};
+const $=s=>document.querySelector(s);
+const all=()=>CATALOG.concat(S.custom);
+const byId=id=>all().find(x=>x.i===id);
+const U=id=>S.u[id]||{};
+const st=id=>U(id).st||'';
+const qty=id=>{const u=U(id);return u.qty!==undefined?u.qty:1};
+const price=id=>{const u=U(id);return u.price!==undefined?u.price:(byId(id)?byId(id).p:0)};
+const money=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const save=async()=>{await dbSet('u',S.u);await dbSet('custom',S.custom);await dbSet('proj',S.projects)};
+
+async function boot(){
+  await dbOpen();
+  S.u=(await dbGet('u'))||{};S.custom=(await dbGet('custom'))||[];S.projects=(await dbGet('proj'))||[];
+  const ix=(await dbGet('pix'))||[];
+  for(const id of ix){const p=await dbGet('p:'+id);if(p)S.photos[id]=p}
+  render();
+}
+async function setPhoto(id,d){S.photos[id]=d;await dbSet('p:'+id,d);await dbSet('pix',Object.keys(S.photos))}
+async function delPhoto(id){delete S.photos[id];await dbDel('p:'+id);await dbSet('pix',Object.keys(S.photos))}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1700)}
+
+function sums(){
+  let buy=0,buyN=0,have=0,haveVal=0,bad=0,untested=0;
+  for(const it of all()){
+    const s=st(it.i),q=qty(it.i),p=price(it.i);
+    if(s==='need'){buy+=p*q;buyN++}
+    if(s==='have'){have++;haveVal+=p*q;const u=U(it.i);
+      if(u.cond==='damaged'||u.cond==='repair')bad++;
+      if(!u.tested)untested++}
+  }
+  return{buy,buyN,have,haveVal,bad,untested};
+}
+
+const NAV=[['home','Home','<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>'],
+ ['stock','Stock','<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V4h8v3"/>'],
+ ['buy','To Buy','<path d="M6 6h15l-2 9H8L6 6z"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M6 6L5 3H2"/>'],
+ ['proj','Projects','<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'],
+ ['all','All','<path d="M4 6h16M4 12h16M4 18h16"/>']];
+function drawNav(){
+  $('#nav').innerHTML=NAV.map(a=>`<button data-v="${a[0]}" class="${S.view===a[0]?'on':''}"><svg viewBox="0 0 24 24">${a[2]}</svg>${a[1]}</button>`).join('');
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.view=b.dataset.v;S.f.q='';render()});
+}
+
+function thumb(it){
+  const p=S.photos[it.i];
+  return `<div class="thumb" data-cam="${it.i}">${p?`<img src="${p}" alt="">`:art(it)}
+    <div class="cam"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></div></div>`;
+}
+function row(it,mode){
+  const u=U(it.i),s=st(it.i);let line='';
+  if(mode==='stock'){
+    const c=u.cond||'working';
+    line=(c!=='working'?`<span class="tag t-bad">${c==='repair'?'needs repair':c}</span>`:`<span class="tag t-have">working</span>`)
+      +(u.tested?'':'<span class="tag t-warn">not tested</span>')
+      +(u.project?`<span>${esc(u.project)}</span>`:'')
+      +(u.loc?`<span>· ${esc(u.loc)}</span>`:'');
+  }else{
+    line=`<span class="tag t-gray">${LVL[it.l]}</span>`
+      +(it.t.indexOf('📘')>=0?'<span class="tag t-need">lab</span>':'')
+      +(s==='have'?'<span class="tag t-have">have</span>':'')
+      +`<span>${esc(it.d||CATS[it.c])}</span>`;
+  }
+  const q=qty(it.i),p=price(it.i);
+  const right=mode==='stock'?`<div class="pr">×${q}<small>${money(p)}</small></div>`
+    :`<div class="pr">${money(p*(s==='need'?q:1))}${s==='need'&&q>1?`<small>${q} × ${money(p)}</small>`:''}</div>`;
+  return `<div class="row"><button class="tap" data-id="${it.i}">${thumb(it)}
+    <div class="info"><div class="nm">${esc(it.n)}</div><div class="ln">${line}</div></div></button>${right}</div>`;
+}
+function bind(){
+  document.querySelectorAll('.tap[data-id]').forEach(b=>b.onclick=e=>{
+    if(e.target.closest('[data-cam]'))return;open(b.dataset.id)});
+  document.querySelectorAll('[data-cam]').forEach(t=>t.onclick=e=>{e.stopPropagation();pick(t.dataset.cam)});
+  document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
+}
+
+let camFor=null;
+function pick(id){camFor=id;$('#globalCam').click()}
+$('#globalCam').onchange=e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f||!camFor)return;
+  const id=camFor,rd=new FileReader();
+  rd.onload=()=>{const im=new Image();
+    im.onload=async()=>{let w=im.width,h=im.height;const m=900;
+      if(w>m||h>m){const r=Math.min(m/w,m/h);w=Math.round(w*r);h=Math.round(h*r)}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(im,0,0,w,h);
+      await setPhoto(id,c.toDataURL('image/jpeg',.78));toast('Photo added');
+      if($('#sheet').classList.contains('open'))open(id);else render()};
+    im.onerror=()=>toast('Could not read that image');im.src=rd.result};
+  rd.readAsDataURL(f);
+};
+
+function vHome(){
+  const s=sums();
+  const lv=['B','I','A'].map(L=>{const set=all().filter(x=>x.l===L);
+    const h=set.filter(x=>st(x.i)==='have').length;
+    return{L:L,h:h,n:set.length,pct:set.length?Math.round(h/set.length*100):0}});
+  return `<div class="total"><div class="lbl">I need to spend</div>
+    <div class="amt">${money(s.buy)}</div>
+    <div class="sub">${s.buyN} item${s.buyN===1?'':'s'} on my buy list</div></div>
+  <div class="tiles">
+    <div class="tile"><b>${s.have}</b><span>I have</span></div>
+    <div class="tile"><b>${money(s.haveVal)}</b><span>stock value</span></div>
+    <div class="tile"><b style="color:${s.bad?'var(--red)':'inherit'}">${s.bad}</b><span>damaged</span></div>
+  </div>
+  <h2>My progress</h2>
+  ${lv.map(x=>`<div class="row" style="display:block;padding:14px">
+    <div style="display:flex;justify-content:space-between;font-size:14px"><b>${LVL[x.L]}</b><span style="color:var(--ink2)">${x.h} of ${x.n}</span></div>
+    <div class="bar"><i style="width:${x.pct}%"></i></div></div>`).join('')}
+  ${(s.untested||s.bad)?`<h2>Check these</h2>
+    ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:14.5px"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
+    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:14.5px;color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
+  <h2>My projects</h2>
+  ${S.projects.length?S.projects.slice(0,4).map((p,i)=>projRow(p,i)).join('')
+    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">No projects yet. Make one to plan the parts you need.</div>`}
+  <button class="btn sec wide" id="goProj">${S.projects.length?'See all projects':'Create a project'}</button>`;
+}
+const PSTAT={idea:['Idea','t-gray'],building:['Building','t-warn'],done:['Finished','t-have'],paused:['Paused','t-gray']};
+function projCost(p){return (p.parts||[]).reduce((s,x)=>s+price(x.id)*(x.q||1),0)}
+function projMissing(p){return (p.parts||[]).filter(x=>st(x.id)!=='have')}
+function projRow(p,i){
+  const n=(p.parts||[]).length,miss=projMissing(p).length;
+  const s=PSTAT[p.status||'idea'];
+  return `<div class="row"><button class="tap" data-proj="${p.id}">
+    <div class="thumb">${sym('board')}</div>
+    <div class="info"><div class="nm">${esc(p.name)}</div>
+    <div class="ln"><span class="tag ${s[1]}">${s[0]}</span>
+      <span>${n} part${n===1?'':'s'}</span>
+      ${miss?`<span class="tag t-need">${miss} missing</span>`:(n?'<span class="tag t-have">all parts ready</span>':'')}</div></div></button>
+    <div class="pr">${money(projCost(p))}</div></div>`;
+}
+function bar(){
+  return `<input class="search" id="q" placeholder="Search components" value="${esc(S.f.q)}">
+  <div class="chips"><button class="chip ${!S.f.cat?'on':''}" data-v="">All</button>
+  ${Object.keys(CATS).map(k=>`<button class="chip ${S.f.cat===k?'on':''}" data-v="${k}">${CATS[k]}</button>`).join('')}</div>`;
+}
+function filt(l){const q=S.f.q.trim().toLowerCase();
+  return l.filter(it=>(!S.f.cat||it.c===S.f.cat)&&(!q||(it.n+' '+it.d+' '+it.w+' '+CATS[it.c]).toLowerCase().indexOf(q)>=0))}
+function vAll(){
+  const l=filt(all());
+  if(!l.length)return bar()+`<div class="empty"><h3>Nothing found</h3><p>Try another word or clear the filter.</p></div>`;
+  const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
+  return bar()+Object.keys(CATS).filter(k=>g[k]).map(k=>
+    `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} items</span></div>`
+    +g[k].map(x=>row(x)).join('')).join('');
+}
+function vStock(){
+  const owned=all().filter(x=>st(x.i)==='have');
+  if(!owned.length)return `<div class="empty"><h3>Your stock is empty</h3>
+    <p>Open any component and tap <b>I have it</b>. Then set the quantity, condition and which project it is in.</p>
+    <button class="btn" id="goAll">Browse all items</button></div>`;
+  const l=filt(owned),val=l.reduce((s,x)=>s+price(x.i)*qty(x.i),0);
+  return `<div class="total" style="padding:16px"><div class="lbl">${l.length} items in stock</div>
+    <div class="amt" style="font-size:28px">${money(val)}</div></div><div style="height:12px"></div>`
+    +bar()+(l.length?l.map(x=>row(x,'stock')).join(''):`<div class="empty"><p>No stock matches this filter.</p></div>`);
+}
+function vBuy(){
+  const l=all().filter(x=>st(x.i)==='need');
+  if(!l.length)return `<div class="empty"><h3>Buy list is empty</h3>
+    <p>Mark items as <b>Need to buy</b> and they collect here with the total.</p>
+    <button class="btn" id="goAll">Browse all items</button></div>`;
+  const tot=l.reduce((s,x)=>s+price(x.i)*qty(x.i),0);
+  const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
+  return `<div class="total"><div class="lbl">Total to buy</div><div class="amt">${money(tot)}</div>
+    <div class="sub">${l.length} items · add about ₹100 shipping per store</div></div>`
+  +Object.keys(CATS).filter(k=>g[k]).map(k=>{
+    const s=g[k].reduce((a,x)=>a+price(x.i)*qty(x.i),0);
+    return `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${money(s)}</span></div>`+g[k].map(x=>row(x)).join('')}).join('')
+  +`<div class="btnrow"><button class="btn sec" id="cp">Copy list</button><button class="btn grn" id="ab">All bought</button></div>`;
+}
+
+function vProj(){
+  if(!S.projects.length)return `<div class="empty"><h3>No projects yet</h3>
+    <p>A project is anything you are building — a robot, a lab experiment, a home automation box.
+    Add the parts it needs and the app tells you what is missing and what it costs.</p>
+    <button class="btn" id="newProj">Create my first project</button></div>`;
+  const totalMiss=S.projects.reduce((s,p)=>s+projMissing(p).reduce((a,x)=>a+price(x.id)*(x.q||1),0),0);
+  return `<div class="total"><div class="lbl">Missing parts across all projects</div>
+    <div class="amt">${money(totalMiss)}</div>
+    <div class="sub">${S.projects.length} project${S.projects.length===1?'':'s'}</div></div>
+    <h2>All projects</h2>
+    ${S.projects.map((p,i)=>projRow(p,i)).join('')}
+    <button class="btn wide" id="newProj" style="margin-top:6px">+ New project</button>`;
+}
+function openProject(pid){
+  const p=S.projects.find(x=>x.id===pid);if(!p)return;
+  const parts=p.parts||[],miss=projMissing(p);
+  const missCost=miss.reduce((s,x)=>s+price(x.id)*(x.q||1),0);
+  $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">${esc(p.name)}</div></div>
+  <div class="sheet-in">
+    <div class="total" style="margin-top:14px"><div class="lbl">Still need to buy</div>
+      <div class="amt">${money(missCost)}</div>
+      <div class="sub">${parts.length-miss.length} of ${parts.length} parts ready · project cost ${money(projCost(p))}</div></div>
+
+    <label class="f">Project name</label>
+    <input class="f" id="pn" value="${esc(p.name)}">
+    <label class="f">Stage</label>
+    <div class="seg" id="ps">${Object.keys(PSTAT).map(k=>`<button data-v="${k}" class="${(p.status||'idea')===k?'on':''}">${PSTAT[k][0]}</button>`).join('')}</div>
+    <label class="f">Notes</label>
+    <textarea class="f" id="pnote" placeholder="what it does, wiring notes, next step">${esc(p.notes||'')}</textarea>
+
+    <label class="f">Parts in this project</label>
+    ${parts.length?parts.map(x=>{const it=byId(x.id);if(!it)return '';const has=st(x.id)==='have';
+      return `<div class="row"><button class="tap" data-id="${x.id}">${thumb(it)}
+        <div class="info"><div class="nm">${esc(it.n)}</div>
+        <div class="ln">${has?'<span class="tag t-have">I have it</span>':'<span class="tag t-need">missing</span>'}
+        <span>${x.q||1} pcs</span></div></div></button>
+        <button class="pr" style="background:none;border:0;color:var(--red);font-size:20px;cursor:pointer;padding:0 6px" data-rm="${x.id}">×</button></div>`}).join('')
+      :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">No parts added yet.</div>`}
+
+    <div class="btnrow"><button class="btn" id="addPart">+ Add parts</button>
+    ${miss.length?`<button class="btn sec" id="buyMiss">Add missing to buy list</button>`:''}</div>
+    <div style="height:16px"></div>
+    <button class="btn red wide" id="delProj">Delete project</button>
+    <div style="height:30px"></div></div>`;
+  $('#sheet').classList.add('open');document.body.style.overflow='hidden';
+  $('#cl').onclick=close;bind();
+  $('#pn').onchange=async e=>{p.name=e.target.value.trim()||'Untitled';await save();openProject(pid)};
+  $('#pnote').onchange=async e=>{p.notes=e.target.value;await save()};
+  $('#ps').querySelectorAll('button').forEach(b=>b.onclick=async()=>{p.status=b.dataset.v;await save();openProject(pid)});
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async e=>{e.stopPropagation();
+    p.parts=(p.parts||[]).filter(x=>x.id!==b.dataset.rm);await save();openProject(pid)});
+  $('#addPart').onclick=()=>openPartPicker(pid);
+  const bm=$('#buyMiss');if(bm)bm.onclick=async()=>{
+    miss.forEach(x=>{S.u[x.id]=Object.assign({},U(x.id),{st:'need',qty:Math.max(qty(x.id),x.q||1)})});
+    await save();toast('Added to buy list');openProject(pid)};
+  $('#delProj').onclick=async()=>{if(!confirm('Delete this project?'))return;
+    S.projects=S.projects.filter(x=>x.id!==pid);await save();close();toast('Project deleted')};
+}
+let pickQ='';
+function openPartPicker(pid){
+  const p=S.projects.find(x=>x.id===pid);
+  const q=pickQ.trim().toLowerCase();
+  const inProj=new Set((p.parts||[]).map(x=>x.id));
+  const list=all().filter(it=>!q||(it.n+' '+it.d+' '+CATS[it.c]).toLowerCase().indexOf(q)>=0).slice(0,60);
+  $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">Add parts to ${esc(p.name)}</div></div>
+  <div class="sheet-in"><div style="height:12px"></div>
+    <input class="search" id="pq" placeholder="Search a component" value="${esc(pickQ)}">
+    ${list.map(it=>`<div class="row"><button class="tap" data-add="${it.i}">${thumb(it)}
+      <div class="info"><div class="nm">${esc(it.n)}</div>
+      <div class="ln">${st(it.i)==='have'?'<span class="tag t-have">in stock</span>':''}<span>${esc(it.d||CATS[it.c])}</span></div></div></button>
+      <div class="pr" style="color:${inProj.has(it.i)?'var(--green)':'var(--blue)'};font-size:20px">${inProj.has(it.i)?'✓':'+'}</div></div>`).join('')}
+    <div style="height:30px"></div></div>`;
+  $('#sheet').classList.add('open');document.body.style.overflow='hidden';
+  $('#cl').onclick=()=>{pickQ='';openProject(pid)};
+  const pq=$('#pq');pq.oninput=e=>{const c=e.target.selectionStart;pickQ=e.target.value;openPartPicker(pid);
+    const n=$('#pq');if(n){n.focus();n.setSelectionRange(c,c)}};
+  document.querySelectorAll('[data-add]').forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.add;p.parts=p.parts||[];
+    if(p.parts.some(x=>x.id===id)){p.parts=p.parts.filter(x=>x.id!==id);toast('Removed')}
+    else{p.parts.push({id:id,q:byId(id).q||1});toast('Added')}
+    await save();openPartPicker(pid)});
+}
+async function newProject(){
+  const name=prompt('Project name');if(!name)return;
+  S.projects.unshift({id:'pj_'+Date.now(),name:name.trim(),status:'idea',parts:[],notes:''});
+  await save();S.view='proj';render();openProject(S.projects[0].id);
+}
+function render(){
+  drawNav();
+  $('#title').textContent={home:'My Components',stock:'My Stock',buy:'To Buy',proj:'My Projects',all:'All Items'}[S.view];
+  $('#main').innerHTML={home:vHome,stock:vStock,buy:vBuy,proj:vProj,all:vAll}[S.view]();
+  window.scrollTo(0,0);bind();
+  const q=$('#q');if(q)q.oninput=e=>{const p=e.target.selectionStart;S.f.q=e.target.value;render();
+    const n=$('#q');if(n){n.focus();n.setSelectionRange(p,p)}};
+  document.querySelectorAll('.chip[data-v]').forEach(c=>c.onclick=()=>{S.f.cat=S.f.cat===c.dataset.v?'':c.dataset.v;render()});
+  document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
+  const ga=$('#goAll');if(ga)ga.onclick=()=>{S.view='all';render()};
+  const gp=$('#goProj');if(gp)gp.onclick=()=>{if(!S.projects.length)newProject();else{S.view='proj';render()}};
+  const np=$('#newProj');if(np)np.onclick=newProject;
+  const cp=$('#cp');if(cp)cp.onclick=copyList;
+  const ab=$('#ab');if(ab)ab.onclick=async()=>{
+    all().filter(x=>st(x.i)==='need').forEach(x=>{S.u[x.i]=Object.assign({},U(x.i),{st:'have'})});
+    await save();toast('Moved to my stock');render()};
+}
+
+function pinout(it){
+  const key=Object.keys(PINS).filter(k=>it.n.toUpperCase().indexOf(k.toUpperCase())>=0)[0];
+  if(!key)return '';
+  const L=PINS[key],n=L.length;
+  if(n===3)return `<div class="pinbox"><div class="h">Pinout — ${key} (front view)</div>
+    <svg viewBox="0 0 300 105"><rect x="105" y="10" width="90" height="42" rx="4" fill="#F1F3F6" stroke="#C3C9D2"/>
+    ${L.map((l,i)=>{const x=125+i*25;return `<line x1="${x}" y1="52" x2="${x}" y2="76" stroke="#6B7280" stroke-width="3"/><text x="${x}" y="94" fill="#1A1D23" font-size="11" font-family="system-ui" text-anchor="middle">${l}</text>`}).join('')}</svg></div>`;
+  const per=n/2,H=30+per*22;
+  let s=`<svg viewBox="0 0 300 ${H+14}"><rect x="100" y="14" width="100" height="${per*22}" rx="4" fill="#F1F3F6" stroke="#C3C9D2"/><path d="M139 14a11 11 0 0022 0" fill="none" stroke="#C3C9D2"/>`;
+  for(let i=0;i<per;i++){const y=28+i*22,j=n-1-i;
+    s+=`<line x1="80" y1="${y}" x2="100" y2="${y}" stroke="#6B7280" stroke-width="2.4"/>
+      <text x="75" y="${y+4}" fill="#1A1D23" font-size="10.5" font-family="system-ui" text-anchor="end">${L[i]}</text>
+      <text x="106" y="${y+4}" fill="#9AA1AC" font-size="9" font-family="system-ui">${i+1}</text>
+      <line x1="200" y1="${y}" x2="220" y2="${y}" stroke="#6B7280" stroke-width="2.4"/>
+      <text x="225" y="${y+4}" fill="#1A1D23" font-size="10.5" font-family="system-ui">${L[j]}</text>
+      <text x="194" y="${y+4}" fill="#9AA1AC" font-size="9" font-family="system-ui" text-anchor="end">${j+1}</text>`}
+  return `<div class="pinbox"><div class="h">Pinout — ${key} (top view, notch up)</div>${s}</svg></div>`;
+}
+
+function open(id){
+  const it=byId(id);if(!it)return;
+  const u=U(id),ph=S.photos[id],s=u.st||'';
+  $('#sheet').innerHTML=`
+  <div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">${esc(it.n)}</div></div>
+  <div class="sheet-in">
+    <div class="hero"><div class="pic">${ph?`<img src="${ph}">`:`<div class="artbox">${art(it)}<div class="cap">${esc(it.n)}</div></div><div class="symtag">${sym(it.s)}<span>schematic</span></div>`}</div>
+      <div class="acts">
+        <button id="ph1">${ph?'Change photo':'Add photo'}</button>
+        <button id="ph2">Find online</button>
+        ${ph?'<button class="dgr" id="ph3">Remove</button>':''}
+      </div></div>
+
+    <label class="f">Status</label>
+    <div class="seg" id="sg">
+      <button data-v="have" class="${s==='have'?'on':''}">I have it</button>
+      <button data-v="need" class="${s==='need'?'on':''}">Need to buy</button>
+      <button data-v="" class="${s===''?'on':''}">Skip</button>
+    </div>
+
+    <div class="two">
+      <div><label class="f">Price I pay</label>
+        <div class="pfx"><span>₹</span><input class="f" id="pp" type="number" inputmode="decimal" value="${price(id)}"></div></div>
+      <div><label class="f">Quantity</label>
+        <div class="stepper"><button id="qm">−</button><input class="f" id="qq" type="number" inputmode="numeric" value="${qty(id)}"><button id="qp">+</button></div></div>
+    </div>
+    <div style="text-align:right;margin-top:8px;font-size:14px;color:var(--ink2)">Total: <b style="color:var(--ink)">${money(price(id)*qty(id))}</b></div>
+
+    <div id="own" style="display:${s==='have'?'block':'none'}">
+      <label class="f">Condition</label>
+      <div class="seg ${(u.cond&&u.cond!=='working')?'r':'g'}" id="sc">
+        ${['working','damaged','repair'].map(c=>`<button data-v="${c}" class="${(u.cond||'working')===c?'on':''}">${c==='repair'?'repair':c}</button>`).join('')}
+      </div>
+      <label class="f">Tested</label>
+      <div class="seg g" id="stst"><button data-v="1" class="${u.tested?'on':''}">Tested OK</button><button data-v="0" class="${!u.tested?'on':''}">Not tested</button></div>
+      <div class="two">
+        <div><label class="f">Kept in</label><input class="f" id="loc" value="${esc(u.loc||'')}" placeholder="Box A"></div>
+        <div><label class="f">Used in</label><input class="f" id="pj" value="${esc(u.project||'')}" placeholder="free"></div>
+      </div>
+    </div>
+
+    ${pinout(it)}
+
+    <label class="f">About this part</label>
+    <div class="list">
+      <div class="kv"><span class="k">Why you need it</span><span class="v">${esc(it.w)}</span></div>
+      <div class="kv"><span class="k">Spec</span><span class="v">${esc(it.d||'—')}</span></div>
+      <div class="kv"><span class="k">Type</span><span class="v">${CATS[it.c]}</span></div>
+      <div class="kv"><span class="k">Level</span><span class="v">${LVL[it.l]}</span></div>
+      <div class="kv"><span class="k">Market price</span><span class="v">${money(it.p)}</span></div>
+      <div class="kv"><span class="k">Suggested qty</span><span class="v">${it.q}</span></div>
+    </div>
+
+    <label class="f">My notes</label>
+    <textarea class="f" id="nt" placeholder="where I bought it, quirks, datasheet notes">${esc(u.notes||'')}</textarea>
+
+    <label class="f">Buy from</label>
+    <div class="btnrow">
+      <a class="btn sec" target="_blank" rel="noopener" href="https://www.electronicscomp.com/index.php?route=product/search&search=${encodeURIComponent(it.n)}">ElectronicsComp</a>
+      <a class="btn sec" target="_blank" rel="noopener" href="https://robu.in/?s=${encodeURIComponent(it.n)}">Robu</a>
+    </div>
+    <div class="btnrow">
+      <a class="btn sec" target="_blank" rel="noopener" href="https://www.amazon.in/s?k=${encodeURIComponent(it.n)}">Amazon</a>
+      <a class="btn sec" target="_blank" rel="noopener" href="https://www.google.com/search?q=${encodeURIComponent(it.n+' datasheet')}">Datasheet</a>
+    </div>
+    ${id.indexOf('u_')===0?'<div style="height:16px"></div><button class="btn red wide" id="del">Delete this item</button>':''}
+    <div style="height:30px"></div>
+  </div>`;
+  $('#sheet').classList.add('open');document.body.style.overflow='hidden';
+
+  $('#cl').onclick=close;
+  $('#ph1').onclick=()=>pick(id);
+  $('#ph2').onclick=()=>window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent(it.n+' electronic component'),'_blank');
+  const p3=$('#ph3');if(p3)p3.onclick=async()=>{await delPhoto(id);toast('Photo removed');open(id)};
+  $('#sg').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
+    const o=Object.assign({},U(id),{st:b.dataset.v});
+    if(!b.dataset.v)delete o.st;
+    if(o.qty===undefined)o.qty=it.q;
+    S.u[id]=o;await save();open(id)});
+  const sc=$('#sc');if(sc)sc.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{cond:b.dataset.v});await save();open(id)});
+  const stg=$('#stst');if(stg)stg.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{tested:b.dataset.v==='1'});await save();open(id)});
+  const pp=$('#pp'),qq=$('#qq');
+  const upd=async()=>{S.u[id]=Object.assign({},U(id),{price:Math.max(0,+pp.value||0),qty:Math.max(0,parseInt(qq.value)||0)});await save();open(id)};
+  pp.onchange=upd;qq.onchange=upd;
+  $('#qm').onclick=()=>{qq.value=Math.max(0,(+qq.value||0)-1);upd()};
+  $('#qp').onclick=()=>{qq.value=(+qq.value||0)+1;upd()};
+  [['loc','loc'],['pj','project'],['nt','notes']].forEach(a=>{const e=$('#'+a[0]);
+    if(e)e.onchange=async()=>{const o={};o[a[1]]=e.value;S.u[id]=Object.assign({},U(id),o);await save()}});
+  const d=$('#del');if(d)d.onclick=async()=>{if(!confirm('Delete this item?'))return;
+    S.custom=S.custom.filter(x=>x.i!==id);delete S.u[id];await delPhoto(id);await save();close();toast('Deleted')};
+}
+function close(){$('#sheet').classList.remove('open');document.body.style.overflow='';render()}
+
+function openAdd(){
+  $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">Add a component</div></div>
+  <div class="sheet-in">
+    <label class="f">Name</label><input class="f" id="an" placeholder="e.g. LM339N">
+    <div class="two">
+      <div><label class="f">Type</label><select class="f" id="ac">${Object.keys(CATS).map(k=>`<option value="${k}">${CATS[k]}</option>`).join('')}</select></div>
+      <div><label class="f">Level</label><select class="f" id="al">${Object.keys(LVL).map(k=>`<option value="${k}">${LVL[k]}</option>`).join('')}</select></div>
+    </div>
+    <div class="two">
+      <div><label class="f">Price</label><div class="pfx"><span>₹</span><input class="f" id="ap" type="number" inputmode="decimal" value="0"></div></div>
+      <div><label class="f">Quantity</label><input class="f" id="aq" type="number" inputmode="numeric" value="1"></div>
+    </div>
+    <label class="f">Picture symbol</label>
+    <select class="f" id="as">${Object.keys(SYM).map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
+    <label class="f">Spec</label><input class="f" id="ad" placeholder="package, ratings">
+    <label class="f">What it is for</label><textarea class="f" id="aw"></textarea>
+    <label class="f">Add as</label>
+    <div class="seg" id="ast"><button data-v="have" class="on">I have it</button><button data-v="need">Need to buy</button></div>
+    <div style="height:18px"></div><button class="btn wide" id="sv">Save component</button><div style="height:30px"></div>
+  </div>`;
+  $('#sheet').classList.add('open');document.body.style.overflow='hidden';
+  $('#cl').onclick=close;let start='have';
+  $('#ast').querySelectorAll('button').forEach(b=>b.onclick=()=>{start=b.dataset.v;
+    $('#ast').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
+  $('#sv').onclick=async()=>{
+    const n=$('#an').value.trim();if(!n){toast('Give it a name first');return}
+    const id='u_'+Date.now(),q=+$('#aq').value||1,p=+$('#ap').value||0;
+    S.custom.push(I(id,n,$('#ac').value,$('#al').value,$('#as').value,p,q,$('#aw').value.trim(),$('#ad').value.trim(),''));
+    S.u[id]={st:start,qty:q,price:p,cond:'working',tested:false};
+    await save();close();toast('Added');open(id)};
+}
+
+function openMore(){
+  $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">More</div></div>
+  <div class="sheet-in">
+    <label class="f">Photos</label>
+    <button class="btn sec wide" id="bulk">Add many photos at once</button>
+    <p style="font-size:13px;color:var(--ink2);line-height:1.55;margin-top:8px">
+      Pick several image files together. Each file is matched to a component by its file name —
+      name a file <b>LM358.jpg</b> or <b>NE555 timer.png</b> and it lands on the right part.</p>
+    <input type="file" id="bulkf" accept="image/*" multiple hidden>
+    <label class="f">Backup</label>
+    <div class="list"><div class="kv"><span class="k">Photos saved</span><span class="v">${Object.keys(S.photos).length}</span></div>
+      <div class="kv"><span class="k">My own items</span><span class="v">${S.custom.length}</span></div>
+      <div class="kv"><span class="k">Items tracked</span><span class="v">${Object.keys(S.u).length}</span></div>
+      <div class="kv"><span class="k">Storage</span><span class="v">${DB.ok?'Saved on device':'Preview only'}</span></div></div>
+    <div class="btnrow"><button class="btn" id="ex1">Export backup</button><button class="btn sec" id="im1">Import</button></div>
+    <input type="file" id="imf" accept="application/json" hidden>
+    <p style="font-size:13px;color:var(--ink2);line-height:1.55">Export keeps your photos and all your data in one file. Do this often — clearing app data will erase everything.</p>
+    <label class="f">Reset</label>
+    <button class="btn red wide" id="rs">Erase all my data</button><div style="height:30px"></div></div>`;
+  $('#sheet').classList.add('open');document.body.style.overflow='hidden';
+  $('#cl').onclick=close;
+  $('#bulk').onclick=()=>$('#bulkf').click();
+  $('#bulkf').onchange=bulkPhotos;
+  $('#ex1').onclick=doExport;
+  $('#im1').onclick=()=>$('#imf').click();
+  $('#imf').onchange=doImport;
+  $('#rs').onclick=async()=>{if(!confirm('Erase everything? This cannot be undone.'))return;
+    for(const k in S.photos)await dbDel('p:'+k);
+    S.u={};S.custom=[];S.photos={};await dbSet('pix',[]);await save();close();toast('All data erased')};
+}
+function normName(s){return s.toLowerCase().replace(/\.[a-z0-9]+$/,'').replace(/[^a-z0-9]/g,'')}
+function shrink(file){return new Promise(res=>{
+  const rd=new FileReader();
+  rd.onload=()=>{const im=new Image();
+    im.onload=()=>{let w=im.width,hh=im.height;const m=900;
+      if(w>m||hh>m){const r=Math.min(m/w,m/hh);w=Math.round(w*r);hh=Math.round(hh*r)}
+      const c=document.createElement('canvas');c.width=w;c.height=hh;
+      c.getContext('2d').drawImage(im,0,0,w,hh);res(c.toDataURL('image/jpeg',.78))};
+    im.onerror=()=>res(null);im.src=rd.result};
+  rd.onerror=()=>res(null);rd.readAsDataURL(file)})}
+async function bulkPhotos(e){
+  const files=Array.from(e.target.files||[]);e.target.value='';
+  if(!files.length)return;
+  toast('Matching '+files.length+' photos…');
+  const idx=all().map(it=>({i:it.i,k:normName(it.n)}));
+  let hit=0,missNames=[];
+  for(const f of files){
+    const k=normName(f.name);
+    let m=idx.find(x=>x.k===k)||idx.find(x=>x.k.indexOf(k)>=0&&k.length>3)||idx.find(x=>k.indexOf(x.k)>=0&&x.k.length>3);
+    if(!m){missNames.push(f.name);continue}
+    const d=await shrink(f);
+    if(d){await setPhoto(m.i,d);hit++}
+  }
+  toast(hit+' photo'+(hit===1?'':'s')+' added'+(missNames.length?' · '+missNames.length+' unmatched':''));
+  if(missNames.length)alert('These file names did not match any component:\n\n'+missNames.slice(0,15).join('\n')+(missNames.length>15?'\n…':'')+'\n\nRename them to the exact component name and try again, or add those photos one by one.');
+  openMore();
+}
+async function doExport(){
+  const d={v:2,at:new Date().toISOString(),u:S.u,custom:S.custom,photos:S.photos};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:'application/json'}));
+  a.download='my-components-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);toast('Backup saved');
+}
+function doImport(e){
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  const r=new FileReader();
+  r.onload=async()=>{try{const d=JSON.parse(r.result);if(!d.u&&!d.user)throw 0;
+    S.u=d.u||d.user||{};S.custom=d.custom||[];S.photos=d.photos||{};
+    await save();for(const k in S.photos)await dbSet('p:'+k,S.photos[k]);
+    await dbSet('pix',Object.keys(S.photos));close();toast('Backup restored')}
+    catch(err){toast('That file is not a backup')}};
+  r.readAsText(f);
+}
+function copyList(){
+  const l=all().filter(x=>st(x.i)==='need');
+  const t='MY SHOPPING LIST\n\n'+l.map(x=>`${x.n} — ${qty(x.i)} pcs — ${money(price(x.i)*qty(x.i))}`).join('\n')
+    +`\n\nTOTAL: ${money(l.reduce((s,x)=>s+price(x.i)*qty(x.i),0))}`;
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(t).then(()=>toast('Copied')).catch(()=>fb(t));
+  else fb(t);
+}
+function fb(t){const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity=0;
+  document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('Copied')}catch(e){toast('Copy not available')}
+  document.body.removeChild(a)}
+
+$('#fab').onclick=openAdd;
+$('#moreBtn').onclick=openMore;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').classList.contains('open'))close()});
+boot();
+</script>
+</body>
+</html>
