@@ -134,6 +134,36 @@ function moreDetails(it,u,pin){
     <textarea class="f" id="nt" placeholder="where I bought it, quirks, datasheet notes">${esc(u.notes||'')}</textarea>`;
 }
 
+/* ---- the one write path for status + quantity -------------------------
+   TRD/BUILD-TASKS Task 4: the quick-action sheet changes exactly the two
+   fields the detail sheet does, and must not fork the write. Both entry
+   points call these; neither touches S.u itself.
+
+   setItemStatus keeps the two behaviours the detail sheet had baked into
+   its handler and which the quick sheet has to inherit verbatim:
+   - "Skip" ('') *removes* the key rather than storing an empty string, so
+     st()/filters see an untracked item, not a tracked one with no status.
+   - a first-ever status write seeds qty from the catalog's suggested
+     quantity, so an item never lands in stock reading "×undefined".
+   The haptic lives here too (DESIGN-SYSTEM §Haptics: light impact on a
+   confirmed data change) — one place, so it can never fire twice or be
+   forgotten by a caller, and never fires for merely opening a sheet. */
+async function setItemStatus(id,v){
+  const it=byId(id);if(!it)return;
+  const o=Object.assign({},U(id),{st:v});
+  if(!v)delete o.st;
+  if(o.qty===undefined)o.qty=it.q;
+  haptic();S.u[id]=o;await save();
+}
+/* Floor at 0 is enforced here rather than at each ±/input, so no caller can
+   write a negative quantity even by typing one straight into the field. */
+async function setItemQty(id,n){
+  const v=Math.max(0,parseInt(n,10)||0);
+  S.u[id]=Object.assign({},U(id),{qty:v});
+  haptic();await save();
+  return v;
+}
+
 function open(id){
   const it=byId(id);if(!it)return;
   const u=U(id),ph=S.photos[id],s=u.st||'';
@@ -209,14 +239,11 @@ function open(id){
   $('#ph2').onclick=()=>window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent(it.n+' electronic component'),'_blank');
   const p3=$('#ph3');if(p3)p3.onclick=async()=>{await delPhoto(id);toast('Photo removed');open(id)};
   $('#sg').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
-    const o=Object.assign({},U(id),{st:b.dataset.v});
-    if(!b.dataset.v)delete o.st;
-    if(o.qty===undefined)o.qty=it.q;
-    haptic();S.u[id]=o;await save();open(id)});
+    await setItemStatus(id,b.dataset.v);open(id)});
   const sc=$('#sc');if(sc)sc.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{cond:b.dataset.v});await save();open(id)});
   const stg=$('#stst');if(stg)stg.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{tested:b.dataset.v==='1'});await save();open(id)});
   const qq=$('#qq');
-  const upd=async()=>{S.u[id]=Object.assign({},U(id),{qty:Math.max(0,parseInt(qq.value)||0)});await save();open(id)};
+  const upd=async()=>{await setItemQty(id,qq.value);open(id)};
   qq.onchange=upd;
   $('#qm').onclick=()=>{qq.value=Math.max(0,(+qq.value||0)-1);upd()};
   $('#qp').onclick=()=>{qq.value=(+qq.value||0)+1;upd()};
@@ -236,33 +263,112 @@ function open(id){
 }
 function close(){$('#sheet').classList.remove('open');document.body.style.overflow='';render()}
 
-function openAdd(){
+/* ---- component creation ----------------------------------------------
+   TRD §2: there is exactly ONE way component data gets created. Quick-add and
+   the full Add form are two different sets of *inputs* to the same writes —
+   neither builds an I(...) row or touches S.custom / S.u itself.
+
+   Ids stay 'u_'+Date.now(), which repeats when two items are created inside
+   the same millisecond (a double-tapped save, or two quick-adds in a row on a
+   fast device). A repeated id would silently overwrite the previous item's
+   S.u entry and give two catalog rows the same key, so the timestamp is
+   probed against everything that exists and only disambiguated when it is
+   actually taken — a lone add still gets the plain, readable 'u_<ts>'. */
+function newItemId(){
+  const base='u_'+Date.now();let id=base,n=1;
+  while(byId(id)||S.u[id])id=base+'-'+(n++);
+  return id;
+}
+/* Every field quick-add doesn't ask for gets a well-formed default here, so a
+   quick-added part groups, filters, renders art and reads correctly in every
+   view exactly like a fully-filled one. 'mech' (Wires & Parts) is the neutral
+   catch-all bucket and 'ic' the neutral symbol; both are editable afterwards
+   from the item's own detail sheet. */
+async function addComponent(o){
+  const id=newItemId(),q=Math.max(1,parseInt(o.qty,10)||1);
+  S.custom.push(I(id,String(o.name).trim(),o.cat||'mech',o.lvl||'B',o.sym||'ic',0,q,
+    String(o.why||'').trim(),String(o.spec||'').trim(),''));
+  S.u[id]={st:o.st==='need'?'need':'have',qty:q,cond:'working',tested:false};
+  haptic();/* DESIGN-SYSTEM §Haptics — once, exactly at "it worked" */
+  await save();
+  return id;
+}
+/* Guards the two failure modes the spec calls out, in one place so both entry
+   points inherit them: a blank/whitespace name never creates a ghost item, and
+   a second submit landing before the first `await save()` resolves is dropped
+   rather than creating a duplicate. Returns the new id, or null if nothing was
+   created. */
+let addBusy=false;
+async function submitAdd(o,btn){
+  const name=String(o.name||'').trim();
+  if(!name){toast('Give it a name first');return null}
+  if(addBusy)return null;
+  addBusy=true;if(btn)btn.disabled=true;
+  try{return await addComponent(Object.assign({},o,{name:name}))}
+  finally{addBusy=false;if(btn)btn.disabled=false}
+}
+
+/* What the user has typed, kept across a quick <-> all-fields flip so nothing
+   is lost by switching. A fresh open resets it: openAdd is wired straight to
+   the FAB (`$('#fab').onclick=openAdd`), so it is called with a click Event —
+   only the internal mode-switch calls pass the string 'quick'/'full'. */
+let addDraft=null;
+function openAdd(mode){
+  const keep=(mode==='quick'||mode==='full');
+  const d=addDraft=(keep&&addDraft)?addDraft:{name:'',qty:1,st:'have'};
+  const full=(mode==='full'),qv=Math.max(1,parseInt(d.qty,10)||1);
+  /* keyLabel: SYM's values are SVG path data, so that select shows its keys */
+  const opts=(m,sel,keyLabel)=>Object.keys(m).map(k=>`<option value="${k}"${sel===k?' selected':''}>${keyLabel?k:m[k]}</option>`).join('');
   $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">Add a component</div></div>
   <div class="sheet-in">
-    <label class="f">Name</label><input class="f" id="an" placeholder="e.g. LM339N">
-    <div class="two">
-      <div><label class="f">Type</label><select class="f" id="ac">${Object.keys(CATS).map(k=>`<option value="${k}">${CATS[k]}</option>`).join('')}</select></div>
-      <div><label class="f">Level</label><select class="f" id="al">${Object.keys(LVL).map(k=>`<option value="${k}">${LVL[k]}</option>`).join('')}</select></div>
+    <div class="seg" id="amode" style="margin-top:var(--sp-4)">
+      <button data-m="quick" class="${full?'':'on'}">Quick</button>
+      <button data-m="full" class="${full?'on':''}">All fields</button>
     </div>
-    <label class="f">Quantity</label><input class="f" id="aq" type="number" inputmode="numeric" value="1">
-    <label class="f">Picture symbol</label>
-    <select class="f" id="as">${Object.keys(SYM).map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
-    <label class="f">Spec</label><input class="f" id="ad" placeholder="package, ratings">
-    <label class="f">What it is for</label><textarea class="f" id="aw"></textarea>
+    <label class="f">Name</label><input class="f" id="an" placeholder="e.g. LM339N" value="${esc(d.name||'')}">
+    ${full?`<div class="two">
+      <div><label class="f">Type</label><select class="f" id="ac">${opts(CATS,d.cat)}</select></div>
+      <div><label class="f">Level</label><select class="f" id="al">${opts(LVL,d.lvl)}</select></div>
+    </div>`:''}
+    <label class="f">Quantity</label>
+    ${full?`<input class="f" id="aq" type="number" inputmode="numeric" value="${qv}">`
+      :`<div class="stepper"><button type="button" id="qm">−</button><input class="f" id="aq" type="number" inputmode="numeric" value="${qv}"><button type="button" id="qp">+</button></div>`}
+    ${full?`<label class="f">Picture symbol</label>
+    <select class="f" id="as">${opts(SYM,d.sym,1)}</select>
+    <label class="f">Spec</label><input class="f" id="ad" placeholder="package, ratings" value="${esc(d.spec||'')}">
+    <label class="f">What it is for</label><textarea class="f" id="aw">${esc(d.why||'')}</textarea>`:''}
     <label class="f">Add as</label>
-    <div class="seg" id="ast"><button data-v="have" class="on">I have it</button><button data-v="need">Need to buy</button></div>
-    <div style="height:18px"></div><button class="btn wide" id="sv">Save component</button><div style="height:30px"></div>
+    <div class="seg" id="ast"><button data-v="have" class="${d.st==='need'?'':'on'}">I have it</button><button data-v="need" class="${d.st==='need'?'on':''}">Need to buy</button></div>
+    ${full?'':`<p style="font-size:var(--fs-caption);color:var(--ink2);line-height:1.55;margin:var(--sp-3) 0 0">Type, symbol and spec get sensible defaults you can change on the part later — or switch to <b>All fields</b> to set them now.</p>`}
+    <div style="height:18px"></div><button class="btn wide" id="sv">${full?'Save component':'Add component'}</button><div style="height:30px"></div>
   </div>`;
   $('#sheet').classList.add('open');document.body.style.overflow='hidden';
-  $('#cl').onclick=close;let start='have';
-  $('#ast').querySelectorAll('button').forEach(b=>b.onclick=()=>{start=b.dataset.v;
+  $('#cl').onclick=()=>{addDraft=null;close()};
+  /* read whatever fields this mode actually rendered back into the draft */
+  const g=i=>{const e=$('#'+i);return e?e.value:undefined};
+  const snap=()=>{d.name=g('an')||'';d.qty=g('aq');
+    if(g('ac')!==undefined){d.cat=g('ac');d.lvl=g('al');d.sym=g('as');d.spec=g('ad');d.why=g('aw')}
+    return d};
+  $('#amode').querySelectorAll('button').forEach(b=>b.onclick=()=>{snap();openAdd(b.dataset.m)});
+  $('#ast').querySelectorAll('button').forEach(b=>b.onclick=()=>{d.st=b.dataset.v;
     $('#ast').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
-  $('#sv').onclick=async()=>{
-    const n=$('#an').value.trim();if(!n){toast('Give it a name first');return}
-    const id='u_'+Date.now(),q=+$('#aq').value||1;
-    S.custom.push(I(id,n,$('#ac').value,$('#al').value,$('#as').value,0,q,$('#aw').value.trim(),$('#ad').value.trim(),''));
-    S.u[id]={st:start,qty:q,cond:'working',tested:false};
-    haptic();await save();close();toast('Added');open(id)};
+  const aq=$('#aq'),qm=$('#qm'),qp=$('#qp');
+  if(qm)qm.onclick=()=>{aq.value=Math.max(1,(+aq.value||1)-1)};
+  if(qp)qp.onclick=()=>{aq.value=Math.max(1,(+aq.value||1)+1)};
+  const sv=$('#sv');
+  sv.onclick=async()=>{
+    const o=snap(),st0=o.st,q0=o.qty;
+    const id=await submitAdd(o,sv);
+    if(!id)return;
+    toast('Added');
+    if(full){addDraft=null;close();open(id);return}
+    /* Quick-add re-opens itself with a blank name, keeping the chosen quantity
+       and have/need: logging several parts in a row is the case it exists for,
+       and closing the sheet after each one would hand the taps straight back.
+       The list underneath is re-rendered so the new item is already there. */
+    addDraft={name:'',qty:q0,st:st0};render();openAdd('quick');
+    const an=$('#an');if(an)an.focus();
+  };
 }
 
 function showIntro(){

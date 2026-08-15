@@ -109,7 +109,19 @@ function row(it,mode,swipe){
       +`<span>${esc(it.d||CATS[it.c])}</span>`;
   }
   const q=qty(it.i);
-  const right=mode==='stock'?`<div class="pr">×${q}</div>`:'';
+  /* Quick-action trigger (Task 4). A dedicated affordance rather than a
+     long-press: long-press starts with a pointerdown on .row, which is
+     exactly what bindSwipe() is listening to, so the two gestures would be
+     racing on the same element — and a hidden gesture is the same
+     discoverability/accessibility gap DESIGN-SYSTEM §Swipe row flags. This
+     button is skipped by bindSwipe's pointerdown (same guard as the camera
+     badge), so a drag that starts on it never becomes a swipe and a swipe
+     that starts on the row never becomes a quick-sheet open.
+     In stock mode it wraps the ×qty readout that was already sitting here,
+     so the row gains an affordance, not a whole extra control. */
+  const right=`<button class="qedit" type="button" data-quick="${it.i}" aria-label="Adjust ${esc(it.n)}">`
+    +(mode==='stock'?`<span class="pr">×${q}</span>`:'')
+    +`<svg class="qic" viewBox="0 0 24 24"><path d="M8 9.5L12 5.5l4 4M8 14.5l4 4 4-4"/></svg></button>`;
   const content=`<div class="row"><button class="tap" data-id="${it.i}">${thumb(it)}
     <div class="info"><div class="nm">${esc(it.n)}</div><div class="ln">${line}</div></div></button>${right}</div>`;
   if(!swipe)return content;
@@ -119,6 +131,7 @@ function bind(){
   document.querySelectorAll('.tap[data-id]').forEach(b=>b.onclick=e=>{
     if(e.target.closest('[data-cam]'))return;open(b.dataset.id)});
   document.querySelectorAll('[data-cam]').forEach(t=>t.onclick=e=>{e.stopPropagation();pick(t.dataset.cam)});
+  document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=e=>{e.stopPropagation();openQuick(b.dataset.quick)});
   document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
   bindSwipe();
 }
@@ -132,7 +145,9 @@ function bindSwipe(){
     const rowEl=wrap.querySelector('.row');
     let startX=0,curX=0,dragging=false,moved=false;
     rowEl.addEventListener('pointerdown',e=>{
-      if(e.target.closest('[data-cam]'))return;
+      /* the camera badge and the quick-action trigger are their own targets:
+         a press that starts on either must not arm a swipe */
+      if(e.target.closest('[data-cam]')||e.target.closest('[data-quick]'))return;
       startX=e.clientX;dragging=true;moved=false;wrap.classList.add('dragging');
       closeOtherSwipes(wrap);
     });
@@ -154,7 +169,15 @@ function bindSwipe(){
     };
     rowEl.addEventListener('pointerup',end);
     rowEl.addEventListener('pointercancel',end);
-    rowEl.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopPropagation();moved=false}});
+    /* Capture phase, not bubble. The trailing click a drag produces lands on
+       .tap (or, now, on the quick-action trigger) — both children of .row — so
+       a bubble-phase listener here ran *after* their own onclick had already
+       fired and opened a sheet; stopPropagation() was closing a door the event
+       had walked through. Capturing on .row intercepts it before it reaches
+       either child. Bound to .row and not .swipe-wrap on purpose: .swipe-action
+       is a sibling of .row, so the revealed button keeps receiving its own
+       first tap. */
+    rowEl.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopPropagation();moved=false}},true);
   });
   document.querySelectorAll('[data-swact]').forEach(b=>b.onclick=async()=>{
     const id=b.dataset.swact,kind=b.dataset.swkind;
@@ -162,6 +185,71 @@ function bindSwipe(){
     else if(kind==='bought')S.u[id]=Object.assign({},U(id),{st:'have'});
     haptic();await save();toast(kind==='bought'?'Marked as bought':'Removed from stock');render()});
 }
+
+/* ---- quick-action bottom sheet (Task 4) --------------------------------
+   DESIGN-SYSTEM §Components: same slide-up mechanic as #sheet, but short and
+   light — it overlays the list rather than replacing the screen, and carries
+   only the two fields worth changing without leaving the list: status and
+   quantity. Both are written through setItemStatus/setItemQty in detail.js,
+   the exact same S.u + save() path the full detail sheet uses.
+
+   Closing is centralised in closeQuick(), which reports whether it actually
+   closed something. Escape and the Android back button in main.js both lean
+   on that return value to decide whether they still have work to do — a
+   second sheet that back-handling does not know about would exit the app. */
+let quickFor=null;
+function openQuick(id){
+  const it=byId(id);if(!it)return;
+  const u=U(id),s=u.st||'';
+  closeOtherSwipes();
+  quickFor=id;
+  $('#qpanel').innerHTML=`<div class="qgrab"></div>
+    <div class="qhead"><div class="qnm">${esc(it.n)}</div>
+      <div class="qsub">${esc(it.d||CATS[it.c])}</div></div>
+    <label class="f">Status</label>
+    <div class="seg" id="qsg">
+      <button type="button" data-v="have" class="${s==='have'?'on':''}">I have it</button>
+      <button type="button" data-v="need" class="${s==='need'?'on':''}">Need to buy</button>
+      <button type="button" data-v="" class="${s===''?'on':''}">Skip</button>
+    </div>
+    <label class="f">Quantity</label>
+    <div class="stepper"><button type="button" id="qqm" aria-label="One fewer">−</button>
+      <input class="f" id="qqi" type="number" inputmode="numeric" min="0" value="${qty(id)}">
+      <button type="button" id="qqp" aria-label="One more">+</button></div>`;
+  $('#qsheet').classList.add('open');
+  $('#qsheet').setAttribute('aria-hidden','false');
+
+  const qi=$('#qqi');
+  /* Status toggles the pressed segment in place instead of re-rendering the
+     panel: a re-render would blow away a quantity the user is mid-way through
+     typing. The stepper is re-synced by hand afterwards because a first-ever
+     status write seeds qty from the catalog default. */
+  $('#qsg').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
+    $('#qsg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    await setItemStatus(id,b.dataset.v);
+    qi.value=qty(id);
+    refreshUnder()});
+  const qupd=async()=>{qi.value=await setItemQty(id,qi.value);refreshUnder()};
+  qi.onchange=qupd;
+  $('#qqm').onclick=()=>{qi.value=Math.max(0,(+qi.value||0)-1);qupd()};
+  $('#qqp').onclick=()=>{qi.value=(+qi.value||0)+1;qupd()};
+}
+/* The list under the (semi-transparent) scrim is refreshed on every change so
+   it is already correct when the sheet slides away. render() scrolls to top,
+   which would yank the list out from under an open sheet, so the offset is
+   put back. */
+function refreshUnder(){const y=window.scrollY;render();window.scrollTo(0,y)}
+function closeQuick(){
+  const el=$('#qsheet');
+  if(!el||!el.classList.contains('open'))return false;
+  el.classList.remove('open');el.setAttribute('aria-hidden','true');
+  quickFor=null;return true;
+}
+/* outside tap. The scrim is a sibling of .qpanel, so a tap inside the panel
+   never reaches it. Guarded because views.js is a plain script in shared
+   global scope — a host page without the markup must not throw on load. */
+{const qs=$('#qscrim');if(qs)qs.onclick=closeQuick;}
 
 let camFor=null;
 function pick(id){camFor=id;$('#globalCam').click()}

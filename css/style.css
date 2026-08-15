@@ -1,51 +1,80 @@
 :root{
-  --bg:#F6F7F9;--card:#FFFFFF;--line:#E3E6EB;--ink:#1A1D23;--ink2:#6B7280;--ink3:#9AA1AC;
+  /* v3 visual pass — DESIGN-SYSTEM.md. Direction: Things 3 / Linear "calm and
+     premium". Content cards carry the weight (air, radius, soft shadow, no
+     hard outline); chrome stays flat and quiet. */
+  --bg:#F3F5F8;--card:#FFFFFF;--line:#E4E7EC;--ink:#1A1D23;--ink2:#6B7280;--ink3:#9AA1AC;
   --blue:#2563EB;--blue-soft:#EAF0FE;--green:#0E9F6E;--green-soft:#E6F6F0;
-  --amber:#C2760B;--amber-soft:#FDF3E3;--red:#DC2626;--red-soft:#FDECEC;--r:12px;
-  --shadow:0 1px 2px rgba(16,24,40,.04),0 2px 10px rgba(16,24,40,.05);
+  --amber:#C2760B;--amber-soft:#FDF3E3;--red:#DC2626;--red-soft:#FDECEC;
+  /* Chrome surface (header, nav, sheet-top). Same as --card in light; in dark
+     it sits *between* --bg and --card so chrome reads below content, never
+     above it (§Chrome recession). */
+  --chrome:#FFFFFF;
+  /* Card outline. Light mode is shadow-only — a 1px line on every row read as
+     busy at list length. Dark mode has no shadow, so cards are separated by
+     surface lift (--card above --bg) plus this near-invisible hairline. */
+  --card-line:transparent;
+  /* Radii: --r everyday card/control, --r-lg feature cards (hero, total,
+     list, pinbox), --r-sm inner elements (thumbs, chips inside cards). */
+  --r:14px;--r-lg:20px;--r-sm:10px;
+  /* Elevation: three very low-opacity layers, so the edge is diffuse rather
+     than a crisp drop. No border needed underneath it. */
+  --shadow:0 1px 1.5px rgba(16,24,40,.04),0 4px 10px -4px rgba(16,24,40,.06),
+           0 14px 28px -14px rgba(16,24,40,.12);
   /* thumbnail / empty-state icon-badge surface. Was hardcoded light, which
      read as a bright chip punched into a dark card in dark mode. */
-  --thumb:#F1F3F6;--thumb-ink:#7C8598;
-  --soft:#EFF1F4; /* neutral chip/track fill (t-gray, .bar) */
-  /* Type scale — DESIGN-SYSTEM.md §Typography. Tokens carry the size only;
-     the weight paired with each is noted here and set per element. */
-  --fs-hero:40px;    /* 800 — the one dominant number on a screen (.total .amt) */
-  --fs-title:20px;   /* 800 — header wordmark, tile numbers */
-  --fs-heading:16px; /* 700 — sheet titles, empty-state headings */
-  --fs-body:15px;    /* 600 — card titles, buttons, list rows */
-  --fs-label:13px;   /* 700 — section headers (h2), field labels */
-  --fs-meta:12.5px;  /* 500-600 — secondary line under a title */
-  --fs-caption:11px; /* 500-600 — tags, tile captions, small print */
+  --thumb:#EFF1F5;--thumb-ink:#7C8598;
+  --soft:#EEF0F4; /* neutral chip/track fill (t-gray, .bar) */
+  /* Type scale — DESIGN-SYSTEM.md §Typography. Retuned in the v3 visual pass:
+     hierarchy now comes from a real size jump between a section header and the
+     rows under it, instead of everything sitting within 3px of everything else.
+     Tokens carry the size only; the paired weight is noted here. */
+  --fs-hero:44px;    /* 800 — the one dominant number on a screen (.total .amt) */
+  --fs-title:20px;   /* 800 — header wordmark, tile numbers, empty-state headings */
+  --fs-section:18px; /* 700 — section headers (h2, .ghead .a) — was 13px grey */
+  --fs-heading:17px; /* 700 — sheet titles */
+  --fs-body:15.5px;  /* 600 — card titles, buttons, list rows */
+  --fs-label:13px;   /* 600-700 — field labels, small actions */
+  --fs-meta:13px;    /* 500-600 — secondary line under a title */
+  --fs-caption:11.5px; /* 500-600 — tags, tile captions, small print */
   --fs-field:16px;   /* form controls only — 16px is the iOS zoom-on-focus floor, not a scale step */
-  /* Spacing — §Spacing: 4/8/12/16/20/24. Card padding (10-14px) and the h2
-     rhythm (26px top / 10px bottom) are deliberate v2 exceptions, left as-is. */
-  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;
+  /* Spacing — §Spacing: 4/8/12/16/20/24, extended with 32/40 for the section
+     rhythm. Whitespace is the main lever of this pass: page gutters, card
+     gaps and the air above a heading all went up a step or two. */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-7:32px;--sp-8:40px;
 }
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0F1115;--card:#1A1D23;--line:#2A2E36;--ink:#F2F4F7;--ink2:#9AA1AC;--ink3:#6B7280;
+    --bg:#0C0E12;--card:#1B1F26;--line:#2A2E36;--ink:#F2F4F7;--ink2:#9AA1AC;--ink3:#6B7280;
     --blue:#4C86FF;--blue-soft:#1B2A4A;--green:#22C58B;--green-soft:#123328;
     --amber:#E2A63D;--amber-soft:#3A2C10;--red:#F1615C;--red-soft:#3A1616;--shadow:none;
-    --thumb:#22262E;--thumb-ink:#98A1B0;--soft:#252A32;
+    --chrome:#13161C;--card-line:#242832;
+    --thumb:#252932;--thumb-ink:#98A1B0;--soft:#262A33;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0F1115;--card:#1A1D23;--line:#2A2E36;--ink:#F2F4F7;--ink2:#9AA1AC;--ink3:#6B7280;
+  --bg:#0C0E12;--card:#1B1F26;--line:#2A2E36;--ink:#F2F4F7;--ink2:#9AA1AC;--ink3:#6B7280;
   --blue:#4C86FF;--blue-soft:#1B2A4A;--green:#22C58B;--green-soft:#123328;
   --amber:#E2A63D;--amber-soft:#3A2C10;--red:#F1615C;--red-soft:#3A1616;--shadow:none;
-  --thumb:#22262E;--thumb-ink:#98A1B0;--soft:#252A32;
+  --chrome:#13161C;--card-line:#242832;
+  --thumb:#252932;--thumb-ink:#98A1B0;--soft:#262A33;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 #app{max-width:680px;margin:0 auto;min-height:100vh}
-header{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);
-  padding:calc(var(--sp-3) + env(safe-area-inset-top)) var(--sp-4) var(--sp-3);display:flex;align-items:center;gap:10px}
-header h1{margin:0;font-size:var(--fs-title);font-weight:800;letter-spacing:-.03em;flex:1;color:var(--blue)}
-header .icobtn{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer}
-header .icobtn svg{width:19px;height:19px;stroke:var(--ink2);fill:none;stroke-width:1.8}
-main{padding:14px var(--sp-4) 100px}
-nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);border-top:1px solid var(--line);
+/* Header: flat chrome surface, hairline only, no shadow — content cards are
+   the only elevated things on screen (§Chrome recession). */
+header{position:sticky;top:0;z-index:30;background:var(--chrome);border-bottom:1px solid var(--line);
+  padding:calc(var(--sp-3) + env(safe-area-inset-top)) var(--sp-5) var(--sp-3);display:flex;align-items:center;gap:10px}
+/* Wordmark sits in --ink, not --blue: the accent is reserved for interactive
+   and selected state (§Color, one accent used deliberately). */
+header h1{margin:0;font-size:var(--fs-title);font-weight:800;letter-spacing:-.02em;flex:1;color:var(--ink)}
+header .icobtn{width:40px;height:40px;margin-right:-6px;border-radius:12px;border:0;background:none;
+  display:grid;place-items:center;cursor:pointer;transition:background .15s ease}
+header .icobtn:active{background:var(--soft)}
+header .icobtn svg{width:20px;height:20px;stroke:var(--ink3);fill:none;stroke-width:1.8}
+main{padding:var(--sp-6) var(--sp-5) 112px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--chrome);border-top:1px solid var(--line);
   display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);max-width:680px;margin:0 auto}
 /* Nav label sits one step below --fs-caption on purpose: chrome recedes
    relative to content (§Chrome recession). Not an un-tokenised stray. */
@@ -56,18 +85,25 @@ nav button svg.filled{stroke:none;fill:currentColor}
 nav button.on{color:var(--blue);font-weight:700}
 nav button.on::before{content:'';position:absolute;top:3px;left:50%;transform:translateX(-50%);
   width:42px;height:25px;border-radius:13px;background:var(--blue-soft);z-index:-1}
-.total{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:var(--sp-5);text-align:center;box-shadow:var(--shadow)}
-.total .lbl{font-size:var(--fs-label);color:var(--ink2)}
-.total .amt{font-size:var(--fs-hero);font-weight:800;letter-spacing:-.02em;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.total{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r-lg);
+  padding:var(--sp-6) var(--sp-5);text-align:center;box-shadow:var(--shadow)}
+.total .lbl{font-size:var(--fs-label);font-weight:600;color:var(--ink2)}
+.total .amt{font-size:var(--fs-hero);font-weight:800;letter-spacing:-.035em;margin:var(--sp-2) 0 2px;
+  line-height:1.05;font-variant-numeric:tabular-nums}
 .total .sub{font-size:var(--fs-label);color:var(--ink3)}
-.tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:var(--sp-3)}
-.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px var(--sp-2);text-align:center;box-shadow:var(--shadow)}
-.tile b{display:block;font-size:var(--fs-title);font-weight:700;font-variant-numeric:tabular-nums}
-.tile span{font-size:var(--fs-caption);color:var(--ink2)}
-h2{font-size:var(--fs-label);font-weight:700;color:var(--ink2);margin:26px 0 10px}
-.row{display:flex;align-items:center;gap:var(--sp-3);background:var(--card);border:1px solid var(--line);
-  border-radius:var(--r);padding:10px;margin-bottom:var(--sp-2);box-shadow:var(--shadow)}
-.swipe-wrap{position:relative;overflow:hidden;border-radius:var(--r);margin-bottom:var(--sp-2)}
+.tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-3);margin-top:0}
+.tile{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r);
+  padding:var(--sp-4) var(--sp-2);text-align:center;box-shadow:var(--shadow)}
+.tile b{display:block;font-size:var(--fs-title);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile span{display:block;margin-top:3px;font-size:var(--fs-caption);color:var(--ink2)}
+/* Section header: the confident thing on the screen, content sits calmly
+   under it. 32px of air above separates one section from the previous one
+   more clearly than any divider would. */
+h2{font-size:var(--fs-section);font-weight:700;color:var(--ink);letter-spacing:-.02em;
+  margin:var(--sp-7) 0 var(--sp-3)}
+.row{display:flex;align-items:center;gap:var(--sp-3);background:var(--card);border:1px solid var(--card-line);
+  border-radius:var(--r);padding:var(--sp-3);margin-bottom:var(--sp-3);box-shadow:var(--shadow)}
+.swipe-wrap{position:relative;overflow:hidden;border-radius:var(--r);margin-bottom:var(--sp-3)}
 .swipe-wrap .row{margin-bottom:0;transition:transform .2s ease;touch-action:pan-y;position:relative;z-index:1}
 .swipe-wrap.dragging .row{transition:none}
 .swipe-action{position:absolute;top:0;right:0;bottom:0;width:88px;display:flex;align-items:center;justify-content:center;
@@ -76,81 +112,93 @@ h2{font-size:var(--fs-label);font-weight:700;color:var(--ink2);margin:26px 0 10p
 .swipe-action.red{background:var(--red)}
 .row .tap{flex:1;min-width:0;display:flex;align-items:center;gap:var(--sp-3);background:none;border:0;padding:0;
   text-align:left;font:inherit;color:inherit;cursor:pointer}
-.thumb{width:54px;height:54px;flex:0 0 54px;border-radius:10px;background:var(--thumb);border:1px solid var(--line);
+.thumb{width:54px;height:54px;flex:0 0 54px;border-radius:12px;background:var(--thumb);border:0;
   display:grid;place-items:center;overflow:hidden;position:relative;cursor:pointer}
 .thumb img{width:100%;height:100%;object-fit:cover}
 .thumb svg.sym{width:40px;height:28px;stroke:var(--thumb-ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .thumb .cam{position:absolute;right:-1px;bottom:-1px;width:20px;height:20px;border-radius:6px;background:var(--blue);display:grid;place-items:center}
 .thumb .cam svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2}
 .info{flex:1;min-width:0}
-.info .nm{font-size:var(--fs-body);font-weight:600;line-height:1.25}
-.info .ln{font-size:var(--fs-meta);color:var(--ink2);margin-top:var(--sp-1);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.info .nm{font-size:var(--fs-body);font-weight:600;line-height:1.3;letter-spacing:-.01em;overflow-wrap:anywhere}
+.info .ln{font-size:var(--fs-meta);color:var(--ink2);margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .pr{font-size:var(--fs-body);font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto;text-align:right}
 .pr small{display:block;font-size:var(--fs-caption);font-weight:500;color:var(--ink3)}
-.tag{font-size:var(--fs-caption);font-weight:600;padding:2px 7px;border-radius:20px}
+.tag{font-size:var(--fs-caption);font-weight:600;padding:3px 8px;border-radius:20px}
 .t-have{background:var(--green-soft);color:var(--green)}
 .t-need{background:var(--blue-soft);color:var(--blue)}
 .t-bad{background:var(--red-soft);color:var(--red)}
 .t-warn{background:var(--amber-soft);color:var(--amber)}
 .t-gray{background:var(--soft);color:var(--ink2)}
 .searchwrap{position:relative}
-.searchwrap .sicon{position:absolute;left:13px;top:15px;width:17px;height:17px;stroke:var(--ink3);fill:none;stroke-width:2;pointer-events:none}
-.search{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:var(--sp-3) 34px var(--sp-3) 38px;
-  font-size:var(--fs-body);color:var(--ink);margin-bottom:10px;font-family:inherit}
-.sclear{position:absolute;right:10px;top:9px;width:22px;height:22px;border-radius:50%;border:0;background:var(--line);
+.searchwrap .sicon{position:absolute;left:14px;top:16px;width:17px;height:17px;stroke:var(--ink3);fill:none;stroke-width:2;pointer-events:none}
+.search{width:100%;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 34px 14px 40px;
+  font-size:var(--fs-body);color:var(--ink);margin-bottom:var(--sp-3);font-family:inherit}
+.sclear{position:absolute;right:10px;top:11px;width:24px;height:24px;border-radius:50%;border:0;background:var(--soft);
   color:var(--ink2);font-size:var(--fs-caption);cursor:pointer;display:grid;place-items:center;padding:0}
 .search::placeholder{color:var(--ink3)}
-.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.chips{display:flex;gap:var(--sp-2);overflow-x:auto;padding-bottom:var(--sp-2);scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--ink2);font-size:var(--fs-label);
-  font-weight:500;padding:var(--sp-2) 14px;border-radius:20px;cursor:pointer;font-family:inherit}
+  font-weight:600;padding:9px 14px;border-radius:20px;cursor:pointer;font-family:inherit}
 /* active chip inverts to the ink pill. Label must be --bg, not #fff: in dark
    mode --ink is near-white, so #fff made the selected chip unreadable. */
 .chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:600}
 .btn{display:flex;align-items:center;justify-content:center;gap:7px;background:var(--blue);color:#fff;border:0;
-  border-radius:10px;padding:14px var(--sp-4);font-size:var(--fs-body);font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+  border-radius:var(--r-sm);padding:15px var(--sp-4);font-size:var(--fs-body);font-weight:600;cursor:pointer;
+  text-decoration:none;font-family:inherit;letter-spacing:-.01em}
 .btn.sec{background:var(--card);border:1px solid var(--line);color:var(--ink)}
 .btn.grn{background:var(--green)}
 .btn.red{background:var(--card);border:1px solid var(--red);color:var(--red)}
 .btn.wide{width:100%}
 .btn:active{opacity:.85}
-.btnrow{display:flex;gap:9px;margin-top:10px}
+.btnrow{display:flex;gap:var(--sp-2);margin-top:var(--sp-4)}
 .btnrow .btn{flex:1}
-label.f{display:block;font-size:var(--fs-label);font-weight:600;color:var(--ink2);margin:var(--sp-4) 0 6px}
-input.f,select.f,textarea.f{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;
-  padding:13px;font-size:var(--fs-field);color:var(--ink);font-family:inherit}
+label.f{display:block;font-size:var(--fs-label);font-weight:600;color:var(--ink2);margin:var(--sp-5) 0 var(--sp-2)}
+input.f,select.f,textarea.f{width:100%;background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:14px;font-size:var(--fs-field);color:var(--ink);font-family:inherit}
 input.f:focus,select.f:focus,textarea.f:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
-textarea.f{min-height:70px;resize:vertical}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+textarea.f{min-height:76px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3)}
 .pfx{position:relative}
 .pfx span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink3);font-size:var(--fs-field)}
 .pfx input{padding-left:28px}
 .seg{display:grid;grid-auto-flow:column;gap:var(--sp-2)}
-.seg button{background:var(--card);border:1px solid var(--line);color:var(--ink2);border-radius:10px;padding:13px var(--sp-1);
-  font-size:var(--fs-body);font-weight:600;cursor:pointer;font-family:inherit}
+.seg button{background:var(--card);border:1px solid var(--line);color:var(--ink2);border-radius:var(--r-sm);padding:14px var(--sp-1);
+  font-size:var(--fs-body);font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s ease,color .15s ease}
 .seg button.on{background:var(--blue);border-color:var(--blue);color:#fff}
 .seg.g button.on{background:var(--green);border-color:var(--green)}
 .seg.r button.on{background:var(--red);border-color:var(--red)}
-.stepper{display:flex;align-items:center;gap:10px}
+.stepper{display:flex;align-items:center;gap:var(--sp-3)}
 /* 22px is a glyph metric for the −/+ controls, not a type-scale step. */
-.stepper button{width:48px;height:48px;border-radius:10px;background:var(--card);border:1px solid var(--line);
+.stepper button{width:48px;height:48px;border-radius:var(--r-sm);background:var(--card);border:1px solid var(--line);
   font-size:22px;cursor:pointer;color:var(--ink);font-family:inherit}
 .stepper input{flex:1;text-align:center;font-weight:700}
 .sheet{position:fixed;inset:0;z-index:60;background:var(--bg);overflow-y:auto;
   transform:translateY(100%);transition:transform .22s ease}
 .sheet.open{transform:translateY(0)}
-.sheet-in{max-width:680px;margin:0 auto;padding:0 var(--sp-4) 40px}
-.sheet-top{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:5;
-  padding:calc(var(--sp-3) + env(safe-area-inset-top)) var(--sp-4) var(--sp-3);display:flex;align-items:center;gap:var(--sp-3)}
+.sheet-in{max-width:680px;margin:0 auto;padding:0 var(--sp-5) var(--sp-8)}
+.sheet-top{position:sticky;top:0;background:var(--chrome);border-bottom:1px solid var(--line);z-index:5;
+  padding:calc(var(--sp-3) + env(safe-area-inset-top)) var(--sp-5) var(--sp-3);display:flex;align-items:center;gap:var(--sp-3)}
 /* 18px is a glyph metric for the ✕ close control, not a type-scale step. */
-.sheet-top .x{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--card);
-  font-size:18px;cursor:pointer;line-height:1;color:var(--ink);font-family:inherit}
-.sheet-top .t{font-size:var(--fs-heading);font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hero{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:14px;box-shadow:var(--shadow)}
+.sheet-top .x{width:40px;height:40px;border-radius:12px;border:0;background:var(--soft);
+  font-size:18px;cursor:pointer;line-height:1;color:var(--ink2);font-family:inherit}
+.sheet-top .t{font-size:var(--fs-heading);font-weight:700;letter-spacing:-.02em;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r-lg);overflow:hidden;
+  margin-top:var(--sp-5);box-shadow:var(--shadow)}
 /* 4/3 suits the hand-drawn art; bundled stock photos are square 800px assets
    and would otherwise force the frame ~33% taller than an art hero. Pin the
    ratio so both hero kinds occupy the same box. */
 .hero .pic{aspect-ratio:4/3;background:#F1F3F6;display:grid;place-items:center;overflow:hidden}
+/* The hand-drawn art and its schematic chip are dark-on-light, so the hero
+   plate has to stay light even in dark mode. Left at full brightness it is
+   the glariest thing on a dark screen, so dim it for the art case only.
+   :has() degrades to the plain rule above where unsupported - acceptable,
+   since that is exactly today's behaviour. Photo heroes are untouched:
+   the bundled assets are already white-letterboxed and fill the frame. */
+:root[data-theme="dark"] .hero .pic:has(.artbox){background:#D8DCE3}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .hero .pic:has(.artbox){background:#D8DCE3}
+}
 .hero .pic>img{width:100%;height:100%;object-fit:contain}
 .hero .pic img{width:100%;height:100%;object-fit:contain;background:#fff}
 .hero .pic .symbox{display:grid;place-items:center;gap:10px;padding:var(--sp-5)}
@@ -160,51 +208,94 @@ textarea.f{min-height:70px;resize:vertical}
 .hero .pic{position:relative}
 .hero .pic .artbox{display:grid;place-items:center;gap:6px;padding:var(--sp-3) 14px var(--sp-4)}
 .hero .pic .artbox svg.art{width:min(62vw,260px);height:auto}
-.hero .pic .artbox .cap{font-size:var(--fs-label);color:var(--ink2);font-weight:600;text-align:center}
-.hero .pic .symtag{position:absolute;left:var(--sp-2);bottom:var(--sp-2);display:flex;align-items:center;gap:5px;
-  background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 7px 3px 4px;
-  font-size:var(--fs-caption);color:var(--ink2);font-weight:600}
+.hero .pic .artbox .cap{font-size:var(--fs-label);color:#6B7280;font-weight:600;text-align:center}
+.hero .pic .symtag{position:absolute;left:var(--sp-3);bottom:var(--sp-3);display:flex;align-items:center;gap:5px;
+  background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:3px 7px 3px 4px;
+  font-size:var(--fs-caption);color:#6B7280;font-weight:600}
 .hero .pic .symtag svg{width:30px;height:20px;stroke:#6B7280;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .hero .acts{display:flex;border-top:1px solid var(--line)}
-.hero .acts button{flex:1;background:none;border:0;border-right:1px solid var(--line);padding:14px var(--sp-1);
+.hero .acts button{flex:1;background:none;border:0;border-right:1px solid var(--line);padding:15px var(--sp-1);
   font-size:var(--fs-label);font-weight:600;color:var(--blue);cursor:pointer;font-family:inherit}
 .hero .acts button:last-child{border-right:0}
 .hero .acts button.dgr{color:var(--red)}
-.pinbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:var(--sp-4);box-shadow:var(--shadow)}
-.pinbox .h{font-size:var(--fs-meta);font-weight:600;color:var(--ink2);margin-bottom:10px}
+.pinbox{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r-lg);padding:var(--sp-4);
+  margin-top:var(--sp-4);box-shadow:var(--shadow)}
+.pinbox .h{font-size:var(--fs-meta);font-weight:600;color:var(--ink2);margin-bottom:var(--sp-3)}
 .pinbox svg{width:100%;height:auto}
-.list{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2px 14px;box-shadow:var(--shadow)}
-.kv{display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:var(--fs-body)}
+.list{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r-lg);padding:2px var(--sp-4);box-shadow:var(--shadow)}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);font-size:var(--fs-body)}
 .kv:last-child{border-bottom:0}
 .kv .k{color:var(--ink2);flex:0 0 40%}
 .kv .v{text-align:right;flex:1;font-weight:500}
-.empty{text-align:center;padding:56px var(--sp-6)}
-.empty h3{font-size:var(--fs-heading);margin:0 0 var(--sp-2)}
-.empty p{font-size:var(--fs-body);color:var(--ink2);margin:0 0 var(--sp-5);line-height:1.55}
+.empty{text-align:center;padding:56px var(--sp-5) var(--sp-8)}
+.empty h3{font-size:var(--fs-title);font-weight:700;letter-spacing:-.02em;margin:0 0 var(--sp-2)}
+.empty p{font-size:var(--fs-body);color:var(--ink2);margin:0 auto var(--sp-6);line-height:1.55;max-width:30ch}
 /* icon badge — same container as a list .thumb, sized up and centred
    (was a per-call inline style before Task 7) */
-.empty .ebadge{width:64px;height:64px;flex:none;margin:0 auto 14px;cursor:default}
+.empty .ebadge{width:68px;height:68px;flex:none;border-radius:var(--r);margin:0 auto var(--sp-5);cursor:default}
+/* full-screen empty state: the badge sits on --bg, not on a card, so the
+   --thumb fill alone would vanish. Give it the card surface instead — same
+   treatment every other floating thing on the page gets. */
+.empty:not(.mini) .ebadge{background:var(--card);box-shadow:var(--shadow)}
 .empty .ebadge svg.eico{width:30px;height:30px;stroke:var(--thumb-ink);fill:none;
   stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.empty>.btn{display:inline-flex;padding-left:var(--sp-6);padding-right:var(--sp-6)}
 /* compact variant: an empty *section* inside a populated screen (Home),
    so it reads as a card in the flow rather than a full-screen state */
-.empty.mini{text-align:center;padding:var(--sp-5) var(--sp-4);background:var(--card);
-  border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:var(--sp-2)}
-.empty.mini .ebadge{width:48px;height:48px;margin-bottom:var(--sp-3)}
+.empty.mini{text-align:center;padding:var(--sp-6) var(--sp-5);background:var(--card);
+  border:1px solid var(--card-line);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:var(--sp-3)}
+.empty.mini .ebadge{width:48px;height:48px;border-radius:12px;margin-bottom:var(--sp-3)}
 .empty.mini .ebadge svg.sym{width:32px;height:22px}
 .empty.mini h3{font-size:var(--fs-body)}
 .empty.mini p{font-size:var(--fs-meta);margin-bottom:var(--sp-4)}
-.ghead{display:flex;justify-content:space-between;align-items:baseline;margin:var(--sp-5) 0 9px}
-.ghead .a{font-size:var(--fs-label);font-weight:700}
-.ghead .b{font-size:var(--fs-label);color:var(--ink2);font-variant-numeric:tabular-nums}
-.bar{height:7px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:9px}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-3);margin:var(--sp-7) 0 var(--sp-3)}
+.ghead .a{font-size:var(--fs-section);font-weight:700;letter-spacing:-.02em}
+.ghead .b{font-size:var(--fs-meta);color:var(--ink3);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.bar{height:7px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:var(--sp-3)}
 .bar i{display:block;height:100%;background:var(--green);border-radius:4px}
-.fab{position:fixed;right:var(--sp-4);bottom:82px;z-index:35;height:50px;padding:0 var(--sp-5);border-radius:25px;background:var(--blue);
-  color:#fff;border:0;font-size:var(--fs-body);font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(37,99,235,.4);
+.fab{position:fixed;right:var(--sp-5);bottom:84px;z-index:35;height:50px;padding:0 var(--sp-5);border-radius:25px;background:var(--blue);
+  color:#fff;border:0;font-size:var(--fs-body);font-weight:600;cursor:pointer;
+  box-shadow:0 2px 6px rgba(16,24,40,.12),0 10px 22px -10px rgba(37,99,235,.55);
   display:flex;align-items:center;gap:6px;font-family:inherit;transition:transform .1s}
 .fab:active{transform:scale(.96)}
-@media(min-width:681px){.fab{right:calc(50vw - 324px)}}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--ink);color:#fff;font-size:var(--fs-body);
-  padding:var(--sp-3) 18px;border-radius:10px;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s}
+@media(min-width:681px){.fab{right:calc(50vw - 320px)}}
+/* ---- quick-action bottom sheet (Task 4) -------------------------------
+   DESIGN-SYSTEM §Components: the same slide-up mechanic as .sheet, but a
+   short panel over the list instead of a full-screen takeover. Like .sheet
+   it is never display:none'd — it stays in the DOM and is translated away
+   (v2 rule) — so the closed wrapper turns pointer-events off, otherwise a
+   transparent full-viewport layer would silently eat every list tap.
+   Deliberately no new colour tokens: the panel is --card and the scrim is a
+   fixed low-alpha black, so both dark-palette blocks stay in sync for free. */
+.qsheet{position:fixed;inset:0;z-index:70;pointer-events:none}
+.qsheet.open{pointer-events:auto}
+.qsheet .scrim{position:absolute;inset:0;background:rgba(9,11,15,.42);opacity:0;
+  transition:opacity .2s ease;touch-action:none;overscroll-behavior:contain}
+.qsheet.open .scrim{opacity:1}
+.qpanel{position:absolute;left:0;right:0;bottom:0;max-width:680px;margin:0 auto;
+  background:var(--card);border:1px solid var(--card-line);border-bottom:0;
+  border-radius:var(--r-lg) var(--r-lg) 0 0;box-shadow:var(--shadow);
+  padding:var(--sp-1) var(--sp-5) calc(var(--sp-6) + env(safe-area-inset-bottom));
+  transform:translateY(100%);transition:transform .22s ease}
+.qsheet.open .qpanel{transform:translateY(0)}
+/* 38x4 is a grab-handle glyph metric, not a spacing step */
+.qgrab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:var(--sp-2) auto var(--sp-4)}
+.qhead .qnm{font-size:var(--fs-heading);font-weight:700;letter-spacing:-.02em;line-height:1.3;overflow-wrap:anywhere}
+.qhead .qsub{font-size:var(--fs-meta);color:var(--ink2);margin-top:3px}
+/* tighter than the full sheet's rhythm on purpose — this one has to stay
+   short enough to read as a panel over the list, not as another screen */
+.qpanel label.f{margin:var(--sp-4) 0 var(--sp-2)}
+.qpanel .seg button{padding:13px var(--sp-1)}
+.qpanel .stepper button{height:46px}
+/* Row affordance for the sheet above. Secondary weight by design: the row's
+   own tap stays the one primary action on the card (§Components). */
+.qedit{display:flex;align-items:center;gap:var(--sp-2);flex:0 0 auto;min-height:44px;
+  background:none;border:0;padding:0 2px 0 var(--sp-2);border-radius:var(--r-sm);
+  cursor:pointer;font:inherit;color:inherit}
+.qedit .qic{width:18px;height:18px;flex:0 0 18px;stroke:var(--ink3);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.qedit:active{opacity:.55}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--ink);color:var(--bg);font-size:var(--fs-body);
+  padding:var(--sp-3) 18px;border-radius:var(--r-sm);z-index:90;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.on{opacity:1}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
