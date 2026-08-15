@@ -1,0 +1,44 @@
+/* views-grid.css — catalog list/grid toggle + grid layout (Task 6).
+   Load AFTER css/style.css. All rules use descendant selectors so they
+   win on specificity regardless of link order. Tokens only — no new hues. */
+
+/* ---- segmented view toggle ---- */
+/* Chrome-weight control, not content: no card shadow, sits on the page
+   background rather than floating above it (§Chrome recession). */
+main .vtogbar{display:flex;justify-content:flex-end;margin:0 0 var(--sp-3)}
+main .vtog{display:inline-flex;gap:2px;background:var(--soft);border:0;
+  border-radius:12px;padding:3px}
+main .vtog button{width:40px;height:34px;border:0;border-radius:9px;background:none;padding:0;
+  display:grid;place-items:center;cursor:pointer;color:var(--ink3);font-family:inherit;
+  transition:background .18s ease,color .18s ease}
+main .vtog button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+main .vtog button svg.filled{stroke:none;fill:currentColor}
+/* selected segment is tinted, not just lighter: on a dark track a "lighter
+   surface" cue inverts, the blue-soft pill reads as selected in both themes
+   (same cue as the nav active pill) */
+main .vtog button.on{background:var(--blue-soft);color:var(--blue)}
+main .vtog button:active{opacity:.85}
+/* the toggle already puts air above the first category header — the full
+   32px section rhythm on top of it would read as a hole */
+main .vtogbar+.ghead{margin-top:var(--sp-4)}
+
+/* ---- grid layout ---- */
+main .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:var(--sp-3);margin-bottom:var(--sp-3)}
+main .grid .gcell{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r);
+  padding:var(--sp-2) var(--sp-2) 10px;box-shadow:var(--shadow);min-width:0}
+main .grid .gcell .tap{display:block;width:100%;background:none;border:0;padding:0;margin:0;
+  text-align:left;font:inherit;color:inherit;cursor:pointer}
+
+/* reuse the shared .thumb/art rendering, just square + full-bleed here */
+main .grid .gcell .thumb{width:100%;height:auto;flex:none;aspect-ratio:1/1;border-radius:10px;margin-bottom:10px}
+main .grid .gcell .thumb svg.sym{width:70%;height:auto}
+main .grid .gcell .thumb .cam{right:3px;bottom:3px;border-radius:7px}
+
+main .grid .gcell .ginfo{min-width:0}
+main .grid .gcell .gnm{font-size:var(--fs-label);font-weight:600;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+main .grid .gcell .gln{font-size:var(--fs-caption);color:var(--ink2);margin-top:5px;
+  display:flex;align-items:center;gap:5px;min-width:0}
+main .grid .gcell .gln span:not(.tag){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+main .grid .gcell .gln .tag{flex:0 0 auto;font-size:var(--fs-caption);padding:1px 6px}
