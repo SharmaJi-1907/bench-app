@@ -1,10 +1,22 @@
-const NAV=[['home','Home','<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>'],
- ['stock','Stock','<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V4h8v3"/>'],
- ['buy','To Buy','<path d="M6 6h15l-2 9H8L6 6z"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M6 6L5 3H2"/>'],
- ['proj','Projects','<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'],
- ['all','All','<path d="M4 6h16M4 12h16M4 18h16"/>']];
+const NAV=[
+ ['home','Home',
+  '<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>',
+  '<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>'],
+ ['stock','Stock',
+  '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V4h8v3"/>',
+  '<rect x="3" y="7" width="18" height="13" rx="2"/><rect x="8" y="4" width="8" height="3" rx="1" fill="var(--card)"/>'],
+ ['buy','To Buy',
+  '<path d="M6 6h15l-2 9H8L6 6z"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M6 6L5 3H2"/>',
+  '<path d="M6 6h15l-2 9H8z"/><circle cx="9" cy="20" r="1.6" fill="var(--card)"/><circle cx="18" cy="20" r="1.6" fill="var(--card)"/>'],
+ ['proj','Projects',
+  '<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',
+  '<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'],
+ ['all','All',
+  '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  '<rect x="4" y="4.5" width="16" height="3" rx="1.5"/><rect x="4" y="10.5" width="16" height="3" rx="1.5"/><rect x="4" y="16.5" width="16" height="3" rx="1.5"/>']];
 function drawNav(){
-  $('#nav').innerHTML=NAV.map(a=>`<button data-v="${a[0]}" class="${S.view===a[0]?'on':''}"><svg viewBox="0 0 24 24">${a[2]}</svg>${a[1]}</button>`).join('');
+  $('#nav').innerHTML=NAV.map(a=>{const on=S.view===a[0];
+    return `<button data-v="${a[0]}" class="${on?'on':''}"><svg viewBox="0 0 24 24" class="${on?'filled':''}">${on?a[3]:a[2]}</svg>${a[1]}</button>`}).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.view=b.dataset.v;S.f.q='';render()});
 }
 
@@ -27,9 +39,8 @@ function row(it,mode){
       +(s==='have'?'<span class="tag t-have">have</span>':'')
       +`<span>${esc(it.d||CATS[it.c])}</span>`;
   }
-  const q=qty(it.i),p=price(it.i);
-  const right=mode==='stock'?`<div class="pr">×${q}<small>${money(p)}</small></div>`
-    :mode==='catalog'&&s!=='have'?'':`<div class="pr">${money(p*(s==='need'?q:1))}${s==='need'&&q>1?`<small>${q} × ${money(p)}</small>`:''}</div>`;
+  const q=qty(it.i);
+  const right=mode==='stock'?`<div class="pr">×${q}</div>`:'';
   return `<div class="row"><button class="tap" data-id="${it.i}">${thumb(it)}
     <div class="info"><div class="nm">${esc(it.n)}</div><div class="ln">${line}</div></div></button>${right}</div>`;
 }
@@ -61,12 +72,9 @@ function vHome(){
   const lv=['B','I','A'].map(L=>{const set=all().filter(x=>x.l===L);
     const h=set.filter(x=>st(x.i)==='have').length;
     return{L:L,h:h,n:set.length,pct:set.length?Math.round(h/set.length*100):0}});
-  return `<div class="total"><div class="lbl">I need to spend</div>
-    <div class="amt">${money(s.buy)}</div>
-    <div class="sub">${s.buyN} item${s.buyN===1?'':'s'} on my buy list</div></div>
-  <div class="tiles">
+  return `<div class="tiles">
     <div class="tile"><b>${s.have}</b><span>I have</span></div>
-    <div class="tile"><b>${money(s.haveVal)}</b><span>stock value</span></div>
+    <div class="tile"><b>${s.buyN}</b><span>need to buy</span></div>
     <div class="tile"><b style="color:${s.bad?'var(--red)':'inherit'}">${s.bad}</b><span>damaged</span></div>
   </div>
   <h2>My progress</h2>
@@ -84,17 +92,16 @@ function vHome(){
 }
 function stockByCategory(){
   const totals={};
-  all().forEach(x=>{if(st(x.i)==='have')totals[x.c]=(totals[x.c]||0)+price(x.i)*qty(x.i)});
+  all().forEach(x=>{if(st(x.i)==='have')totals[x.c]=(totals[x.c]||0)+1});
   const rows=Object.keys(totals).map(k=>({k,v:totals[k]})).sort((a,b)=>b.v-a.v);
   if(!rows.length)return '';
   const max=rows[0].v;
-  return `<h2>Stock value by category</h2>
+  return `<h2>Stock by category</h2>
     ${rows.map(r=>`<div class="row" style="display:block;padding:14px">
-      <div style="display:flex;justify-content:space-between;font-size:14px"><b>${CATS[r.k]}</b><span style="color:var(--ink2)">${money(r.v)}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:14px"><b>${CATS[r.k]}</b><span style="color:var(--ink2)">${r.v} item${r.v===1?'':'s'}</span></div>
       <div class="bar"><i style="width:${Math.round(r.v/max*100)}%"></i></div></div>`).join('')}`;
 }
 const PSTAT={idea:['Idea','t-gray'],building:['Building','t-warn'],done:['Finished','t-have'],paused:['Paused','t-gray']};
-function projCost(p){return (p.parts||[]).reduce((s,x)=>s+price(x.id)*(x.q||1),0)}
 function projMissing(p){return (p.parts||[]).filter(x=>st(x.id)!=='have')}
 function projRow(p,i){
   const n=(p.parts||[]).length,miss=projMissing(p).length;
@@ -104,8 +111,7 @@ function projRow(p,i){
     <div class="info"><div class="nm">${esc(p.name)}</div>
     <div class="ln"><span class="tag ${s[1]}">${s[0]}</span>
       <span>${n} part${n===1?'':'s'}</span>
-      ${miss?`<span class="tag t-need">${miss} missing</span>`:(n?'<span class="tag t-have">all parts ready</span>':'')}</div></div></button>
-    <div class="pr">${money(projCost(p))}</div></div>`;
+      ${miss?`<span class="tag t-need">${miss} missing</span>`:(n?'<span class="tag t-have">all parts ready</span>':'')}</div></div></button></div>`;
 }
 function bar(){
   return `<input class="search" id="q" placeholder="Search components" value="${esc(S.f.q)}">
@@ -120,41 +126,38 @@ function vAll(){
   const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
   return bar()+Object.keys(CATS).filter(k=>g[k]).map(k=>
     `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} items</span></div>`
-    +g[k].map(x=>row(x,'catalog')).join('')).join('');
+    +g[k].map(x=>row(x)).join('')).join('');
 }
 function vStock(){
   const owned=all().filter(x=>st(x.i)==='have');
-  if(!owned.length)return `<div class="empty"><h3>Your stock is empty</h3>
+  if(!owned.length)return `<div class="empty"><div class="thumb" style="width:64px;height:64px;margin:0 auto 14px">${sym('board')}</div><h3>Your stock is empty</h3>
     <p>Open any component and tap <b>I have it</b>. Then set the quantity, condition and which project it is in.</p>
     <button class="btn" id="goAll">Browse all items</button></div>`;
-  const l=filt(owned),val=l.reduce((s,x)=>s+price(x.i)*qty(x.i),0);
-  return `<div class="total" style="padding:16px"><div class="lbl">${l.length} items in stock</div>
-    <div class="amt" style="font-size:28px">${money(val)}</div></div><div style="height:12px"></div>`
+  const l=filt(owned);
+  return `<div class="total" style="padding:16px"><div class="lbl">Items in stock</div>
+    <div class="amt" style="font-size:28px">${l.length}</div></div><div style="height:12px"></div>`
     +bar()+(l.length?l.map(x=>row(x,'stock')).join(''):`<div class="empty"><p>No stock matches this filter.</p></div>`);
 }
 function vBuy(){
   const l=all().filter(x=>st(x.i)==='need');
-  if(!l.length)return `<div class="empty"><h3>Buy list is empty</h3>
-    <p>Mark items as <b>Need to buy</b> and they collect here with the total.</p>
+  if(!l.length)return `<div class="empty"><div class="thumb" style="width:64px;height:64px;margin:0 auto 14px">${sym('tool')}</div><h3>Buy list is empty</h3>
+    <p>Mark items as <b>Need to buy</b> and they collect here.</p>
     <button class="btn" id="goAll">Browse all items</button></div>`;
-  const tot=l.reduce((s,x)=>s+price(x.i)*qty(x.i),0);
   const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
-  return `<div class="total"><div class="lbl">Total to buy</div><div class="amt">${money(tot)}</div>
-    <div class="sub">${l.length} items · add about ₹100 shipping per store</div></div>`
-  +Object.keys(CATS).filter(k=>g[k]).map(k=>{
-    const s=g[k].reduce((a,x)=>a+price(x.i)*qty(x.i),0);
-    return `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${money(s)}</span></div>`+g[k].map(x=>row(x)).join('')}).join('')
+  return `<div class="total"><div class="lbl">Items to buy</div><div class="amt">${l.length}</div></div>`
+  +Object.keys(CATS).filter(k=>g[k]).map(k=>
+    `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} item${g[k].length===1?'':'s'}</span></div>`+g[k].map(x=>row(x)).join('')).join('')
   +`<div class="btnrow"><button class="btn sec" id="cp">Copy list</button><button class="btn grn" id="ab">All bought</button></div>`;
 }
 
 function vProj(){
-  if(!S.projects.length)return `<div class="empty"><h3>No projects yet</h3>
+  if(!S.projects.length)return `<div class="empty"><div class="thumb" style="width:64px;height:64px;margin:0 auto 14px">${sym('board')}</div><h3>No projects yet</h3>
     <p>A project is anything you are building — a robot, a lab experiment, a home automation box.
-    Add the parts it needs and the app tells you what is missing and what it costs.</p>
+    Add the parts it needs and the app tells you what is missing.</p>
     <button class="btn" id="newProj">Create my first project</button></div>`;
-  const totalMiss=S.projects.reduce((s,p)=>s+projMissing(p).reduce((a,x)=>a+price(x.id)*(x.q||1),0),0);
+  const totalMiss=S.projects.reduce((s,p)=>s+projMissing(p).length,0);
   return `<div class="total"><div class="lbl">Missing parts across all projects</div>
-    <div class="amt">${money(totalMiss)}</div>
+    <div class="amt">${totalMiss}</div>
     <div class="sub">${S.projects.length} project${S.projects.length===1?'':'s'}</div></div>
     <h2>All projects</h2>
     ${S.projects.map((p,i)=>projRow(p,i)).join('')}

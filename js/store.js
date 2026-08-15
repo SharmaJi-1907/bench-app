@@ -27,10 +27,12 @@ function applyTheme(t){document.documentElement.dataset.theme=t==='system'?'':t}
 async function setTheme(t){S.theme=t;applyTheme(t);await dbSet('theme',t)}
 async function boot(){
   await dbOpen();
-  S.theme=(await dbGet('theme'))||'system';applyTheme(S.theme);
-  S.u=(await dbGet('u'))||{};S.custom=(await dbGet('custom'))||[];S.projects=(await dbGet('proj'))||[];
-  const ix=(await dbGet('pix'))||[];
-  for(const id of ix){const p=await dbGet('p:'+id);if(p)S.photos[id]=p}
+  const [theme,u,custom,projects,ix]=await Promise.all(
+    [dbGet('theme'),dbGet('u'),dbGet('custom'),dbGet('proj'),dbGet('pix')]);
+  S.theme=theme||'system';applyTheme(S.theme);
+  S.u=u||{};S.custom=custom||[];S.projects=projects||[];
+  render();
+  for(const id of (ix||[])){const p=await dbGet('p:'+id);if(p)S.photos[id]=p}
   render();
 }
 async function setPhoto(id,d){S.photos[id]=d;await dbSet('p:'+id,d);await dbSet('pix',Object.keys(S.photos))}
@@ -38,14 +40,14 @@ async function delPhoto(id){delete S.photos[id];await dbDel('p:'+id);await dbSet
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1700)}
 
 function sums(){
-  let buy=0,buyN=0,have=0,haveVal=0,bad=0,untested=0;
+  let buyN=0,have=0,bad=0,untested=0;
   for(const it of all()){
-    const s=st(it.i),q=qty(it.i),p=price(it.i);
-    if(s==='need'){buy+=p*q;buyN++}
-    if(s==='have'){have++;haveVal+=p*q;const u=U(it.i);
+    const s=st(it.i);
+    if(s==='need')buyN++;
+    if(s==='have'){have++;const u=U(it.i);
       if(u.cond==='damaged'||u.cond==='repair')bad++;
       if(!u.tested)untested++}
   }
-  return{buy,buyN,have,haveVal,bad,untested};
+  return{buyN,have,bad,untested};
 }
 

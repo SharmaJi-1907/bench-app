@@ -1,12 +1,11 @@
 function openProject(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
   const parts=p.parts||[],miss=projMissing(p);
-  const missCost=miss.reduce((s,x)=>s+price(x.id)*(x.q||1),0);
   $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">${esc(p.name)}</div></div>
   <div class="sheet-in">
-    <div class="total" style="margin-top:14px"><div class="lbl">Still need to buy</div>
-      <div class="amt">${money(missCost)}</div>
-      <div class="sub">${parts.length-miss.length} of ${parts.length} parts ready · project cost ${money(projCost(p))}</div></div>
+    <div class="total" style="margin-top:14px"><div class="lbl">Parts ready</div>
+      <div class="amt">${parts.length-miss.length} of ${parts.length}</div>
+      <div class="sub">${miss.length} still needed</div></div>
 
     <label class="f">Project name</label>
     <input class="f" id="pn" value="${esc(p.name)}">
@@ -111,13 +110,8 @@ function open(id){
       <button data-v="" class="${s===''?'on':''}">Skip</button>
     </div>
 
-    <div class="two">
-      <div><label class="f">Price I pay</label>
-        <div class="pfx"><span>₹</span><input class="f" id="pp" type="number" inputmode="decimal" value="${price(id)}"></div></div>
-      <div><label class="f">Quantity</label>
-        <div class="stepper"><button id="qm">−</button><input class="f" id="qq" type="number" inputmode="numeric" value="${qty(id)}"><button id="qp">+</button></div></div>
-    </div>
-    <div style="text-align:right;margin-top:8px;font-size:14px;color:var(--ink2)">Total: <b style="color:var(--ink)">${money(price(id)*qty(id))}</b></div>
+    <label class="f">Quantity</label>
+    <div class="stepper"><button id="qm">−</button><input class="f" id="qq" type="number" inputmode="numeric" value="${qty(id)}"><button id="qp">+</button></div>
 
     <div id="own" style="display:${s==='have'?'block':'none'}">
       <label class="f">Condition</label>
@@ -140,7 +134,6 @@ function open(id){
       <div class="kv"><span class="k">Spec</span><span class="v">${esc(it.d||'—')}</span></div>
       <div class="kv"><span class="k">Type</span><span class="v">${CATS[it.c]}</span></div>
       <div class="kv"><span class="k">Level</span><span class="v">${LVL[it.l]}</span></div>
-      <div class="kv"><span class="k">Market price</span><span class="v">${money(it.p)}</span></div>
       <div class="kv"><span class="k">Suggested qty</span><span class="v">${it.q}</span></div>
     </div>
 
@@ -172,9 +165,9 @@ function open(id){
     S.u[id]=o;await save();open(id)});
   const sc=$('#sc');if(sc)sc.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{cond:b.dataset.v});await save();open(id)});
   const stg=$('#stst');if(stg)stg.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{tested:b.dataset.v==='1'});await save();open(id)});
-  const pp=$('#pp'),qq=$('#qq');
-  const upd=async()=>{S.u[id]=Object.assign({},U(id),{price:Math.max(0,+pp.value||0),qty:Math.max(0,parseInt(qq.value)||0)});await save();open(id)};
-  pp.onchange=upd;qq.onchange=upd;
+  const qq=$('#qq');
+  const upd=async()=>{S.u[id]=Object.assign({},U(id),{qty:Math.max(0,parseInt(qq.value)||0)});await save();open(id)};
+  qq.onchange=upd;
   $('#qm').onclick=()=>{qq.value=Math.max(0,(+qq.value||0)-1);upd()};
   $('#qp').onclick=()=>{qq.value=(+qq.value||0)+1;upd()};
   [['loc','loc'],['pj','project'],['nt','notes']].forEach(a=>{const e=$('#'+a[0]);
@@ -192,10 +185,7 @@ function openAdd(){
       <div><label class="f">Type</label><select class="f" id="ac">${Object.keys(CATS).map(k=>`<option value="${k}">${CATS[k]}</option>`).join('')}</select></div>
       <div><label class="f">Level</label><select class="f" id="al">${Object.keys(LVL).map(k=>`<option value="${k}">${LVL[k]}</option>`).join('')}</select></div>
     </div>
-    <div class="two">
-      <div><label class="f">Price</label><div class="pfx"><span>₹</span><input class="f" id="ap" type="number" inputmode="decimal" value="0"></div></div>
-      <div><label class="f">Quantity</label><input class="f" id="aq" type="number" inputmode="numeric" value="1"></div>
-    </div>
+    <label class="f">Quantity</label><input class="f" id="aq" type="number" inputmode="numeric" value="1">
     <label class="f">Picture symbol</label>
     <select class="f" id="as">${Object.keys(SYM).map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
     <label class="f">Spec</label><input class="f" id="ad" placeholder="package, ratings">
@@ -210,9 +200,9 @@ function openAdd(){
     $('#ast').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
   $('#sv').onclick=async()=>{
     const n=$('#an').value.trim();if(!n){toast('Give it a name first');return}
-    const id='u_'+Date.now(),q=+$('#aq').value||1,p=+$('#ap').value||0;
-    S.custom.push(I(id,n,$('#ac').value,$('#al').value,$('#as').value,p,q,$('#aw').value.trim(),$('#ad').value.trim(),''));
-    S.u[id]={st:start,qty:q,price:p,cond:'working',tested:false};
+    const id='u_'+Date.now(),q=+$('#aq').value||1;
+    S.custom.push(I(id,n,$('#ac').value,$('#al').value,$('#as').value,0,q,$('#aw').value.trim(),$('#ad').value.trim(),''));
+    S.u[id]={st:start,qty:q,cond:'working',tested:false};
     await save();close();toast('Added');open(id)};
 }
 

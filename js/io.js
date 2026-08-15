@@ -44,8 +44,7 @@ function doImport(e){
 }
 function copyList(){
   const l=all().filter(x=>st(x.i)==='need');
-  const t='MY SHOPPING LIST\n\n'+l.map(x=>`${x.n} — ${qty(x.i)} pcs — ${money(price(x.i)*qty(x.i))}`).join('\n')
-    +`\n\nTOTAL: ${money(l.reduce((s,x)=>s+price(x.i)*qty(x.i),0))}`;
+  const t='MY SHOPPING LIST\n\n'+l.map(x=>`${x.n} — ${qty(x.i)} pcs`).join('\n');
   if(navigator.clipboard&&navigator.clipboard.writeText)
     navigator.clipboard.writeText(t).then(()=>toast('Copied')).catch(()=>fb(t));
   else fb(t);
