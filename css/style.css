@@ -22,7 +22,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
 #app{max-width:680px;margin:0 auto;min-height:100vh}
 header{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);
   padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:10px}
-header h1{margin:0;font-size:18px;font-weight:700;flex:1}
+header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.03em;flex:1;color:var(--blue)}
 header .icobtn{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer}
 header .icobtn svg{width:19px;height:19px;stroke:var(--ink2);fill:none;stroke-width:1.8}
 main{padding:14px 16px 100px}

@@ -69,26 +69,24 @@ $('#globalCam').onchange=e=>{
 
 function vHome(){
   const s=sums();
-  const lv=['B','I','A'].map(L=>{const set=all().filter(x=>x.l===L);
-    const h=set.filter(x=>st(x.i)==='have').length;
-    return{L:L,h:h,n:set.length,pct:set.length?Math.round(h/set.length*100):0}});
+  const owned=all().filter(x=>st(x.i)==='have');
   return `<div class="tiles">
     <div class="tile"><b>${s.have}</b><span>I have</span></div>
     <div class="tile"><b>${s.buyN}</b><span>need to buy</span></div>
     <div class="tile"><b style="color:${s.bad?'var(--red)':'inherit'}">${s.bad}</b><span>damaged</span></div>
   </div>
-  <h2>My progress</h2>
-  ${lv.map(x=>`<div class="row" style="display:block;padding:14px">
-    <div style="display:flex;justify-content:space-between;font-size:14px"><b>${LVL[x.L]}</b><span style="color:var(--ink2)">${x.h} of ${x.n}</span></div>
-    <div class="bar"><i style="width:${x.pct}%"></i></div></div>`).join('')}
-  ${(s.untested||s.bad)?`<h2>Check these</h2>
-    ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:14.5px"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
-    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:14.5px;color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
-  ${stockByCategory()}
   <h2>My projects</h2>
   ${S.projects.length?S.projects.slice(0,4).map((p,i)=>projRow(p,i)).join('')
     :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">No projects yet. Make one to plan the parts you need.</div>`}
-  <button class="btn sec wide" id="goProj">${S.projects.length?'See all projects':'Create a project'}</button>`;
+  <button class="btn sec wide" id="goProj">${S.projects.length?'See all projects':'Create a project'}</button>
+  <h2>Items I have</h2>
+  ${owned.length?owned.slice(0,4).map(x=>row(x,'stock')).join('')
+    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">Nothing marked as owned yet.</div>`}
+  ${owned.length?`<button class="btn sec wide" id="goStock">See all in stock</button>`:''}
+  ${(s.untested||s.bad)?`<h2>Check these</h2>
+    ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:14.5px"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
+    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:14.5px;color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
+  ${stockByCategory()}`;
 }
 function stockByCategory(){
   const totals={};
@@ -165,7 +163,6 @@ function vProj(){
 }
 function render(){
   drawNav();
-  $('#title').textContent={home:'My Components',stock:'My Stock',buy:'To Buy',proj:'My Projects',all:'All Items'}[S.view];
   $('#main').innerHTML={home:vHome,stock:vStock,buy:vBuy,proj:vProj,all:vAll}[S.view]();
   window.scrollTo(0,0);bind();
   const q=$('#q');if(q)q.oninput=e=>{const p=e.target.selectionStart;S.f.q=e.target.value;render();
@@ -173,6 +170,7 @@ function render(){
   document.querySelectorAll('.chip[data-v]').forEach(c=>c.onclick=()=>{S.f.cat=S.f.cat===c.dataset.v?'':c.dataset.v;render()});
   document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
   const ga=$('#goAll');if(ga)ga.onclick=()=>{S.view='all';render()};
+  const gs=$('#goStock');if(gs)gs.onclick=()=>{S.view='stock';render()};
   const gp=$('#goProj');if(gp)gp.onclick=()=>{if(!S.projects.length)newProject();else{S.view='proj';render()}};
   const np=$('#newProj');if(np)np.onclick=newProject;
   const cp=$('#cp');if(cp)cp.onclick=copyList;
