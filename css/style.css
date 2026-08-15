@@ -3,6 +3,18 @@
   --blue:#2563EB;--blue-soft:#EAF0FE;--green:#0E9F6E;--green-soft:#E6F6F0;
   --amber:#C2760B;--amber-soft:#FDF3E3;--red:#DC2626;--red-soft:#FDECEC;--r:12px;
 }
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1115;--card:#1A1D23;--line:#2A2E36;--ink:#F2F4F7;--ink2:#9AA1AC;--ink3:#6B7280;
+    --blue:#4C86FF;--blue-soft:#1B2A4A;--green:#22C58B;--green-soft:#123328;
+    --amber:#E2A63D;--amber-soft:#3A2C10;--red:#F1615C;--red-soft:#3A1616;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1115;--card:#1A1D23;--line:#2A2E36;--ink:#F2F4F7;--ink2:#9AA1AC;--ink3:#6B7280;
+  --blue:#4C86FF;--blue-soft:#1B2A4A;--green:#22C58B;--green-soft:#123328;
+  --amber:#E2A63D;--amber-soft:#3A2C10;--red:#F1615C;--red-soft:#3A1616;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
@@ -16,9 +28,11 @@ main{padding:14px 16px 100px}
 nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);border-top:1px solid var(--line);
   display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);max-width:680px;margin:0 auto}
 nav button{background:none;border:0;padding:9px 1px;color:var(--ink3);font-size:10px;font-weight:600;
-  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit}
+  display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-family:inherit;position:relative}
 nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
-nav button.on{color:var(--blue)}
+nav button.on{color:var(--blue);font-weight:700}
+nav button.on::before{content:'';position:absolute;top:3px;left:50%;transform:translateX(-50%);
+  width:42px;height:25px;border-radius:13px;background:var(--blue-soft);z-index:-1}
 .total{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
 .total .lbl{font-size:13px;color:var(--ink2)}
 .total .amt{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:6px 0 2px;font-variant-numeric:tabular-nums}

@@ -29,7 +29,7 @@ function row(it,mode){
   }
   const q=qty(it.i),p=price(it.i);
   const right=mode==='stock'?`<div class="pr">×${q}<small>${money(p)}</small></div>`
-    :`<div class="pr">${money(p*(s==='need'?q:1))}${s==='need'&&q>1?`<small>${q} × ${money(p)}</small>`:''}</div>`;
+    :mode==='catalog'&&s!=='have'?'':`<div class="pr">${money(p*(s==='need'?q:1))}${s==='need'&&q>1?`<small>${q} × ${money(p)}</small>`:''}</div>`;
   return `<div class="row"><button class="tap" data-id="${it.i}">${thumb(it)}
     <div class="info"><div class="nm">${esc(it.n)}</div><div class="ln">${line}</div></div></button>${right}</div>`;
 }
@@ -76,10 +76,22 @@ function vHome(){
   ${(s.untested||s.bad)?`<h2>Check these</h2>
     ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:14.5px"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
     ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:14.5px;color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
+  ${stockByCategory()}
   <h2>My projects</h2>
   ${S.projects.length?S.projects.slice(0,4).map((p,i)=>projRow(p,i)).join('')
     :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">No projects yet. Make one to plan the parts you need.</div>`}
   <button class="btn sec wide" id="goProj">${S.projects.length?'See all projects':'Create a project'}</button>`;
+}
+function stockByCategory(){
+  const totals={};
+  all().forEach(x=>{if(st(x.i)==='have')totals[x.c]=(totals[x.c]||0)+price(x.i)*qty(x.i)});
+  const rows=Object.keys(totals).map(k=>({k,v:totals[k]})).sort((a,b)=>b.v-a.v);
+  if(!rows.length)return '';
+  const max=rows[0].v;
+  return `<h2>Stock value by category</h2>
+    ${rows.map(r=>`<div class="row" style="display:block;padding:14px">
+      <div style="display:flex;justify-content:space-between;font-size:14px"><b>${CATS[r.k]}</b><span style="color:var(--ink2)">${money(r.v)}</span></div>
+      <div class="bar"><i style="width:${Math.round(r.v/max*100)}%"></i></div></div>`).join('')}`;
 }
 const PSTAT={idea:['Idea','t-gray'],building:['Building','t-warn'],done:['Finished','t-have'],paused:['Paused','t-gray']};
 function projCost(p){return (p.parts||[]).reduce((s,x)=>s+price(x.id)*(x.q||1),0)}
@@ -108,7 +120,7 @@ function vAll(){
   const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
   return bar()+Object.keys(CATS).filter(k=>g[k]).map(k=>
     `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} items</span></div>`
-    +g[k].map(x=>row(x)).join('')).join('');
+    +g[k].map(x=>row(x,'catalog')).join('')).join('');
 }
 function vStock(){
   const owned=all().filter(x=>st(x.i)==='have');

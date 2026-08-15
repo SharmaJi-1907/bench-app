@@ -11,7 +11,7 @@ function dbSet(k,v){DB.mem[k]=v;return new Promise(r=>{if(!DB.ok)return r(1);
 function dbDel(k){delete DB.mem[k];return new Promise(r=>{if(!DB.ok)return r();
  try{const t=DB.db.transaction('kv','readwrite').objectStore('kv').delete(k);t.onsuccess=()=>r();t.onerror=()=>r()}catch(e){r()}})}
 
-let S={u:{},custom:[],photos:{},projects:[],view:'home',f:{cat:'',q:''}};
+let S={u:{},custom:[],photos:{},projects:[],view:'home',f:{cat:'',q:''},theme:'system'};
 const $=s=>document.querySelector(s);
 const all=()=>CATALOG.concat(S.custom);
 const byId=id=>all().find(x=>x.i===id);
@@ -23,8 +23,11 @@ const money=n=>'₹'+Math.round(n).toLocaleString('en-IN');
 const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 const save=async()=>{await dbSet('u',S.u);await dbSet('custom',S.custom);await dbSet('proj',S.projects)};
 
+function applyTheme(t){document.documentElement.dataset.theme=t==='system'?'':t}
+async function setTheme(t){S.theme=t;applyTheme(t);await dbSet('theme',t)}
 async function boot(){
   await dbOpen();
+  S.theme=(await dbGet('theme'))||'system';applyTheme(S.theme);
   S.u=(await dbGet('u'))||{};S.custom=(await dbGet('custom'))||[];S.projects=(await dbGet('proj'))||[];
   const ix=(await dbGet('pix'))||[];
   for(const id of ix){const p=await dbGet('p:'+id);if(p)S.photos[id]=p}

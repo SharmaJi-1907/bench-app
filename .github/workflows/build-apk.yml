@@ -61,7 +61,7 @@ jobs:
           cat > package.json <<'EOF'
           { "name": "bench-app", "version": "1.0.0", "private": true }
           EOF
-          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/app@6
           npx cap init "$APP_NAME" "$APP_ID" --web-dir=www
           mkdir -p www
           cp index.html www/index.html

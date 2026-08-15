@@ -219,6 +219,12 @@ function openAdd(){
 function openMore(){
   $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">More</div></div>
   <div class="sheet-in">
+    <label class="f">Appearance</label>
+    <div class="seg">
+      <button data-theme-opt="light" class="${S.theme==='light'?'on':''}">Light</button>
+      <button data-theme-opt="dark" class="${S.theme==='dark'?'on':''}">Dark</button>
+      <button data-theme-opt="system" class="${S.theme==='system'?'on':''}">Auto</button>
+    </div>
     <label class="f">Photos</label>
     <button class="btn sec wide" id="bulk">Add many photos at once</button>
     <p style="font-size:13px;color:var(--ink2);line-height:1.55;margin-top:8px">
@@ -237,6 +243,7 @@ function openMore(){
     <button class="btn red wide" id="rs">Erase all my data</button><div style="height:30px"></div></div>`;
   $('#sheet').classList.add('open');document.body.style.overflow='hidden';
   $('#cl').onclick=close;
+  document.querySelectorAll('[data-theme-opt]').forEach(b=>b.onclick=async()=>{await setTheme(b.dataset.themeOpt);openMore()});
   $('#bulk').onclick=()=>$('#bulkf').click();
   $('#bulkf').onchange=bulkPhotos;
   $('#ex1').onclick=doExport;
