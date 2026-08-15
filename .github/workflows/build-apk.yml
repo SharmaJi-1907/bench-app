@@ -75,6 +75,7 @@ jobs:
           cp index.html www/index.html
           cp -r css www/css
           cp -r js www/js
+          cp -r assets www/assets
           npx cap add android
 
       - name: Generate the app icon and splash screen

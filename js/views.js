@@ -20,6 +20,42 @@ function drawNav(){
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.view=b.dataset.v;S.f.q='';render()});
 }
 
+/* ---- catalog layout mode (list | grid) -------------------------------
+   Persisted with the same flat dbSet/dbGet key pattern as 'theme' and
+   'onboarded'. store.js's boot() doesn't know about it, so the value is
+   pulled in lazily on the first render and re-rendered once it lands. */
+let CATVIEW='list',catviewLoaded=false;
+function loadCatView(){
+  if(catviewLoaded)return;catviewLoaded=true;
+  dbGet('catview').then(v=>{if((v==='grid'||v==='list')&&v!==CATVIEW){CATVIEW=v;render()}});
+}
+async function setCatView(v){
+  if(v!=='grid'&&v!=='list')return;
+  if(CATVIEW===v)return;
+  CATVIEW=v;catviewLoaded=true;render();await dbSet('catview',v);
+}
+/* outline (inactive) + filled (active) variant per option — same
+   two-variant pattern as NAV/drawNav(), per DESIGN-SYSTEM §Iconography */
+const CATVIEWS=[
+ ['list','List view',
+  '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  '<rect x="4" y="4.5" width="16" height="3" rx="1.5"/><rect x="4" y="10.5" width="16" height="3" rx="1.5"/><rect x="4" y="16.5" width="16" height="3" rx="1.5"/>'],
+ ['grid','Grid view',
+  '<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',
+  '<rect x="3.5" y="3.5" width="8" height="8" rx="2"/><rect x="12.5" y="3.5" width="8" height="8" rx="2"/><rect x="3.5" y="12.5" width="8" height="8" rx="2"/><rect x="12.5" y="12.5" width="8" height="8" rx="2"/>']];
+function catToggle(){
+  return `<div class="vtogbar"><div class="vtog" role="group" aria-label="Catalog layout">`
+    +CATVIEWS.map(a=>{const on=CATVIEW===a[0];
+      return `<button type="button" data-cv="${a[0]}" class="${on?'on':''}" aria-label="${a[1]}" aria-pressed="${on?'true':'false'}"><svg viewBox="0 0 24 24" class="${on?'filled':''}">${on?a[3]:a[2]}</svg></button>`}).join('')
+    +`</div></div>`;
+}
+function gcell(it){
+  const s=st(it.i);
+  return `<div class="gcell"><button class="tap" data-id="${it.i}">${thumb(it)}
+    <div class="ginfo"><div class="gnm">${esc(it.n)}</div>
+    <div class="gln">${s==='have'?'<span class="tag t-have">have</span>':''}<span>${esc(it.d||CATS[it.c])}</span></div></div></button></div>`;
+}
+
 function thumb(it){
   const p=S.photos[it.i];
   return `<div class="thumb" data-cam="${it.i}">${p?`<img src="${p}" alt="">`:art(it)}
@@ -120,15 +156,15 @@ function vHome(){
   </div>
   <h2>My projects</h2>
   ${S.projects.length?S.projects.slice(0,4).map((p,i)=>projRow(p,i)).join('')
-    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">No projects yet. Make one to plan the parts you need.</div>`}
+    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:var(--fs-body)">No projects yet. Make one to plan the parts you need.</div>`}
   <button class="btn sec wide" id="goProj">${S.projects.length?'See all projects':'Create a project'}</button>
   <h2>Items I have</h2>
   ${owned.length?owned.slice(0,4).map(x=>row(x,'stock')).join('')
-    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">Nothing marked as owned yet.</div>`}
+    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:var(--fs-body)">Nothing marked as owned yet.</div>`}
   ${owned.length?`<button class="btn sec wide" id="goStock">See all in stock</button>`:''}
   ${(s.untested||s.bad)?`<h2>Check these</h2>
-    ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:14.5px"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
-    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:14.5px;color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
+    ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body)"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
+    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body);color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
   ${stockByCategory()}`;
 }
 function stockByCategory(){
@@ -139,7 +175,7 @@ function stockByCategory(){
   const max=rows[0].v;
   return `<h2>Stock by category</h2>
     ${rows.map(r=>`<div class="row" style="display:block;padding:14px">
-      <div style="display:flex;justify-content:space-between;font-size:14px"><b>${CATS[r.k]}</b><span style="color:var(--ink2)">${r.v} item${r.v===1?'':'s'}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:var(--fs-body)"><b>${CATS[r.k]}</b><span style="color:var(--ink2)">${r.v} item${r.v===1?'':'s'}</span></div>
       <div class="bar"><i style="width:${Math.round(r.v/max*100)}%"></i></div></div>`).join('')}`;
 }
 const PSTAT={idea:['Idea','t-gray'],building:['Building','t-warn'],done:['Finished','t-have'],paused:['Paused','t-gray']};
@@ -167,11 +203,14 @@ function filt(l){const q=S.f.q.trim().toLowerCase();
   return l.filter(it=>(!S.f.cat||it.c===S.f.cat)&&(!q||(it.n+' '+it.d+' '+it.w+' '+CATS[it.c]).toLowerCase().indexOf(q)>=0))}
 function vAll(){
   const l=filt(all());
-  if(!l.length)return bar()+`<div class="empty"><h3>Nothing found</h3><p>Try another word or clear the filter.</p></div>`;
+  const head=bar()+catToggle();
+  if(!l.length)return head+`<div class="empty"><h3>Nothing found</h3><p>Try another word or clear the filter.</p></div>`;
   const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
-  return bar()+Object.keys(CATS).filter(k=>g[k]).map(k=>
+  const grid=CATVIEW==='grid';
+  return head+Object.keys(CATS).filter(k=>g[k]).map(k=>
     `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} items</span></div>`
-    +g[k].map(x=>row(x)).join('')).join('');
+    +(grid?`<div class="grid">${g[k].map(x=>gcell(x)).join('')}</div>`
+          :g[k].map(x=>row(x)).join(''))).join('');
 }
 function vStock(){
   const owned=all().filter(x=>st(x.i)==='have');
@@ -180,7 +219,7 @@ function vStock(){
     <button class="btn" id="goAll">Browse all items</button></div>`;
   const l=filt(owned);
   return `<div class="total" style="padding:16px"><div class="lbl">Items in stock</div>
-    <div class="amt" style="font-size:28px">${l.length}</div></div><div style="height:12px"></div>`
+    <div class="amt">${l.length}</div></div><div style="height:12px"></div>`
     +bar()+(l.length?l.map(x=>row(x,'stock',{label:'Remove',cls:'red',kind:'unstock'})).join(''):`<div class="empty"><p>No stock matches this filter.</p></div>`);
 }
 function vBuy(){
@@ -210,6 +249,7 @@ function vProj(){
     <button class="btn wide" id="newProj" style="margin-top:6px">+ New project</button>`;
 }
 function render(){
+  loadCatView();
   drawNav();
   $('#main').innerHTML={home:vHome,stock:vStock,buy:vBuy,proj:vProj,all:vAll}[S.view]();
   window.scrollTo(0,0);bind();
@@ -217,6 +257,7 @@ function render(){
     const n=$('#q');if(n){n.focus();n.setSelectionRange(p,p)}};
   const qc=$('#qclear');if(qc)qc.onclick=()=>{S.f.q='';render()};
   document.querySelectorAll('.chip[data-v]').forEach(c=>c.onclick=()=>{S.f.cat=S.f.cat===c.dataset.v?'':c.dataset.v;render()});
+  document.querySelectorAll('.vtog button[data-cv]').forEach(b=>b.onclick=()=>setCatView(b.dataset.cv));
   document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
   const ga=$('#goAll');if(ga)ga.onclick=()=>{S.view='all';render()};
   const gs=$('#goStock');if(gs)gs.onclick=()=>{S.view='stock';render()};

@@ -1,0 +1,15 @@
+# Original downloaded photos (~49MB). Source material only - the app ships
+# assets/processed_images/ instead. Kept out of git history to stay light;
+# re-fetchable with scripts/fetch_image.py if ever needed again.
+assets/raw_images/
+
+# Per-agent work lists used during the one-off image sourcing run.
+scripts/work-*.json
+
+__pycache__/
+*.pyc
+
+# Scratch test/screenshot harnesses - always deleted before commit.
+_test*.html
+_shot*.html
+_verify*.html

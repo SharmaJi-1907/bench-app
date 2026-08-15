@@ -21,7 +21,7 @@ function openProject(pid){
         <div class="ln">${has?'<span class="tag t-have">I have it</span>':'<span class="tag t-need">missing</span>'}
         <span>${x.q||1} pcs</span></div></div></button>
         <button class="pr" style="background:none;border:0;color:var(--red);font-size:20px;cursor:pointer;padding:0 6px" data-rm="${x.id}">×</button></div>`}).join('')
-      :`<div class="row" style="padding:16px;color:var(--ink2);font-size:14px">No parts added yet.</div>`}
+      :`<div class="row" style="padding:16px;color:var(--ink2);font-size:var(--fs-body)">No parts added yet.</div>`}
 
     <div class="btnrow"><button class="btn" id="addPart">+ Add parts</button>
     ${miss.length?`<button class="btn sec" id="buyMiss">Add missing to buy list</button>`:''}</div>
@@ -90,13 +90,31 @@ function pinout(it){
   return `<div class="pinbox"><div class="h">Pinout — ${key} (top view, notch up)</div>${s}</svg></div>`;
 }
 
+// Hand-drawn hero, used as the last fallback and as the recovery target when a
+// bundled stock photo fails to load (stale manifest / missing file).
+function heroArt(it){
+  return `<div class="artbox">${art(it)}<div class="cap">${esc(it.n)}</div></div><div class="symtag">${sym(it.s)}<span>schematic</span></div>`;
+}
+// Set by open() so the inline onerror below can swap art in without re-rendering
+// the whole sheet (which would lose in-progress edits).
+let heroArtHTML='';
+function heroFail(img){
+  const pic=img.parentNode;if(pic)pic.innerHTML=heroArtHTML;
+}
+
 function open(id){
   const it=byId(id);if(!it)return;
   const u=U(id),ph=S.photos[id],s=u.st||'';
+  // precedence: user camera photo > bundled stock photo > hand-drawn art
+  const stock=(!ph&&typeof stockPhoto==='function')?stockPhoto(id):null;
+  heroArtHTML=heroArt(it);
+  const heroPic=ph?`<img src="${ph}" alt="">`
+    :stock?`<img src="${stock}" alt="${esc(it.n)}" onerror="heroFail(this)">`
+    :heroArtHTML;
   $('#sheet').innerHTML=`
   <div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">${esc(it.n)}</div></div>
   <div class="sheet-in">
-    <div class="hero"><div class="pic">${ph?`<img src="${ph}">`:`<div class="artbox">${art(it)}<div class="cap">${esc(it.n)}</div></div><div class="symtag">${sym(it.s)}<span>schematic</span></div>`}</div>
+    <div class="hero"><div class="pic">${heroPic}</div>
       <div class="acts">
         <button id="ph1">${ph?'Change photo':'Add photo'}</button>
         <button id="ph2">Find online</button>
@@ -209,7 +227,7 @@ function openAdd(){
 function showIntro(){
   $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">Welcome to Bench</div></div>
   <div class="sheet-in">
-    <p style="color:var(--ink2);line-height:1.6;font-size:15px;margin-top:16px">Bench tracks the electronic parts you own, the ones you still need, and the projects you're building with them — all saved on this device, nothing sent anywhere.</p>
+    <p style="color:var(--ink2);line-height:1.6;font-size:var(--fs-body);margin-top:16px">Bench tracks the electronic parts you own, the ones you still need, and the projects you're building with them — all saved on this device, nothing sent anywhere.</p>
     <div class="list" style="margin-top:16px">
       <div class="kv"><span class="k">All</span><span class="v">Browse parts, mark have or need</span></div>
       <div class="kv"><span class="k">Stock</span><span class="v">What you already own</span></div>
@@ -234,7 +252,7 @@ function openMore(){
     </div>
     <label class="f">Photos</label>
     <button class="btn sec wide" id="bulk">Add many photos at once</button>
-    <p style="font-size:13px;color:var(--ink2);line-height:1.55;margin-top:8px">
+    <p style="font-size:var(--fs-label);color:var(--ink2);line-height:1.55;margin-top:8px">
       Pick several image files together. Each file is matched to a component by its file name —
       name a file <b>LM358.jpg</b> or <b>NE555 timer.png</b> and it lands on the right part.</p>
     <input type="file" id="bulkf" accept="image/*" multiple hidden>
@@ -245,7 +263,7 @@ function openMore(){
       <div class="kv"><span class="k">Storage</span><span class="v">${DB.ok?'Saved on device':'Preview only'}</span></div></div>
     <div class="btnrow"><button class="btn" id="ex1">Export backup</button><button class="btn sec" id="im1">Import</button></div>
     <input type="file" id="imf" accept="application/json" hidden>
-    <p style="font-size:13px;color:var(--ink2);line-height:1.55">Export keeps your photos and all your data in one file. Do this often — clearing app data will erase everything.</p>
+    <p style="font-size:var(--fs-label);color:var(--ink2);line-height:1.55">Export keeps your photos and all your data in one file. Do this often — clearing app data will erase everything.</p>
     <label class="f">Reset</label>
     <button class="btn red wide" id="rs">Erase all my data</button><div style="height:30px"></div></div>`;
   $('#sheet').classList.add('open');document.body.style.overflow='hidden';

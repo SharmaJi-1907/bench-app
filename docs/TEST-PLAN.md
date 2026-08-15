@@ -47,6 +47,15 @@ already hit once each — write new screenshot harnesses with these in mind:
   API *after* boot has settled (e.g. poll for the sheet's `open` class
   after first paint), not by mutating `document.documentElement.dataset`
   directly before boot runs.
+- **`--virtual-time-budget` silently breaks IndexedDB persistence tests.**
+  Virtual time wins the race against real IndexedDB I/O, so `dbOpen()`'s
+  1200ms timeout fires first, `DB.ok` stays false, and every read/write
+  silently falls back to the in-memory `DB.mem` object. Persistence then
+  *appears* broken (or appears to work while writing nothing durable).
+  Anything asserting that a value survives a real app restart must run
+  with real time (a genuine `sleep`, results beaconed out via `fetch` to
+  the http.server access log) against a persistent Chrome profile. Virtual
+  time is fine for pure render/DOM assertions, which is most of the suite.
 
 **Regression checklist** — run after any change, not just in the touched
 area, since the global-scope module pattern means a rename/removal in one

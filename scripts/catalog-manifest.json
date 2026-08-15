@@ -1,0 +1,1773 @@
+[
+  {
+    "id": "t1",
+    "name": "Digital Multimeter (auto-range)",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "Auto-range, capacitance, hFE"
+  },
+  {
+    "id": "t2",
+    "name": "Soldering iron, temp-controlled 60W",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "200–450°C ceramic"
+  },
+  {
+    "id": "t3",
+    "name": "Solder wire 63/37, 0.8mm",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "50g roll"
+  },
+  {
+    "id": "t4",
+    "name": "Flux paste or pen",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "No-clean rosin"
+  },
+  {
+    "id": "t5",
+    "name": "Desoldering pump + wick",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "Pump + 2mm braid"
+  },
+  {
+    "id": "t6",
+    "name": "Brass wool tip cleaner",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": ""
+  },
+  {
+    "id": "t7",
+    "name": "Plier, cutter, wire stripper set",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "Set of 3"
+  },
+  {
+    "id": "t8",
+    "name": "Precision screwdriver set",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "30+ magnetic bits"
+  },
+  {
+    "id": "t9",
+    "name": "Anti-static tweezers set",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "Straight + curved"
+  },
+  {
+    "id": "t10",
+    "name": "IC extractor tool",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": ""
+  },
+  {
+    "id": "t11",
+    "name": "Helping hands with magnifier",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": ""
+  },
+  {
+    "id": "t12",
+    "name": "Digital calipers",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "0–150mm"
+  },
+  {
+    "id": "t13",
+    "name": "Bench power supply 0–30V 5A",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "CC/CV digital"
+  },
+  {
+    "id": "t14",
+    "name": "Component tester LCR-T4",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "Auto-detect"
+  },
+  {
+    "id": "t15",
+    "name": "Logic analyzer 8-channel USB",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "24MHz, PulseView"
+  },
+  {
+    "id": "t16",
+    "name": "Hot air rework station",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "858D, 100–480°C"
+  },
+  {
+    "id": "t17",
+    "name": "ESD wrist strap + mat",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "1M ohm grounded"
+  },
+  {
+    "id": "t18",
+    "name": "USB power meter",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "V, A, mAh"
+  },
+  {
+    "id": "t19",
+    "name": "Digital oscilloscope 2-channel",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "50MHz or more"
+  },
+  {
+    "id": "t20",
+    "name": "Function generator",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "Sine/square/triangle"
+  },
+  {
+    "id": "t21",
+    "name": "Isolation transformer",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "1:1, 500VA"
+  },
+  {
+    "id": "t22",
+    "name": "USB microscope",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "1000x"
+  },
+  {
+    "id": "t23",
+    "name": "IR thermometer",
+    "cat": "tool",
+    "catName": "Tools",
+    "spec": "-50 to 400°C"
+  },
+  {
+    "id": "p1",
+    "name": "Resistor kit 1/4W 600 pcs",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "10 ohm–1M, 30 values"
+  },
+  {
+    "id": "p2",
+    "name": "Resistor kit 1/2W and 1W",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "Higher wattage"
+  },
+  {
+    "id": "p3",
+    "name": "Metal film 1% 1k + 2k",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "20 pcs each"
+  },
+  {
+    "id": "p4",
+    "name": "Precision 0.1% resistors",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "Selected values"
+  },
+  {
+    "id": "p5",
+    "name": "Shunt resistors 0.1 / 0.01 ohm",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "3W"
+  },
+  {
+    "id": "p6",
+    "name": "Ceramic capacitor kit",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "300 pcs"
+  },
+  {
+    "id": "p7",
+    "name": "Electrolytic capacitor kit",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "10uF–1000uF"
+  },
+  {
+    "id": "p8",
+    "name": "Film capacitor kit (MKT)",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "1nF–1uF"
+  },
+  {
+    "id": "p9",
+    "name": "Tantalum and low-ESR caps",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "Assorted"
+  },
+  {
+    "id": "p10",
+    "name": "Supercapacitor 1F–5F",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "5.5V"
+  },
+  {
+    "id": "p11",
+    "name": "Potentiometers 1k, 10k, 100k",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "Linear taper"
+  },
+  {
+    "id": "p12",
+    "name": "Trimpot preset assortment",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "10 pcs"
+  },
+  {
+    "id": "p13",
+    "name": "Inductor kit 10uH–1mH",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "Radial"
+  },
+  {
+    "id": "p14",
+    "name": "Ferrite beads",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "Assorted"
+  },
+  {
+    "id": "p15",
+    "name": "Toroid cores + enamel wire",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": ""
+  },
+  {
+    "id": "p16",
+    "name": "Crystal 16MHz + 12MHz",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "HC-49 + 22pF"
+  },
+  {
+    "id": "p17",
+    "name": "Crystal 32.768 kHz",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": "Cylindrical"
+  },
+  {
+    "id": "p18",
+    "name": "Ceramic resonator 8MHz",
+    "cat": "pass",
+    "catName": "Passives",
+    "spec": ""
+  },
+  {
+    "id": "d1",
+    "name": "1N4007 rectifier diode",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "1000V 1A"
+  },
+  {
+    "id": "d2",
+    "name": "1N4148 signal diode",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "100V 200mA"
+  },
+  {
+    "id": "d3",
+    "name": "Zener diode kit 3.3–12V",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "1W, 6 values"
+  },
+  {
+    "id": "d4",
+    "name": "Bridge rectifier DB107",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "1000V 1A"
+  },
+  {
+    "id": "d5",
+    "name": "Schottky 1N5819 / SS34",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "40V 1A/3A"
+  },
+  {
+    "id": "d6",
+    "name": "TVS diode and MOV kit",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "Assorted"
+  },
+  {
+    "id": "d7",
+    "name": "TL431 shunt reference",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "TO-92"
+  },
+  {
+    "id": "d8",
+    "name": "LED 5mm assorted 100 pcs",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "R/G/B/Y/W"
+  },
+  {
+    "id": "d9",
+    "name": "RGB LED common cathode",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "5mm 4-pin"
+  },
+  {
+    "id": "d10",
+    "name": "WS2812B strip 1m",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "60 LED/m"
+  },
+  {
+    "id": "d11",
+    "name": "IR LED + TSOP1738",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "38kHz"
+  },
+  {
+    "id": "d12",
+    "name": "Photodiode BPW34",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "Silicon PIN"
+  },
+  {
+    "id": "d13",
+    "name": "LDR 5mm",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "5–10k ohm"
+  },
+  {
+    "id": "d14",
+    "name": "Phototransistor",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "NPN 3mm"
+  },
+  {
+    "id": "d15",
+    "name": "Laser diode and receiver",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "650nm 5mW"
+  },
+  {
+    "id": "d16",
+    "name": "BC547 NPN transistor",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "45V 100mA"
+  },
+  {
+    "id": "d17",
+    "name": "BC557 PNP transistor",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "45V 100mA"
+  },
+  {
+    "id": "d18",
+    "name": "2N2222 / 2N3904 NPN",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "40V 600mA"
+  },
+  {
+    "id": "d19",
+    "name": "2N3906 PNP",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "40V 200mA"
+  },
+  {
+    "id": "d20",
+    "name": "TIP122 Darlington",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "100V 5A"
+  },
+  {
+    "id": "d21",
+    "name": "TIP41C / TIP42C pair",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "100V 6A"
+  },
+  {
+    "id": "d22",
+    "name": "2N7000 logic MOSFET",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "60V 200mA"
+  },
+  {
+    "id": "d23",
+    "name": "IRLZ44N power MOSFET",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "55V 47A"
+  },
+  {
+    "id": "d24",
+    "name": "BF245 / J201 JFET",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "N-channel"
+  },
+  {
+    "id": "d25",
+    "name": "IGBT IRG4BC30",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "600V 12A"
+  },
+  {
+    "id": "d26",
+    "name": "SCR BT151",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "800V 12A"
+  },
+  {
+    "id": "d27",
+    "name": "TRIAC BT136 and DIAC",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "600V 4A"
+  },
+  {
+    "id": "d28",
+    "name": "NTC thermistor 10k",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "B3950"
+  },
+  {
+    "id": "d29",
+    "name": "PTC resettable fuse kit",
+    "cat": "disc",
+    "catName": "Discretes",
+    "spec": "0.5–2A"
+  },
+  {
+    "id": "a1",
+    "name": "NE555 timer",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-8, 4.5–16V"
+  },
+  {
+    "id": "a2",
+    "name": "NE556 dual timer",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "a3",
+    "name": "LM741 op-amp",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-8"
+  },
+  {
+    "id": "a4",
+    "name": "LM358 dual op-amp",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-8, 3–32V"
+  },
+  {
+    "id": "a5",
+    "name": "LM324 quad op-amp",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "a6",
+    "name": "LM393 dual comparator",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-8"
+  },
+  {
+    "id": "a7",
+    "name": "LM339 quad comparator",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "a8",
+    "name": "LM386 audio amplifier",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-8, gain 20–200"
+  },
+  {
+    "id": "a9",
+    "name": "TL072 / TL074 JFET op-amp",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-8/14"
+  },
+  {
+    "id": "a10",
+    "name": "MCP6002 rail-to-rail op-amp",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "1.8–5.5V"
+  },
+  {
+    "id": "a11",
+    "name": "NE5532 audio op-amp",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "Low noise"
+  },
+  {
+    "id": "a12",
+    "name": "AD620 instrumentation amp",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-8"
+  },
+  {
+    "id": "a13",
+    "name": "INA219 current monitor",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "plus-minus 3.2A"
+  },
+  {
+    "id": "a14",
+    "name": "CD4046 PLL",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "a15",
+    "name": "XR2206 function generator IC",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "a16",
+    "name": "LM3914 LED bar driver",
+    "cat": "ana",
+    "catName": "Analog IC",
+    "spec": "DIP-18"
+  },
+  {
+    "id": "w1",
+    "name": "7805 5V regulator",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "TO-220 1A"
+  },
+  {
+    "id": "w2",
+    "name": "7809 / 7812 regulators",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "TO-220 1A"
+  },
+  {
+    "id": "w3",
+    "name": "7905 / 7912 negative regulators",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "TO-220 1A"
+  },
+  {
+    "id": "w4",
+    "name": "LM317T adjustable regulator",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "TO-220 1.5A"
+  },
+  {
+    "id": "w5",
+    "name": "AMS1117 3.3V LDO",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "SOT-223 800mA"
+  },
+  {
+    "id": "w6",
+    "name": "LM723 regulator",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "w7",
+    "name": "LM2596 buck module",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "4–35V in, 3A"
+  },
+  {
+    "id": "w8",
+    "name": "MT3608 boost module",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "2–24V in"
+  },
+  {
+    "id": "w9",
+    "name": "TP4056 charger module",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "1A with protection"
+  },
+  {
+    "id": "w10",
+    "name": "MP1584 mini buck",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "3A"
+  },
+  {
+    "id": "w11",
+    "name": "IR2110 gate driver",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "w12",
+    "name": "TC4427 MOSFET driver",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "DIP-8 1.5A"
+  },
+  {
+    "id": "w13",
+    "name": "BMS battery protection board",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "1S–3S"
+  },
+  {
+    "id": "w14",
+    "name": "Heat sinks and thermal paste",
+    "cat": "pwr",
+    "catName": "Power IC",
+    "spec": "TO-220 clip-on"
+  },
+  {
+    "id": "l1",
+    "name": "7400 quad NAND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14 74HC"
+  },
+  {
+    "id": "l2",
+    "name": "7402 quad NOR",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l3",
+    "name": "7404 hex inverter",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l4",
+    "name": "7408 quad AND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l5",
+    "name": "7432 quad OR",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l6",
+    "name": "7486 quad XOR",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l7",
+    "name": "74266 quad XNOR",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l8",
+    "name": "7410 triple 3-input NAND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l9",
+    "name": "7411 triple 3-input AND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l10",
+    "name": "7420 dual 4-input NAND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l11",
+    "name": "7421 dual 4-input AND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l12",
+    "name": "7427 triple 3-input NOR",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l13",
+    "name": "74HC14 hex Schmitt inverter",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l14",
+    "name": "74HC132 Schmitt NAND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l15",
+    "name": "7483 4-bit full adder",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l16",
+    "name": "7485 4-bit comparator",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l17",
+    "name": "74151 8-to-1 mux",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l18",
+    "name": "74153 dual 4-to-1 mux",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l19",
+    "name": "74138 3-to-8 decoder",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l20",
+    "name": "74139 dual 2-to-4 decoder",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l21",
+    "name": "7447 BCD to 7-segment",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l22",
+    "name": "7473 / 7476 dual JK flip-flop",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l23",
+    "name": "7474 dual D flip-flop",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l24",
+    "name": "7490 decade counter",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l25",
+    "name": "7493 4-bit binary counter",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l26",
+    "name": "7495 / 74194 shift register",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l27",
+    "name": "74HC595 shift register",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l28",
+    "name": "74HC165 shift register",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l29",
+    "name": "74HC245 bus transceiver",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-20"
+  },
+  {
+    "id": "l30",
+    "name": "74HC4051 analog mux",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l31",
+    "name": "74181 4-bit ALU",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-24"
+  },
+  {
+    "id": "l32",
+    "name": "CD4017 decade counter",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l33",
+    "name": "CD4511 BCD to 7-segment",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "l34",
+    "name": "CD4013 dual D flip-flop",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l35",
+    "name": "CD4011 / CD4001 gates",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l36",
+    "name": "CD4093 Schmitt NAND",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l37",
+    "name": "CD4066 analog switch",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-14"
+  },
+  {
+    "id": "l38",
+    "name": "CD4060 counter and oscillator",
+    "cat": "logic",
+    "catName": "Logic IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "m1",
+    "name": "ADC0804 8-bit ADC",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-20"
+  },
+  {
+    "id": "m2",
+    "name": "DAC0808 8-bit DAC",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "m3",
+    "name": "ADS1115 16-bit ADC module",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "I2C 4-channel"
+  },
+  {
+    "id": "m4",
+    "name": "MCP4725 I2C DAC",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "12-bit"
+  },
+  {
+    "id": "m5",
+    "name": "PC817 optocoupler",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-4 5kV"
+  },
+  {
+    "id": "m6",
+    "name": "4N35 opto-isolator",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-6"
+  },
+  {
+    "id": "m7",
+    "name": "MOC3021 opto-TRIAC",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-6"
+  },
+  {
+    "id": "m8",
+    "name": "ULN2803 Darlington array",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-18"
+  },
+  {
+    "id": "m9",
+    "name": "ULN2003 7-channel array",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "m10",
+    "name": "MAX232 RS-232 converter",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "m11",
+    "name": "CH340 / CP2102 USB-UART",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "USB to TTL"
+  },
+  {
+    "id": "m12",
+    "name": "PCF8574 port expander",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "DIP-16"
+  },
+  {
+    "id": "m13",
+    "name": "DS3231 RTC module",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "I2C"
+  },
+  {
+    "id": "m14",
+    "name": "MAX485 RS-485 module",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "Half-duplex"
+  },
+  {
+    "id": "m15",
+    "name": "MCP2515 CAN module",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "SPI to CAN"
+  },
+  {
+    "id": "m16",
+    "name": "Logic level shifter",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "4-channel"
+  },
+  {
+    "id": "m17",
+    "name": "24LC256 EEPROM",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "32KB"
+  },
+  {
+    "id": "m18",
+    "name": "W25Q64 SPI flash",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "SPI"
+  },
+  {
+    "id": "m19",
+    "name": "SD card module",
+    "cat": "mix",
+    "catName": "Interface IC",
+    "spec": "SPI"
+  },
+  {
+    "id": "o1",
+    "name": "5V relay module",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "1/2/4 ch, 10A"
+  },
+  {
+    "id": "o2",
+    "name": "SG90 micro servo",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "180 degree 5V"
+  },
+  {
+    "id": "o3",
+    "name": "MG996R metal-gear servo",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "10kg-cm"
+  },
+  {
+    "id": "o4",
+    "name": "L293D motor driver IC",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "DIP-16 600mA"
+  },
+  {
+    "id": "o5",
+    "name": "L298N motor driver module",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "2A per channel"
+  },
+  {
+    "id": "o6",
+    "name": "TB6612FNG driver",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "1.2A per ch"
+  },
+  {
+    "id": "o7",
+    "name": "A4988 / DRV8825 stepper driver",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "Up to 2A"
+  },
+  {
+    "id": "o8",
+    "name": "28BYJ-48 stepper and board",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "5V 64:1"
+  },
+  {
+    "id": "o9",
+    "name": "N20 / BO gear motors",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "6V"
+  },
+  {
+    "id": "o10",
+    "name": "Solenoid or linear actuator",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "12V"
+  },
+  {
+    "id": "o11",
+    "name": "BLDC motor and ESC",
+    "cat": "mot",
+    "catName": "Motors & Drive",
+    "spec": "2200KV + 30A"
+  },
+  {
+    "id": "c1",
+    "name": "Arduino Uno R3",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "ATmega328P 16MHz"
+  },
+  {
+    "id": "c2",
+    "name": "ESP32 DevKit",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "240MHz dual core"
+  },
+  {
+    "id": "c3",
+    "name": "Raspberry Pi Pico / Pico W",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "RP2040 133MHz"
+  },
+  {
+    "id": "c4",
+    "name": "ATmega328P bare chip and crystal",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "DIP-28"
+  },
+  {
+    "id": "c5",
+    "name": "ESP32-S3 DevKit",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "240MHz 8MB"
+  },
+  {
+    "id": "c6",
+    "name": "ESP32-C3 / C6 board",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "RISC-V"
+  },
+  {
+    "id": "c7",
+    "name": "Raspberry Pi Pico 2 / 2W",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "RP2350 150MHz"
+  },
+  {
+    "id": "c8",
+    "name": "STM32 Blue Pill F103",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "Cortex-M3 72MHz"
+  },
+  {
+    "id": "c9",
+    "name": "ST-Link V2 programmer",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "SWD/JTAG"
+  },
+  {
+    "id": "c10",
+    "name": "STM32 Black Pill F411",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "Cortex-M4"
+  },
+  {
+    "id": "c11",
+    "name": "NodeMCU ESP8266",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "160MHz"
+  },
+  {
+    "id": "c12",
+    "name": "ATtiny85 and USBasp",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "8-pin AVR"
+  },
+  {
+    "id": "c13",
+    "name": "Arduino Nano",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "ATmega328P"
+  },
+  {
+    "id": "c14",
+    "name": "AT89S52 8051 and programmer",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "DIP-40"
+  },
+  {
+    "id": "c15",
+    "name": "STM32 Nucleo board",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "F4 / H7"
+  },
+  {
+    "id": "c16",
+    "name": "nRF52840 dev board",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "Cortex-M4 BLE5"
+  },
+  {
+    "id": "c17",
+    "name": "Teensy 4.x",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "600MHz M7"
+  },
+  {
+    "id": "c18",
+    "name": "CH32V003 RISC-V board",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "48MHz"
+  },
+  {
+    "id": "c19",
+    "name": "Raspberry Pi Zero 2 W",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "Quad A53"
+  },
+  {
+    "id": "c20",
+    "name": "Raspberry Pi 4 / 5",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "4GB"
+  },
+  {
+    "id": "c21",
+    "name": "FPGA Tang Nano 9K",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "Gowin 8640 LUT"
+  },
+  {
+    "id": "c22",
+    "name": "CPLD board EPM240",
+    "cat": "mcu",
+    "catName": "Boards & MCU",
+    "spec": "MAX II"
+  },
+  {
+    "id": "s1",
+    "name": "DHT11 temperature and humidity",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "plus-minus 2C"
+  },
+  {
+    "id": "s2",
+    "name": "DHT22 / AM2302",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "plus-minus 0.5C"
+  },
+  {
+    "id": "s3",
+    "name": "LM35 analog temperature",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "TO-92"
+  },
+  {
+    "id": "s4",
+    "name": "DS18B20 1-Wire temperature",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "Waterproof"
+  },
+  {
+    "id": "s5",
+    "name": "HC-SR04 ultrasonic",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "2–400cm"
+  },
+  {
+    "id": "s6",
+    "name": "PIR HC-SR501 motion",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "7m"
+  },
+  {
+    "id": "s7",
+    "name": "IR obstacle and line sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "3–5cm"
+  },
+  {
+    "id": "s8",
+    "name": "Soil moisture sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "Capacitive"
+  },
+  {
+    "id": "s9",
+    "name": "Rain and water level sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": ""
+  },
+  {
+    "id": "s10",
+    "name": "MPU6050 6-axis IMU",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "I2C"
+  },
+  {
+    "id": "s11",
+    "name": "MPU9250 9-axis IMU",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "I2C"
+  },
+  {
+    "id": "s12",
+    "name": "BMP280 pressure sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "I2C/SPI"
+  },
+  {
+    "id": "s13",
+    "name": "BME280 environment sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "I2C/SPI"
+  },
+  {
+    "id": "s14",
+    "name": "MQ-2 / MQ-135 gas sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "Analog"
+  },
+  {
+    "id": "s15",
+    "name": "Load cell and HX711",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "5kg/20kg"
+  },
+  {
+    "id": "s16",
+    "name": "ACS712 current sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "5A/20A"
+  },
+  {
+    "id": "s17",
+    "name": "RFID RC522 module",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "13.56MHz"
+  },
+  {
+    "id": "s18",
+    "name": "Sound sensor / MAX9814",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "Auto gain"
+  },
+  {
+    "id": "s19",
+    "name": "Hall sensor A3144",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "Digital"
+  },
+  {
+    "id": "s20",
+    "name": "Rotary encoder module",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "20 steps"
+  },
+  {
+    "id": "s21",
+    "name": "Flame and UV sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": ""
+  },
+  {
+    "id": "s22",
+    "name": "NEO-6M GPS module",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "UART"
+  },
+  {
+    "id": "s23",
+    "name": "MLX90614 IR thermometer",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "I2C"
+  },
+  {
+    "id": "s24",
+    "name": "VL53L0X laser distance",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "I2C 2m"
+  },
+  {
+    "id": "s25",
+    "name": "TCS3200 colour sensor",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": ""
+  },
+  {
+    "id": "s26",
+    "name": "ESP32-CAM",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "OV2640 2MP"
+  },
+  {
+    "id": "s27",
+    "name": "HC-05 Bluetooth module",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "SPP UART"
+  },
+  {
+    "id": "s28",
+    "name": "NRF24L01+ radio pair",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "SPI 100m"
+  },
+  {
+    "id": "s29",
+    "name": "433MHz RF pair + HT12E/D",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "ASK"
+  },
+  {
+    "id": "s30",
+    "name": "LoRa SX1278 module",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "433MHz"
+  },
+  {
+    "id": "s31",
+    "name": "SIM800L GSM module",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "2G UART"
+  },
+  {
+    "id": "s32",
+    "name": "W5500 Ethernet module",
+    "cat": "sens",
+    "catName": "Sensors",
+    "spec": "SPI"
+  },
+  {
+    "id": "y1",
+    "name": "7-segment display CC and CA",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "0.56 inch"
+  },
+  {
+    "id": "y2",
+    "name": "4-digit display TM1637",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "0.56 inch"
+  },
+  {
+    "id": "y3",
+    "name": "16x2 LCD with I2C backpack",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "HD44780"
+  },
+  {
+    "id": "y4",
+    "name": "0.96 inch OLED SSD1306",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "128x64 I2C"
+  },
+  {
+    "id": "y5",
+    "name": "8x8 LED matrix MAX7219",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "Cascadable"
+  },
+  {
+    "id": "y6",
+    "name": "4x4 membrane keypad",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "16 key"
+  },
+  {
+    "id": "y7",
+    "name": "Tactile push buttons",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "6x6mm"
+  },
+  {
+    "id": "y8",
+    "name": "8-way DIP switch",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "SPST x8"
+  },
+  {
+    "id": "y9",
+    "name": "Buzzer active and passive",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "5V"
+  },
+  {
+    "id": "y10",
+    "name": "2.4 inch TFT touchscreen",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "320x240 SPI"
+  },
+  {
+    "id": "y11",
+    "name": "E-paper display",
+    "cat": "disp",
+    "catName": "Display & Input",
+    "spec": "2.9 inch SPI"
+  },
+  {
+    "id": "n1",
+    "name": "Breadboard 830-point",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "MB-102"
+  },
+  {
+    "id": "n2",
+    "name": "Breadboard power module",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "MB102"
+  },
+  {
+    "id": "n3",
+    "name": "Jumper wire kit 140 pcs",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "22AWG solid"
+  },
+  {
+    "id": "n4",
+    "name": "Dupont wires M-M, M-F, F-F",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "40 each"
+  },
+  {
+    "id": "n5",
+    "name": "Male and female header pins",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "2.54mm"
+  },
+  {
+    "id": "n6",
+    "name": "IC sockets 8/14/16/28 pin",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "DIP"
+  },
+  {
+    "id": "n7",
+    "name": "Zero PCB / perfboard",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "Assorted"
+  },
+  {
+    "id": "n8",
+    "name": "Hookup wire 22AWG",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "3 colours"
+  },
+  {
+    "id": "n9",
+    "name": "9V / 12V 1A DC adapter",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "Barrel jack"
+  },
+  {
+    "id": "n10",
+    "name": "Battery holders and 9V snap",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "AA, 9V, 18650"
+  },
+  {
+    "id": "n11",
+    "name": "Transformer 12-0-12V 1A",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "Centre-tapped"
+  },
+  {
+    "id": "n12",
+    "name": "Screw terminal blocks",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "5mm"
+  },
+  {
+    "id": "n13",
+    "name": "JST and barrel connectors",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "JST-XH"
+  },
+  {
+    "id": "n14",
+    "name": "Heat shrink tube kit",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "1–10mm"
+  },
+  {
+    "id": "n15",
+    "name": "18650 cells, holder and BMS",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "3.7V"
+  },
+  {
+    "id": "n16",
+    "name": "Standoffs, M3 screws, spacers",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "Nylon and brass"
+  },
+  {
+    "id": "n17",
+    "name": "Project enclosure boxes",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "ABS"
+  },
+  {
+    "id": "n18",
+    "name": "Isopropyl alcohol 99%",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "100ml"
+  },
+  {
+    "id": "n19",
+    "name": "Solder paste and stencil",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "Sn63Pb37"
+  },
+  {
+    "id": "n20",
+    "name": "SMD component book 0805",
+    "cat": "mech",
+    "catName": "Wires & Parts",
+    "spec": "170 values"
+  }
+]
