@@ -3,8 +3,6 @@
 # re-fetchable with scripts/fetch_image.py if ever needed again.
 assets/raw_images/
 
-# Per-agent work lists used during the one-off image sourcing run.
-scripts/work-*.json
 
 __pycache__/
 *.pyc
