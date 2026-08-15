@@ -21,7 +21,10 @@ function openProject(pid){
         <div class="ln">${has?'<span class="tag t-have">I have it</span>':'<span class="tag t-need">missing</span>'}
         <span>${x.q||1} pcs</span></div></div></button>
         <button class="pr" style="background:none;border:0;color:var(--red);font-size:20px;cursor:pointer;padding:0 6px" data-rm="${x.id}">×</button></div>`}).join('')
-      :`<div class="row" style="padding:16px;color:var(--ink2);font-size:var(--fs-body)">No parts added yet.</div>`}
+      :emptyState({icon:sym('board'),mini:1,sec:1,id:'addPart2',
+        title:'No parts yet',
+        msg:'Add the components this project needs and Bench will track which ones you already own.',
+        act:'Add a part'})}
 
     <div class="btnrow"><button class="btn" id="addPart">+ Add parts</button>
     ${miss.length?`<button class="btn sec" id="buyMiss">Add missing to buy list</button>`:''}</div>
@@ -36,6 +39,8 @@ function openProject(pid){
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async e=>{e.stopPropagation();
     p.parts=(p.parts||[]).filter(x=>x.id!==b.dataset.rm);await save();openProject(pid)});
   $('#addPart').onclick=()=>openPartPicker(pid);
+  /* the empty-state CTA is only rendered when the project has no parts */
+  const ap2=$('#addPart2');if(ap2)ap2.onclick=()=>openPartPicker(pid);
   const bm=$('#buyMiss');if(bm)bm.onclick=async()=>{
     miss.forEach(x=>{S.u[x.id]=Object.assign({},U(x.id),{st:'need',qty:Math.max(qty(x.id),x.q||1)})});
     await save();toast('Added to buy list');openProject(pid)};
@@ -102,9 +107,43 @@ function heroFail(img){
   const pic=img.parentNode;if(pic)pic.innerHTML=heroArtHTML;
 }
 
+// Progressive disclosure (DESIGN-SYSTEM.md §Components) — which item's
+// "More details" section is currently expanded, or null. This has to live at
+// module scope, not inside open(): open() re-renders the whole sheet after most
+// edits (status, qty, condition, photo), so a local would reset on every save.
+// Keying it to an id also makes the reset-on-a-different-item case automatic —
+// open('b') can never inherit 'a' expanded state.
+let moreOpenFor=null;
+
+// The secondary block: everything that is reference material rather than the
+// thing you came to the sheet to change. open() decides (via hasMore) whether to
+// put it behind the expand or render it inline — an expand that opens to nothing
+// is worse than no expand, and the notes field must stay reachable either way.
+// pinout() is '' for most parts, so it alone can't justify the control.
+function moreDetails(it,u,pin){
+  return `<label class="f">About this part</label>
+    <div class="list">
+      <div class="kv"><span class="k">Why you need it</span><span class="v">${esc(it.w)}</span></div>
+      <div class="kv"><span class="k">Spec</span><span class="v">${esc(it.d||'—')}</span></div>
+      <div class="kv"><span class="k">Type</span><span class="v">${CATS[it.c]}</span></div>
+      <div class="kv"><span class="k">Level</span><span class="v">${LVL[it.l]}</span></div>
+      <div class="kv"><span class="k">Suggested qty</span><span class="v">${it.q}</span></div>
+    </div>
+    ${pin}
+    <label class="f">My notes</label>
+    <textarea class="f" id="nt" placeholder="where I bought it, quirks, datasheet notes">${esc(u.notes||'')}</textarea>`;
+}
+
 function open(id){
   const it=byId(id);if(!it)return;
   const u=U(id),ph=S.photos[id],s=u.st||'';
+  const pin=pinout(it);
+  // "Meaningful" = a pin diagram, real descriptive text, or a note the user
+  // already wrote. Type/Level/Suggested qty alone (always present, derived from
+  // the catalog row) don't earn a collapsed section of their own.
+  const hasMore=!!pin||!!(it.w||it.d)||!!(u.notes&&u.notes.trim());
+  const expanded=hasMore&&moreOpenFor===id;
+  if(!hasMore&&moreOpenFor===id)moreOpenFor=null;
   // precedence: user camera photo > bundled stock photo > hand-drawn art
   const stock=(!ph&&typeof stockPhoto==='function')?stockPhoto(id):null;
   heroArtHTML=heroArt(it);
@@ -144,19 +183,12 @@ function open(id){
       </div>
     </div>
 
-    ${pinout(it)}
-
-    <label class="f">About this part</label>
-    <div class="list">
-      <div class="kv"><span class="k">Why you need it</span><span class="v">${esc(it.w)}</span></div>
-      <div class="kv"><span class="k">Spec</span><span class="v">${esc(it.d||'—')}</span></div>
-      <div class="kv"><span class="k">Type</span><span class="v">${CATS[it.c]}</span></div>
-      <div class="kv"><span class="k">Level</span><span class="v">${LVL[it.l]}</span></div>
-      <div class="kv"><span class="k">Suggested qty</span><span class="v">${it.q}</span></div>
-    </div>
-
-    <label class="f">My notes</label>
-    <textarea class="f" id="nt" placeholder="where I bought it, quirks, datasheet notes">${esc(u.notes||'')}</textarea>
+    ${hasMore?`<button class="btn sec wide" id="mdt" aria-expanded="${expanded?'true':'false'}" aria-controls="md"
+      style="margin-top:var(--sp-5);justify-content:space-between;padding-left:14px;padding-right:14px">
+      <span id="mdl">${expanded?'Hide details':'More details'}</span>
+      <span id="mdc" style="color:var(--ink2);font-size:var(--fs-label)">${expanded?'▴':'▾'}</span></button>
+    <div id="md" style="display:${expanded?'block':'none'}">${moreDetails(it,u,pin)}</div>`
+    :moreDetails(it,u,pin)}
 
     <label class="f">Buy from</label>
     <div class="btnrow">
@@ -188,6 +220,15 @@ function open(id){
   qq.onchange=upd;
   $('#qm').onclick=()=>{qq.value=Math.max(0,(+qq.value||0)-1);upd()};
   $('#qp').onclick=()=>{qq.value=(+qq.value||0)+1;upd()};
+  // Toggles in place — no re-render, so a field being edited inside the section
+  // never loses focus, and the block below re-binds #nt either way.
+  const mdt=$('#mdt');if(mdt)mdt.onclick=()=>{
+    const box=$('#md'),on=box.style.display==='none';
+    box.style.display=on?'block':'none';
+    mdt.setAttribute('aria-expanded',on?'true':'false');
+    $('#mdl').textContent=on?'Hide details':'More details';
+    $('#mdc').textContent=on?'▴':'▾';
+    moreOpenFor=on?id:null};
   [['loc','loc'],['pj','project'],['nt','notes']].forEach(a=>{const e=$('#'+a[0]);
     if(e)e.onchange=async()=>{const o={};o[a[1]]=e.value;S.u[id]=Object.assign({},U(id),o);await save()}});
   const d=$('#del');if(d)d.onclick=async()=>{if(!confirm('Delete this item?'))return;

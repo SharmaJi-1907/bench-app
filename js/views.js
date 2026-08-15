@@ -56,6 +56,39 @@ function gcell(it){
     <div class="gln">${s==='have'?'<span class="tag t-have">have</span>':''}<span>${esc(it.d||CATS[it.c])}</span></div></div></button></div>`;
 }
 
+/* ---- empty states ----------------------------------------------------
+   DESIGN-SYSTEM §Components — empty state: every empty state in the app is
+   icon badge + one line saying *why* it is empty + one clear action.
+   emptyState() is the only way to build one, so the shape cannot drift.
+
+   Two situations that must never share copy (BUILD-TASKS Task 7):
+   - "nothing added yet"  -> explain how to fill it, action goes somewhere
+                             the user can add something.
+   - "filtered to zero"   -> say the filter is what is hiding things, and
+                             the action clears that filter. */
+const EICO={
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20.4 20.4l-4.1-4.1"/>'};
+function eico(k){return `<svg class="eico" viewBox="0 0 24 24">${EICO[k]}</svg>`}
+function emptyState(o){
+  return `<div class="empty${o.mini?' mini':''}"><div class="thumb ebadge">${o.icon}</div>
+    <h3>${o.title}</h3><p>${o.msg}</p>
+    <button class="btn${o.sec?' sec':''}" id="${o.id}">${o.act}</button></div>`;
+}
+/* is anything actually filtering the list right now? */
+function filtOn(){return !!(S.f.q.trim()||S.f.cat)}
+/* human description of the active filter, for the "filtered to zero" copy */
+function filtDesc(){
+  const q=S.f.q.trim(),c=S.f.cat?CATS[S.f.cat]:'';
+  if(q&&c)return `“${esc(q)}” in ${esc(c)}`;
+  if(q)return `“${esc(q)}”`;
+  return `the ${esc(c)} category`;
+}
+/* the action label names exactly what will be cleared */
+function clearLabel(){
+  const q=S.f.q.trim(),c=S.f.cat;
+  return q&&c?'Clear search and filter':q?'Clear search':'Show all categories';
+}
+
 function thumb(it){
   const p=S.photos[it.i];
   return `<div class="thumb" data-cam="${it.i}">${p?`<img src="${p}" alt="">`:art(it)}
@@ -156,12 +189,16 @@ function vHome(){
   </div>
   <h2>My projects</h2>
   ${S.projects.length?S.projects.slice(0,4).map((p,i)=>projRow(p,i)).join('')
-    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:var(--fs-body)">No projects yet. Make one to plan the parts you need.</div>`}
-  <button class="btn sec wide" id="goProj">${S.projects.length?'See all projects':'Create a project'}</button>
+    +`<button class="btn sec wide" id="goProj">See all projects</button>`
+    :emptyState({mini:1,sec:1,icon:sym('board'),title:'No projects yet',
+      msg:'A project holds the parts list for something you are building, so the app can tell you what is missing.',
+      act:'Create a project',id:'goProj'})}
   <h2>Items I have</h2>
   ${owned.length?owned.slice(0,4).map(x=>row(x,'stock')).join('')
-    :`<div class="row" style="padding:16px;color:var(--ink2);font-size:var(--fs-body)">Nothing marked as owned yet.</div>`}
-  ${owned.length?`<button class="btn sec wide" id="goStock">See all in stock</button>`:''}
+    +`<button class="btn sec wide" id="goStock">See all in stock</button>`
+    :emptyState({mini:1,sec:1,icon:sym('ic'),title:'Nothing marked as owned yet',
+      msg:'Open any component and tap “I have it” — everything you own collects here.',
+      act:'Browse all items',id:'goAll'})}
   ${(s.untested||s.bad)?`<h2>Check these</h2>
     ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body)"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
     ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body);color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
@@ -204,7 +241,13 @@ function filt(l){const q=S.f.q.trim().toLowerCase();
 function vAll(){
   const l=filt(all());
   const head=bar()+catToggle();
-  if(!l.length)return head+`<div class="empty"><h3>Nothing found</h3><p>Try another word or clear the filter.</p></div>`;
+  if(!l.length)return head+(filtOn()
+    ? emptyState({icon:eico('search'),title:'No matches',
+        msg:`Nothing in the catalogue matches ${filtDesc()}. The list is filtered, not empty — try a shorter word or a wider category.`,
+        act:clearLabel(),id:'clearFilt'})
+    : emptyState({icon:sym('ic'),title:'No components yet',
+        msg:'There is nothing in the catalogue to browse. Add your first component and it shows up here.',
+        act:'Add a component',id:'emptyAdd'}));
   const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
   const grid=CATVIEW==='grid';
   return head+Object.keys(CATS).filter(k=>g[k]).map(k=>
@@ -214,19 +257,25 @@ function vAll(){
 }
 function vStock(){
   const owned=all().filter(x=>st(x.i)==='have');
-  if(!owned.length)return `<div class="empty"><div class="thumb" style="width:64px;height:64px;margin:0 auto 14px">${sym('board')}</div><h3>Your stock is empty</h3>
-    <p>Open any component and tap <b>I have it</b>. Then set the quantity, condition and which project it is in.</p>
-    <button class="btn" id="goAll">Browse all items</button></div>`;
+  if(!owned.length)return emptyState({icon:sym('ic'),title:'Your stock is empty',
+    msg:'Nothing is marked as owned yet. Open any component and tap <b>I have it</b>, then set the quantity, condition and which project it is in.',
+    act:'Browse all items',id:'goAll'});
   const l=filt(owned);
+  /* filtered to zero — a different state from "stock is empty" above: the
+     items exist, the filter is hiding them, so the action clears it. No
+     zero hero number here, it would contradict the message. */
+  if(!l.length)return bar()+emptyState({icon:eico('search'),title:'No stock matches',
+    msg:`You have ${owned.length} item${owned.length===1?'':'s'} in stock, but none of them match ${filtDesc()}.`,
+    act:clearLabel(),id:'clearFilt'});
   return `<div class="total" style="padding:16px"><div class="lbl">Items in stock</div>
     <div class="amt">${l.length}</div></div><div style="height:12px"></div>`
-    +bar()+(l.length?l.map(x=>row(x,'stock',{label:'Remove',cls:'red',kind:'unstock'})).join(''):`<div class="empty"><p>No stock matches this filter.</p></div>`);
+    +bar()+l.map(x=>row(x,'stock',{label:'Remove',cls:'red',kind:'unstock'})).join('');
 }
 function vBuy(){
   const l=all().filter(x=>st(x.i)==='need');
-  if(!l.length)return `<div class="empty"><div class="thumb" style="width:64px;height:64px;margin:0 auto 14px">${sym('tool')}</div><h3>Buy list is empty</h3>
-    <p>Mark items as <b>Need to buy</b> and they collect here.</p>
-    <button class="btn" id="goAll">Browse all items</button></div>`;
+  if(!l.length)return emptyState({icon:sym('tool'),title:'Buy list is empty',
+    msg:'Nothing is marked as <b>Need to buy</b> yet. Mark what you are missing and it collects here as a shopping list.',
+    act:'Browse all items',id:'goAll'});
   const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
   return `<div class="total"><div class="lbl">Items to buy</div><div class="amt">${l.length}</div></div>`
   +Object.keys(CATS).filter(k=>g[k]).map(k=>
@@ -236,10 +285,9 @@ function vBuy(){
 }
 
 function vProj(){
-  if(!S.projects.length)return `<div class="empty"><div class="thumb" style="width:64px;height:64px;margin:0 auto 14px">${sym('board')}</div><h3>No projects yet</h3>
-    <p>A project is anything you are building — a robot, a lab experiment, a home automation box.
-    Add the parts it needs and the app tells you what is missing.</p>
-    <button class="btn" id="newProj">Create my first project</button></div>`;
+  if(!S.projects.length)return emptyState({icon:sym('board'),title:'No projects yet',
+    msg:'A project is anything you are building — a robot, a lab experiment, a home automation box. Add the parts it needs and the app tells you what is missing.',
+    act:'Create my first project',id:'newProj'});
   const totalMiss=S.projects.reduce((s,p)=>s+projMissing(p).length,0);
   return `<div class="total"><div class="lbl">Missing parts across all projects</div>
     <div class="amt">${totalMiss}</div>
@@ -259,6 +307,9 @@ function render(){
   document.querySelectorAll('.chip[data-v]').forEach(c=>c.onclick=()=>{S.f.cat=S.f.cat===c.dataset.v?'':c.dataset.v;render()});
   document.querySelectorAll('.vtog button[data-cv]').forEach(b=>b.onclick=()=>setCatView(b.dataset.cv));
   document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
+  /* filtered-empty action: clears search + category so the list comes back */
+  const cf=$('#clearFilt');if(cf)cf.onclick=()=>{S.f.q='';S.f.cat='';render()};
+  const ea=$('#emptyAdd');if(ea)ea.onclick=()=>openAdd();
   const ga=$('#goAll');if(ga)ga.onclick=()=>{S.view='all';render()};
   const gs=$('#goStock');if(gs)gs.onclick=()=>{S.view='stock';render()};
   const gp=$('#goProj');if(gp)gp.onclick=()=>{if(!S.projects.length)newProject();else{S.view='proj';render()}};

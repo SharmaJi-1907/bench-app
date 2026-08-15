@@ -56,6 +56,14 @@ already hit once each — write new screenshot harnesses with these in mind:
   with real time (a genuine `sleep`, results beaconed out via `fetch` to
   the http.server access log) against a persistent Chrome profile. Virtual
   time is fine for pure render/DOM assertions, which is most of the suite.
+  **Sharper form of the same trap:** under virtual time an IndexedDB write
+  can hang outright, so `await save()` never resolves — and since several
+  handlers re-render by calling `open(id)` *after* awaiting `save()`, the
+  re-render silently never happens. A test asserting "state survived a
+  re-render" then passes while nothing re-rendered at all. For any DOM test
+  that depends on a post-save re-render, stub `dbSet`/`dbGet`/`dbDel` to
+  the in-memory path, and assert the re-render actually occurred (e.g. via
+  a sentinel attribute) rather than trusting it did.
 
 **Regression checklist** — run after any change, not just in the touched
 area, since the global-scope module pattern means a rename/removal in one

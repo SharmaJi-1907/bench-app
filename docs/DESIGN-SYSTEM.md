@@ -109,9 +109,22 @@ than the existing full-screen detail sheets — same slide-up mechanic,
 smaller content, dismiss-on-outside-tap.
 
 **Progressive disclosure** (new in v3): item detail sheet shows name,
-photo, status, and quantity by default. Datasheet link, supplier, notes,
-and the pin diagram move behind a single "More details" expand/collapse —
-Notion's pattern, applied to keep the primary card from feeling dense.
+photo, status, and quantity by default. The "About this part" spec list,
+the pin diagram, and notes move behind a single "More details"
+expand/collapse — Notion's pattern, applied to keep the primary card from
+feeling dense.
+
+Two deliberate refinements made during implementation:
+- **The "Buy from" / supplier links stay always-visible**, despite the
+  first draft of this section grouping them with secondary metadata. For an
+  inventory app, "where do I get this" is a primary action on an item
+  marked *need to buy* — not reference material. Burying it would add a tap
+  to one of the app's main jobs.
+- **The expand only renders when there is something behind it.** An item
+  with no pinout, no spec text and no notes shows its (empty) notes field
+  inline instead. Otherwise the notes box would sit behind a control that
+  only appears once a note exists — making the first note impossible to
+  write.
 
 **Empty state**: icon badge (reusing `.thumb`-style container, established
 in v2) + one-line message explaining *why* it's empty + one clear action

@@ -18,8 +18,9 @@ const byId=id=>all().find(x=>x.i===id);
 const U=id=>S.u[id]||{};
 const st=id=>U(id).st||'';
 const qty=id=>{const u=U(id);return u.qty!==undefined?u.qty:1};
-const price=id=>{const u=U(id);return u.price!==undefined?u.price:(byId(id)?byId(id).p:0)};
-const money=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+/* price()/money() removed in v3 - cost tracking was dropped in v2 and both
+   helpers had no remaining call sites. The catalog's `p` field is left in
+   place (harmless unused data; stripping it would touch ~250 rows). */
 const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 const save=async()=>{await dbSet('u',S.u);await dbSet('custom',S.custom);await dbSet('proj',S.projects)};
 
