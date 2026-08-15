@@ -1,0 +1,48 @@
+const DB={db:null,mem:{},ok:false};
+function dbOpen(){return new Promise(r=>{try{if(!indexedDB)return r(false);
+ const q=indexedDB.open('bench2',1);
+ q.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv')};
+ q.onsuccess=e=>{DB.db=e.target.result;DB.ok=true;r(true)};q.onerror=()=>r(false);
+ setTimeout(()=>r(DB.ok),1200)}catch(e){r(false)}})}
+function dbGet(k){return new Promise(r=>{if(!DB.ok)return r(DB.mem[k]??null);
+ try{const t=DB.db.transaction('kv','readonly').objectStore('kv').get(k);t.onsuccess=()=>r(t.result??null);t.onerror=()=>r(null)}catch(e){r(null)}})}
+function dbSet(k,v){DB.mem[k]=v;return new Promise(r=>{if(!DB.ok)return r(1);
+ try{const t=DB.db.transaction('kv','readwrite').objectStore('kv').put(v,k);t.onsuccess=()=>r(1);t.onerror=()=>r(0)}catch(e){r(0)}})}
+function dbDel(k){delete DB.mem[k];return new Promise(r=>{if(!DB.ok)return r();
+ try{const t=DB.db.transaction('kv','readwrite').objectStore('kv').delete(k);t.onsuccess=()=>r();t.onerror=()=>r()}catch(e){r()}})}
+
+let S={u:{},custom:[],photos:{},projects:[],view:'home',f:{cat:'',q:''}};
+const $=s=>document.querySelector(s);
+const all=()=>CATALOG.concat(S.custom);
+const byId=id=>all().find(x=>x.i===id);
+const U=id=>S.u[id]||{};
+const st=id=>U(id).st||'';
+const qty=id=>{const u=U(id);return u.qty!==undefined?u.qty:1};
+const price=id=>{const u=U(id);return u.price!==undefined?u.price:(byId(id)?byId(id).p:0)};
+const money=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const save=async()=>{await dbSet('u',S.u);await dbSet('custom',S.custom);await dbSet('proj',S.projects)};
+
+async function boot(){
+  await dbOpen();
+  S.u=(await dbGet('u'))||{};S.custom=(await dbGet('custom'))||[];S.projects=(await dbGet('proj'))||[];
+  const ix=(await dbGet('pix'))||[];
+  for(const id of ix){const p=await dbGet('p:'+id);if(p)S.photos[id]=p}
+  render();
+}
+async function setPhoto(id,d){S.photos[id]=d;await dbSet('p:'+id,d);await dbSet('pix',Object.keys(S.photos))}
+async function delPhoto(id){delete S.photos[id];await dbDel('p:'+id);await dbSet('pix',Object.keys(S.photos))}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1700)}
+
+function sums(){
+  let buy=0,buyN=0,have=0,haveVal=0,bad=0,untested=0;
+  for(const it of all()){
+    const s=st(it.i),q=qty(it.i),p=price(it.i);
+    if(s==='need'){buy+=p*q;buyN++}
+    if(s==='have'){have++;haveVal+=p*q;const u=U(it.i);
+      if(u.cond==='damaged'||u.cond==='repair')bad++;
+      if(!u.tested)untested++}
+  }
+  return{buy,buyN,have,haveVal,bad,untested};
+}
+

@@ -3,8 +3,11 @@ name: Build APK
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - 'index.html'
+      - 'css/**'
+      - 'js/**'
       - '.github/workflows/build-apk.yml'
 
 permissions:
@@ -62,6 +65,8 @@ jobs:
           npx cap init "$APP_NAME" "$APP_ID" --web-dir=www
           mkdir -p www
           cp index.html www/index.html
+          cp -r css www/css
+          cp -r js www/js
           npx cap add android
           npx cap sync android
 
