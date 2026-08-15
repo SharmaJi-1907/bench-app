@@ -40,7 +40,7 @@ function openProject(pid){
     miss.forEach(x=>{S.u[x.id]=Object.assign({},U(x.id),{st:'need',qty:Math.max(qty(x.id),x.q||1)})});
     await save();toast('Added to buy list');openProject(pid)};
   $('#delProj').onclick=async()=>{if(!confirm('Delete this project?'))return;
-    S.projects=S.projects.filter(x=>x.id!==pid);await save();close();toast('Project deleted')};
+    haptic();S.projects=S.projects.filter(x=>x.id!==pid);await save();close();toast('Project deleted')};
 }
 let pickQ='';
 function openPartPicker(pid){
@@ -162,7 +162,7 @@ function open(id){
     const o=Object.assign({},U(id),{st:b.dataset.v});
     if(!b.dataset.v)delete o.st;
     if(o.qty===undefined)o.qty=it.q;
-    S.u[id]=o;await save();open(id)});
+    haptic();S.u[id]=o;await save();open(id)});
   const sc=$('#sc');if(sc)sc.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{cond:b.dataset.v});await save();open(id)});
   const stg=$('#stst');if(stg)stg.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{tested:b.dataset.v==='1'});await save();open(id)});
   const qq=$('#qq');
@@ -173,7 +173,7 @@ function open(id){
   [['loc','loc'],['pj','project'],['nt','notes']].forEach(a=>{const e=$('#'+a[0]);
     if(e)e.onchange=async()=>{const o={};o[a[1]]=e.value;S.u[id]=Object.assign({},U(id),o);await save()}});
   const d=$('#del');if(d)d.onclick=async()=>{if(!confirm('Delete this item?'))return;
-    S.custom=S.custom.filter(x=>x.i!==id);delete S.u[id];await delPhoto(id);await save();close();toast('Deleted')};
+    haptic();S.custom=S.custom.filter(x=>x.i!==id);delete S.u[id];await delPhoto(id);await save();close();toast('Deleted')};
 }
 function close(){$('#sheet').classList.remove('open');document.body.style.overflow='';render()}
 
@@ -203,7 +203,24 @@ function openAdd(){
     const id='u_'+Date.now(),q=+$('#aq').value||1;
     S.custom.push(I(id,n,$('#ac').value,$('#al').value,$('#as').value,0,q,$('#aw').value.trim(),$('#ad').value.trim(),''));
     S.u[id]={st:start,qty:q,cond:'working',tested:false};
-    await save();close();toast('Added');open(id)};
+    haptic();await save();close();toast('Added');open(id)};
+}
+
+function showIntro(){
+  $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">Welcome to Bench</div></div>
+  <div class="sheet-in">
+    <p style="color:var(--ink2);line-height:1.6;font-size:15px;margin-top:16px">Bench tracks the electronic parts you own, the ones you still need, and the projects you're building with them — all saved on this device, nothing sent anywhere.</p>
+    <div class="list" style="margin-top:16px">
+      <div class="kv"><span class="k">All</span><span class="v">Browse parts, mark have or need</span></div>
+      <div class="kv"><span class="k">Stock</span><span class="v">What you already own</span></div>
+      <div class="kv"><span class="k">To Buy</span><span class="v">What you still need</span></div>
+      <div class="kv"><span class="k">Projects</span><span class="v">Track parts for what you're building</span></div>
+    </div>
+    <div style="height:20px"></div>
+    <button class="btn wide" id="cl2">Get started</button>
+    <div style="height:30px"></div></div>`;
+  $('#sheet').classList.add('open');document.body.style.overflow='hidden';
+  $('#cl').onclick=close;$('#cl2').onclick=close;
 }
 
 function openMore(){

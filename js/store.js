@@ -25,13 +25,18 @@ const save=async()=>{await dbSet('u',S.u);await dbSet('custom',S.custom);await d
 
 function applyTheme(t){document.documentElement.dataset.theme=t==='system'?'':t}
 async function setTheme(t){S.theme=t;applyTheme(t);await dbSet('theme',t)}
+function haptic(){try{if(window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics)
+  Capacitor.Plugins.Haptics.impact({style:'Light'})}catch(e){}}
 async function boot(){
   await dbOpen();
-  const [theme,u,custom,projects,ix]=await Promise.all(
-    [dbGet('theme'),dbGet('u'),dbGet('custom'),dbGet('proj'),dbGet('pix')]);
+  const [theme,u,custom,projects,ix,onboarded]=await Promise.all(
+    [dbGet('theme'),dbGet('u'),dbGet('custom'),dbGet('proj'),dbGet('pix'),dbGet('onboarded')]);
   S.theme=theme||'system';applyTheme(S.theme);
   S.u=u||{};S.custom=custom||[];S.projects=projects||[];
   render();
+  if(window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.SplashScreen)
+    Capacitor.Plugins.SplashScreen.hide();
+  if(!onboarded){await dbSet('onboarded',1);showIntro()}
   for(const id of (ix||[])){const p=await dbGet('p:'+id);if(p)S.photos[id]=p}
   render();
 }

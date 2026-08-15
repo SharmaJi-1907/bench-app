@@ -25,7 +25,7 @@ function thumb(it){
   return `<div class="thumb" data-cam="${it.i}">${p?`<img src="${p}" alt="">`:art(it)}
     <div class="cam"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></div></div>`;
 }
-function row(it,mode){
+function row(it,mode,swipe){
   const u=U(it.i),s=st(it.i);let line='';
   if(mode==='stock'){
     const c=u.cond||'working';
@@ -41,14 +41,57 @@ function row(it,mode){
   }
   const q=qty(it.i);
   const right=mode==='stock'?`<div class="pr">×${q}</div>`:'';
-  return `<div class="row"><button class="tap" data-id="${it.i}">${thumb(it)}
+  const content=`<div class="row"><button class="tap" data-id="${it.i}">${thumb(it)}
     <div class="info"><div class="nm">${esc(it.n)}</div><div class="ln">${line}</div></div></button>${right}</div>`;
+  if(!swipe)return content;
+  return `<div class="swipe-wrap"><div class="swipe-action ${swipe.cls}" data-swact="${it.i}" data-swkind="${swipe.kind}">${swipe.label}</div>${content}</div>`;
 }
 function bind(){
   document.querySelectorAll('.tap[data-id]').forEach(b=>b.onclick=e=>{
     if(e.target.closest('[data-cam]'))return;open(b.dataset.id)});
   document.querySelectorAll('[data-cam]').forEach(t=>t.onclick=e=>{e.stopPropagation();pick(t.dataset.cam)});
   document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
+  bindSwipe();
+}
+function closeOtherSwipes(except){
+  document.querySelectorAll('.swipe-wrap.open').forEach(w=>{if(w!==except){
+    w.classList.remove('open');const r=w.querySelector('.row');if(r)r.style.transform=''}});
+}
+function bindSwipe(){
+  const REVEAL=88;
+  document.querySelectorAll('.swipe-wrap').forEach(wrap=>{
+    const rowEl=wrap.querySelector('.row');
+    let startX=0,curX=0,dragging=false,moved=false;
+    rowEl.addEventListener('pointerdown',e=>{
+      if(e.target.closest('[data-cam]'))return;
+      startX=e.clientX;dragging=true;moved=false;wrap.classList.add('dragging');
+      closeOtherSwipes(wrap);
+    });
+    rowEl.addEventListener('pointermove',e=>{
+      if(!dragging)return;
+      curX=e.clientX-startX;
+      if(Math.abs(curX)>6)moved=true;
+      const base=wrap.classList.contains('open')?-REVEAL:0;
+      const x=Math.max(-REVEAL,Math.min(0,base+curX));
+      rowEl.style.transform=`translateX(${x}px)`;
+    });
+    const end=()=>{
+      if(!dragging)return;dragging=false;wrap.classList.remove('dragging');
+      const base=wrap.classList.contains('open')?-REVEAL:0;
+      const shouldOpen=(base+curX)<-REVEAL/2;
+      rowEl.style.transform=shouldOpen?`translateX(-${REVEAL}px)`:'';
+      wrap.classList.toggle('open',shouldOpen);
+      curX=0;
+    };
+    rowEl.addEventListener('pointerup',end);
+    rowEl.addEventListener('pointercancel',end);
+    rowEl.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopPropagation();moved=false}});
+  });
+  document.querySelectorAll('[data-swact]').forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.swact,kind=b.dataset.swkind;
+    if(kind==='unstock')S.u[id]=Object.assign({},U(id),{st:''});
+    else if(kind==='bought')S.u[id]=Object.assign({},U(id),{st:'have'});
+    haptic();await save();toast(kind==='bought'?'Marked as bought':'Removed from stock');render()});
 }
 
 let camFor=null;
@@ -112,7 +155,11 @@ function projRow(p,i){
       ${miss?`<span class="tag t-need">${miss} missing</span>`:(n?'<span class="tag t-have">all parts ready</span>':'')}</div></div></button></div>`;
 }
 function bar(){
-  return `<input class="search" id="q" placeholder="Search components" value="${esc(S.f.q)}">
+  return `<div class="searchwrap">
+    <svg class="sicon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input class="search" id="q" placeholder="Search components" value="${esc(S.f.q)}">
+    ${S.f.q?'<button class="sclear" id="qclear">✕</button>':''}
+  </div>
   <div class="chips"><button class="chip ${!S.f.cat?'on':''}" data-v="">All</button>
   ${Object.keys(CATS).map(k=>`<button class="chip ${S.f.cat===k?'on':''}" data-v="${k}">${CATS[k]}</button>`).join('')}</div>`;
 }
@@ -134,7 +181,7 @@ function vStock(){
   const l=filt(owned);
   return `<div class="total" style="padding:16px"><div class="lbl">Items in stock</div>
     <div class="amt" style="font-size:28px">${l.length}</div></div><div style="height:12px"></div>`
-    +bar()+(l.length?l.map(x=>row(x,'stock')).join(''):`<div class="empty"><p>No stock matches this filter.</p></div>`);
+    +bar()+(l.length?l.map(x=>row(x,'stock',{label:'Remove',cls:'red',kind:'unstock'})).join(''):`<div class="empty"><p>No stock matches this filter.</p></div>`);
 }
 function vBuy(){
   const l=all().filter(x=>st(x.i)==='need');
@@ -144,7 +191,8 @@ function vBuy(){
   const g={};l.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
   return `<div class="total"><div class="lbl">Items to buy</div><div class="amt">${l.length}</div></div>`
   +Object.keys(CATS).filter(k=>g[k]).map(k=>
-    `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} item${g[k].length===1?'':'s'}</span></div>`+g[k].map(x=>row(x)).join('')).join('')
+    `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} item${g[k].length===1?'':'s'}</span></div>`
+    +g[k].map(x=>row(x,null,{label:'Bought',cls:'grn',kind:'bought'})).join('')).join('')
   +`<div class="btnrow"><button class="btn sec" id="cp">Copy list</button><button class="btn grn" id="ab">All bought</button></div>`;
 }
 
@@ -167,6 +215,7 @@ function render(){
   window.scrollTo(0,0);bind();
   const q=$('#q');if(q)q.oninput=e=>{const p=e.target.selectionStart;S.f.q=e.target.value;render();
     const n=$('#q');if(n){n.focus();n.setSelectionRange(p,p)}};
+  const qc=$('#qclear');if(qc)qc.onclick=()=>{S.f.q='';render()};
   document.querySelectorAll('.chip[data-v]').forEach(c=>c.onclick=()=>{S.f.cat=S.f.cat===c.dataset.v?'':c.dataset.v;render()});
   document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
   const ga=$('#goAll');if(ga)ga.onclick=()=>{S.view='all';render()};
@@ -176,6 +225,6 @@ function render(){
   const cp=$('#cp');if(cp)cp.onclick=copyList;
   const ab=$('#ab');if(ab)ab.onclick=async()=>{
     all().filter(x=>st(x.i)==='need').forEach(x=>{S.u[x.i]=Object.assign({},U(x.i),{st:'have'})});
-    await save();toast('Moved to my stock');render()};
+    haptic();await save();toast('Moved to my stock');render()};
 }
 
