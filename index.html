@@ -10,10 +10,19 @@
 </head>
 <body>
 <div id="app">
-  <header><h1 id="title">Bench</h1>
-    <button class="icobtn" id="moreBtn"><svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z"/><path d="M19.4 13.5a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1.04 1.56V20a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1.04-1.56 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.56-1.04H4a2 2 0 110-4h.09a1.7 1.7 0 001.56-1.04 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H10a1.7 1.7 0 001.04-1.56V4a2 2 0 114 0v.09a1.7 1.7 0 001.04 1.56 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V10a1.7 1.7 0 001.56 1.04H20a2 2 0 110 4h-.09a1.7 1.7 0 00-1.56 1.04z"/></svg></button>
-  </header>
   <main id="main"></main>
+</div>
+<!-- Cold-start brand animation: covers the first paint, then fades itself out
+     once boot() has the data ready. Static markup so it is on screen before any
+     JS parses - a JS-built splash would flash the empty app first. -->
+<div class="intro" id="intro">
+  <div class="intro-in">
+    <svg class="intro-chip" viewBox="0 0 48 48" aria-hidden="true">
+      <rect x="14" y="14" width="20" height="20" rx="3"/>
+      <path d="M20 14V8M24 14V8M28 14V8M20 34v6M24 34v6M28 34v6M14 20H8M14 24H8M14 28H8M34 20h6M34 24h6M34 28h6"/>
+    </svg>
+    <div class="intro-word">Bench</div>
+  </div>
 </div>
 <nav id="nav"></nav>
 <button class="fab" id="fab">+ Add</button>

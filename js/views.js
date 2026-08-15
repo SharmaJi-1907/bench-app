@@ -267,14 +267,48 @@ $('#globalCam').onchange=e=>{
   rd.readAsDataURL(f);
 };
 
+/* The top bar was removed in favour of an inline brand row that scrolls with
+   the page, so the wordmark and settings live in the content, not in chrome. */
+function brandRow(){
+  return `<div class="brandrow">
+    <button class="brand" id="brand" aria-label="Bench - go to home">
+      <svg class="brand-chip" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="14" y="14" width="20" height="20" rx="3"/>
+        <path d="M20 14V8M24 14V8M28 14V8M20 34v6M24 34v6M28 34v6M14 20H8M14 24H8M14 28H8M34 20h6M34 24h6M34 28h6"/>
+      </svg>
+      <span class="brand-word">Bench</span>
+    </button>
+    <button class="icobtn" id="moreBtn2" aria-label="Settings">
+      <svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z"/><path d="M19.4 13.5a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1.04 1.56V20a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1.04-1.56 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.56-1.04H4a2 2 0 110-4h.09a1.7 1.7 0 001.56-1.04 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H10a1.7 1.7 0 001.04-1.56V4a2 2 0 114 0v.09a1.7 1.7 0 001.04 1.56 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V10a1.7 1.7 0 001.56 1.04H20a2 2 0 110 4h-.09a1.7 1.7 0 00-1.56 1.04z"/></svg>
+    </button>
+  </div>`;
+}
+
+/* Starred items: owned, in working condition, and not tied to a project -
+   i.e. parts that are actually free to grab off the bench right now. */
+const isFav=id=>!!U(id).fav;
+function favItems(){
+  return all().filter(x=>{
+    const u=U(x.i);
+    return u.fav&&st(x.i)==='have'&&(u.cond||'working')==='working'&&!(u.project||'').trim();
+  });
+}
+function favGrid(){
+  const f=favItems().slice(0,4);
+  if(!f.length)return `<div class="g4empty">
+    <p>Star a component to pin it here — your go-to parts, one tap away.</p>
+    <button class="btn sec" id="goStock">Browse my stock</button></div>`;
+  return `<div class="g4">${f.map(it=>`<button class="g4cell tap" data-id="${it.i}">
+    <div class="g4art">${art(it)}</div>
+    <div class="g4nm">${esc(it.n)}</div></button>`).join('')}</div>`;
+}
+
 function vHome(){
   const s=sums();
   const owned=all().filter(x=>st(x.i)==='have');
-  return `<div class="tiles">
-    <div class="tile"><b>${s.have}</b><span>I have</span></div>
-    <div class="tile"><b>${s.buyN}</b><span>need to buy</span></div>
-    <div class="tile"><b style="color:${s.bad?'var(--red)':'inherit'}">${s.bad}</b><span>damaged</span></div>
-  </div>
+  return `<h2 class="first">Ready to grab</h2>
+  ${favGrid()}
+  ${categoryChart()}
   <h2>My projects</h2>
   ${S.projects.length?S.projects.slice(0,4).map((p,i)=>projRow(p,i)).join('')
     +`<button class="btn sec wide" id="goProj">See all projects</button>`
@@ -289,19 +323,31 @@ function vHome(){
       act:'Browse all items',id:'goAll'})}
   ${(s.untested||s.bad)?`<h2>Check these</h2>
     ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body)"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
-    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body);color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}
-  ${stockByCategory()}`;
+    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body);color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}`;
 }
-function stockByCategory(){
+/* Ranked magnitude across categories: a single series, so one hue and direct
+   labels - not a rainbow, and no legend (the row label carries identity).
+   Bar length already encodes the value, so colour stays constant. */
+function categoryChart(){
   const totals={};
   all().forEach(x=>{if(st(x.i)==='have')totals[x.c]=(totals[x.c]||0)+1});
   const rows=Object.keys(totals).map(k=>({k,v:totals[k]})).sort((a,b)=>b.v-a.v);
   if(!rows.length)return '';
-  const max=rows[0].v;
-  return `<h2>Stock by category</h2>
-    ${rows.map(r=>`<div class="row" style="display:block;padding:14px">
-      <div style="display:flex;justify-content:space-between;font-size:var(--fs-body)"><b>${CATS[r.k]}</b><span style="color:var(--ink2)">${r.v} item${r.v===1?'':'s'}</span></div>
-      <div class="bar"><i style="width:${Math.round(r.v/max*100)}%"></i></div></div>`).join('')}`;
+  const max=rows[0].v,total=rows.reduce((a,r)=>a+r.v,0);
+  return `<h2>My collection</h2>
+  <div class="chart">
+    <div class="chart-hd">
+      <div><div class="chart-total">${total}</div>
+        <div class="chart-cap">component${total===1?'':'s'} across ${rows.length} categor${rows.length===1?'y':'ies'}</div></div>
+    </div>
+    <div class="chart-rows">
+      ${rows.map(r=>`<div class="cbar">
+        <div class="cbar-lbl">${esc(CATS[r.k])}</div>
+        <div class="cbar-track"><i style="width:${Math.max(6,Math.round(r.v/max*100))}%"></i></div>
+        <div class="cbar-val">${r.v}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
 }
 const PSTAT={idea:['Idea','t-gray'],building:['Building','t-warn'],done:['Finished','t-have'],paused:['Paused','t-gray']};
 function projMissing(p){return (p.parts||[]).filter(x=>st(x.id)!=='have')}
@@ -387,7 +433,9 @@ function vProj(){
 function render(){
   loadCatView();
   drawNav();
-  $('#main').innerHTML={home:vHome,stock:vStock,buy:vBuy,proj:vProj,all:vAll}[S.view]();
+  /* The brand row replaces the old fixed header, so every view gets it -
+     otherwise settings would only be reachable from Home. */
+  $('#main').innerHTML=brandRow()+{home:vHome,stock:vStock,buy:vBuy,proj:vProj,all:vAll}[S.view]();
   window.scrollTo(0,0);bind();
   const q=$('#q');if(q)q.oninput=e=>{const p=e.target.selectionStart;S.f.q=e.target.value;render();
     const n=$('#q');if(n){n.focus();n.setSelectionRange(p,p)}};
@@ -398,6 +446,13 @@ function render(){
   /* filtered-empty action: clears search + category so the list comes back */
   const cf=$('#clearFilt');if(cf)cf.onclick=()=>{S.f.q='';S.f.cat='';render()};
   const ea=$('#emptyAdd');if(ea)ea.onclick=()=>openAdd();
+  /* Brand row lives inside the rendered page now, so it is re-wired per render.
+     Tapping the wordmark plays the sheen and returns to Home. */
+  const mb=$('#moreBtn2');if(mb)mb.onclick=openMore;
+  const bd=$('#brand');if(bd)bd.onclick=()=>{
+    bd.classList.remove('shine');void bd.offsetWidth;bd.classList.add('shine');
+    if(S.view!=='home'){S.view='home';render()}
+  };
   const ga=$('#goAll');if(ga)ga.onclick=()=>{S.view='all';render()};
   const gs=$('#goStock');if(gs)gs.onclick=()=>{S.view='stock';render()};
   const gp=$('#goProj');if(gp)gp.onclick=()=>{if(!S.projects.length)newProject();else{S.view='proj';render()}};

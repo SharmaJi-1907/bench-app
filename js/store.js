@@ -28,6 +28,19 @@ function applyTheme(t){document.documentElement.dataset.theme=t==='system'?'':t}
 async function setTheme(t){S.theme=t;applyTheme(t);await dbSet('theme',t)}
 function haptic(){try{if(window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics)
   Capacitor.Plugins.Haptics.impact({style:'Light'})}catch(e){}}
+/* Hold the cold-start brand animation on screen for a beat even when boot()
+   finishes instantly, so it reads as an intro rather than a flicker - then
+   fade it and take it out of the layer stack entirely. */
+const INTRO_MIN_MS=900;
+const introStart=Date.now();
+function dismissIntro(){
+  const el=$('#intro');if(!el||el.classList.contains('gone'))return;
+  const wait=Math.max(0,INTRO_MIN_MS-(Date.now()-introStart));
+  setTimeout(()=>{
+    el.classList.add('gone');
+    setTimeout(()=>el.classList.add('hidden'),420);
+  },wait);
+}
 async function boot(){
   await dbOpen();
   const [theme,u,custom,projects,ix,onboarded]=await Promise.all(
@@ -37,6 +50,7 @@ async function boot(){
   render();
   if(window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.SplashScreen)
     Capacitor.Plugins.SplashScreen.hide();
+  dismissIntro();
   if(!onboarded){await dbSet('onboarded',1);showIntro()}
   for(const id of (ix||[])){const p=await dbGet('p:'+id);if(p)S.photos[id]=p}
   render();

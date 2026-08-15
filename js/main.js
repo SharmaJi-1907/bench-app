@@ -1,5 +1,5 @@
 $('#fab').onclick=openAdd;
-$('#moreBtn').onclick=openMore;
+
 /* Dismissal order for both Escape and Android back: innermost surface first.
    The quick-action sheet (Task 4) sits on top of everything, so it gets the
    first refusal; closeQuick() returns false when it was not open, which hands

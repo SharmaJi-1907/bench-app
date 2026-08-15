@@ -190,6 +190,12 @@ function open(id){
         ${ph?'<button class="dgr" id="ph3">Remove</button>':''}
       </div></div>
 
+    <button class="favrow${u.fav?' on':''}" id="favt" aria-pressed="${u.fav?'true':'false'}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z"/></svg>
+      <span class="favrow-t">${u.fav?'Pinned to Home':'Pin to Home'}</span>
+      <span class="favrow-s">${u.fav?'Showing in Ready to grab':'Keep this one a tap away'}</span>
+    </button>
+
     <label class="f">Status</label>
     <div class="seg" id="sg">
       <button data-v="have" class="${s==='have'?'on':''}">I have it</button>
@@ -238,6 +244,12 @@ function open(id){
   $('#ph1').onclick=()=>pick(id);
   $('#ph2').onclick=()=>window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent(it.n+' electronic component'),'_blank');
   const p3=$('#ph3');if(p3)p3.onclick=async()=>{await delPhoto(id);toast('Photo removed');open(id)};
+  /* Pin/unpin drives the Home "Ready to grab" grid. Writes through the same
+     S.u + save() path as every other per-item field. */
+  $('#favt').onclick=async()=>{
+    S.u[id]=Object.assign({},U(id),{fav:!U(id).fav});
+    haptic();await save();open(id);
+  };
   $('#sg').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
     await setItemStatus(id,b.dataset.v);open(id)});
   const sc=$('#sc');if(sc)sc.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{cond:b.dataset.v});await save();open(id)});
