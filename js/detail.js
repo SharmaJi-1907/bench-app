@@ -52,14 +52,29 @@ function openPartPicker(pid){
   const p=S.projects.find(x=>x.id===pid);
   const q=pickQ.trim().toLowerCase();
   const inProj=new Set((p.parts||[]).map(x=>x.id));
-  const list=all().filter(it=>!q||(it.n+' '+it.d+' '+CATS[it.c]).toLowerCase().indexOf(q)>=0).slice(0,60);
+  /* No cap: the whole catalogue is reachable here. Rendering every row is
+     already proven safe — vAll() does exactly this on every render — and the
+     old .slice(0,60) hid 193 of the 253 components with no way to page to them.
+     Grouped by category with the same CATS-ordered .ghead headings the All tab
+     uses, so the two screens read the same. Search filters first, then the
+     grouping applies to whatever survives. Parts already in the project keep
+     their green tick in place; they are not sorted to the top. */
+  const list=all().filter(it=>!q||(it.n+' '+it.d+' '+CATS[it.c]).toLowerCase().indexOf(q)>=0);
+  const g={};list.forEach(x=>{(g[x.c]=g[x.c]||[]).push(x)});
+  const prow=it=>`<div class="row"><button class="tap" data-add="${it.i}">${thumb(it)}
+      <div class="info"><div class="nm">${esc(it.n)}</div>
+      <div class="ln">${st(it.i)==='have'?'<span class="tag t-have">in stock</span>':''}<span>${esc(it.d||CATS[it.c])}</span></div></div></button>
+      <div class="pr" style="color:${inProj.has(it.i)?'var(--green)':'var(--blue)'};font-size:20px">${inProj.has(it.i)?'✓':'+'}</div></div>`;
+  const body=list.length
+    ? Object.keys(CATS).filter(k=>g[k]).map(k=>
+        `<div class="ghead"><span class="a">${CATS[k]}</span><span class="b">${g[k].length} item${g[k].length===1?'':'s'}</span></div>`
+        +g[k].map(prow).join('')).join('')
+    : `<div class="ghead"><span class="a">No matches</span></div>
+       <p style="margin:0 0 8px;color:var(--ink3)">Nothing in the catalogue matches “${esc(pickQ.trim())}”. Try a shorter word.</p>`;
   $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">Add parts to ${esc(p.name)}</div></div>
   <div class="sheet-in"><div style="height:12px"></div>
     <input class="search" id="pq" placeholder="Search a component" value="${esc(pickQ)}">
-    ${list.map(it=>`<div class="row"><button class="tap" data-add="${it.i}">${thumb(it)}
-      <div class="info"><div class="nm">${esc(it.n)}</div>
-      <div class="ln">${st(it.i)==='have'?'<span class="tag t-have">in stock</span>':''}<span>${esc(it.d||CATS[it.c])}</span></div></div></button>
-      <div class="pr" style="color:${inProj.has(it.i)?'var(--green)':'var(--blue)'};font-size:20px">${inProj.has(it.i)?'✓':'+'}</div></div>`).join('')}
+    ${body}
     <div style="height:30px"></div></div>`;
   $('#sheet').classList.add('open');document.body.style.overflow='hidden';
   $('#cl').onclick=()=>{pickQ='';openProject(pid)};

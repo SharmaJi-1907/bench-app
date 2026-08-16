@@ -89,10 +89,14 @@ function clearLabel(){
   return q&&c?'Clear search and filter':q?'Clear search':'Show all categories';
 }
 
+/* List thumbnails are pictures, nothing more. The camera badge that used to sit
+   here made the whole 54x54 picture a file-picker trigger, so aiming at a part's
+   image — the most natural target in the row — opened the gallery instead of the
+   part. Adding a photo now lives only on the component's own page (#ph1/#ph2/#ph3).
+   A saved user photo still displays here. */
 function thumb(it){
   const p=S.photos[it.i];
-  return `<div class="thumb" data-cam="${it.i}">${p?`<img src="${p}" alt="">`:art(it)}
-    <div class="cam"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></div></div>`;
+  return `<div class="thumb">${p?`<img src="${p}" alt="">`:art(it)}</div>`;
 }
 function row(it,mode,swipe){
   const u=U(it.i),s=st(it.i);let line='';
@@ -114,9 +118,9 @@ function row(it,mode,swipe){
      exactly what bindSwipe() is listening to, so the two gestures would be
      racing on the same element — and a hidden gesture is the same
      discoverability/accessibility gap DESIGN-SYSTEM §Swipe row flags. This
-     button is skipped by bindSwipe's pointerdown (same guard as the camera
-     badge), so a drag that starts on it never becomes a swipe and a swipe
-     that starts on the row never becomes a quick-sheet open.
+     button is skipped by bindSwipe's pointerdown, so a drag that starts on it
+     never becomes a swipe and a swipe that starts on the row never becomes a
+     quick-sheet open.
      In stock mode it wraps the ×qty readout that was already sitting here,
      so the row gains an affordance, not a whole extra control. */
   const right=`<button class="qedit" type="button" data-quick="${it.i}" aria-label="Adjust ${esc(it.n)}">`
@@ -128,9 +132,7 @@ function row(it,mode,swipe){
   return `<div class="swipe-wrap"><div class="swipe-action ${swipe.cls}" data-swact="${it.i}" data-swkind="${swipe.kind}">${swipe.label}</div>${content}</div>`;
 }
 function bind(){
-  document.querySelectorAll('.tap[data-id]').forEach(b=>b.onclick=e=>{
-    if(e.target.closest('[data-cam]'))return;open(b.dataset.id)});
-  document.querySelectorAll('[data-cam]').forEach(t=>t.onclick=e=>{e.stopPropagation();pick(t.dataset.cam)});
+  document.querySelectorAll('.tap[data-id]').forEach(b=>b.onclick=()=>open(b.dataset.id));
   document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=e=>{e.stopPropagation();openQuick(b.dataset.quick)});
   document.querySelectorAll('[data-proj]').forEach(b=>b.onclick=()=>openProject(b.dataset.proj));
   bindSwipe();
@@ -145,9 +147,9 @@ function bindSwipe(){
     const rowEl=wrap.querySelector('.row');
     let startX=0,curX=0,dragging=false,moved=false;
     rowEl.addEventListener('pointerdown',e=>{
-      /* the camera badge and the quick-action trigger are their own targets:
-         a press that starts on either must not arm a swipe */
-      if(e.target.closest('[data-cam]')||e.target.closest('[data-quick]'))return;
+      /* the quick-action trigger is its own target: a press that starts on it
+         must not arm a swipe */
+      if(e.target.closest('[data-quick]'))return;
       startX=e.clientX;dragging=true;moved=false;wrap.classList.add('dragging');
       closeOtherSwipes(wrap);
     });
