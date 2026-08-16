@@ -34,10 +34,19 @@ const SYM={
  iron:'<path d="M4 28l10-10"/><path d="M14 18l16-14 8 8-14 16z"/><path d="M20 12l8 8"/>',
  scope:'<rect x="4" y="5" width="40" height="22" rx="3"/><path d="M9 18c4 0 4-7 8-7s4 12 8 12 4-9 7-9 3 4 6 4"/>',
  psu:'<rect x="4" y="6" width="40" height="20" rx="3"/><path d="M11 12h12v8H11z"/><circle cx="32" cy="16" r="4"/>',
- ic:'<rect x="9" y="5" width="30" height="22" rx="2"/><path d="M15 5V2M23 5V2M31 5V2M15 27v3M23 27v3M31 27v3"/><circle cx="14" cy="10" r="1.6"/>'};
+ ic:'<rect x="9" y="5" width="30" height="22" rx="2"/><path d="M15 5V2M23 5V2M31 5V2M15 27v3M23 27v3M31 27v3"/><circle cx="14" cy="10" r="1.6"/>',
+ ntc:'<path d="M2 16h8l3-8 5 16 5-16 5 16 3-8h8"/><path d="M12 28h6l18-18"/>',
+ ptc:'<path d="M2 16h8l3-8 5 16 5-16 5 16 3-8h8"/><path d="M12 28h6l7-8h5l6-10"/>'};
 /* many package keys (dip16, modbuck, …) have no schematic symbol of their own —
-   fall back to the nearest family symbol rather than the generic IC block */
-const _symKey=k=>SYM[k]?k:(/^mod/.test(k)?'module':(/^dip/.test(k)?'dip14':'ic'));
+   fall back to the nearest family symbol rather than the generic IC block.
+   The tool / wire / instrument keys below are drawings, not schematics, so
+   they borrow the family symbol instead of falling through to an IC block. */
+const _SYMOF={pump:'tool',brass:'tool',icext:'tool',hands:'tool',caliper:'tool',esd:'tool',
+ micro:'tool',flux:'tool',hsink:'tool',ipa:'tool',spaste:'tool',
+ solder:'wire',jumper:'wire',hookup:'wire',shrink:'wire',
+ lcr:'meter',usbm:'meter',irgun:'meter',logan:'scope',funcgen:'scope',
+ resmf:'res',smdbk:'res',sol:'ind',bldc:'motor'};
+const _symKey=k=>SYM[k]?k:(_SYMOF[k]||(/^mod/.test(k)?'module':(/^dip/.test(k)?'dip14':'ic')));
 const sym=(k,c)=>'<svg class="'+(c===''?'':'sym')+'" viewBox="0 0 48 32">'+SYM[_symKey(k)]+'</svg>';
 
 /* ================= default component pictures =================
@@ -184,7 +193,11 @@ PKG.to92=(it)=>{
    +_tx(lab,100,80,_fit(lab,54,16),'#D8DCE1');
 };
 PKG.to220=(it)=>{
-  const lab=_mark(it.n);
+  /* _mark() throws away bare-number part codes, so 7805, 7809 and 7905 all
+     printed nothing and the three regulators drew the same blank TO-220.
+     _partNo() keeps them — the package really is identical, the marking is
+     the only thing that tells them apart in real life too. */
+  const lab=_partNo(it.n);
   return _legs([80,100,120],92,132)
    +_r(66,20,68,32,AC.sil,3)+_c(100,33,6.5,AC.pad)+_r(66,20,68,8,'#FFFFFF',3,.35)
    +_r(66,48,68,46,AC.blk,3)+_gloss(70,52,60,9)
@@ -197,6 +210,25 @@ PKG.res=(it)=>{
    +_r(56,50,88,38,AC.beige,18)+_gloss(62,54,76,10)
    +b.map((c,i)=>_r([66,80,94,124][i],50,i===3?6:8,38,c,1)).join('');
 };
+/* metal-film / precision resistors are blue-bodied with five bands, not the
+   beige four-band carbon film of a starter kit — a real, visible difference */
+PKG.resmf=()=>_r(10,66,180,5,AC.pin,2)
+ +_r(56,50,88,38,'#2E6FB8',18)+_gloss(62,54,76,10)
+ +[[66,_BAND[1]],[78,_BAND[0]],[90,_BAND[0]],[102,_BAND[1]],[126,_BAND[1]]]
+   .map((b,i)=>_r(b[0],50,i===4?6:8,38,b[1],1)).join('');
+/* NTC bead — a black epoxy disc on two leads, not an axial resistor */
+PKG.ntc=()=>_legs([86,114],90,132)
+ +_c(100,58,38,'#17191C')+_e(100,40,24,9,'#FFFFFF',.09)
+ +_tx('10K',100,66,17,'#D6DAE0');
+/* PTC resettable fuse — the same disc shape but the unmistakable yellow */
+PKG.ptc=()=>_legs([86,114],90,132)
+ +_c(100,58,38,'#E8B31E')+_e(100,40,24,9,'#FFFFFF',.3)
+ +_tx('PTC',100,66,17,'#4A3A08');
+/* SMD sample book — pockets of tiny chips in a ring binder */
+PKG.smdbk=()=>_r(28,12,158,116,'#2A2E33',5)+_gloss(34,16,146,10)
+ +[0,1,2].map(r=>[0,1,2,3].map(c=>_r(48+c*34,26+r*34,26,26,'#D9DEE4',2)
+   +_r(56+c*34,34+r*34,10,10,AC.ink,1)).join('')).join('')
+ +[0,1,2].map(i=>_c(34,36+i*34,5,AC.pin)).join('');
 PKG.pot=()=>_legs([80,100,120],104,132)
  +_r(94,14,12,24,AC.sil2,3)
  +_c(100,68,38,'#2D6FA8')+_c(100,68,30,'#3E85C0')+_c(100,68,9,AC.sil)
@@ -486,6 +518,20 @@ PKG.motor=(it)=>{
    +_r(148,64,26,12,'#8D949D',3)+_r(30,50,16,40,'#3A4046',3)
    +_legs([56,76],100,120,5,'#C0392B');
 };
+/* solenoid — copper-wound can with the plunger rod pushed out of one end */
+PKG.sol=()=>_r(20,28,12,84,AC.pin2,2)
+ +_r(30,36,96,64,'#3A4046',6)+_gloss(34,40,88,10)
+ +[0,1,2,3,4,5].map(i=>_r(38+i*15,36,8,64,AC.cop,2)).join('')
+ +_r(126,60,50,16,AC.sil,4)+_c(178,68,11,AC.sil2)
+ +[0,1].map(i=>_p(`M ${62+i*26} 100 C ${58+i*26} 116 ${74+i*26} 118 ${70+i*26} 132`,null,[AC.red,'#1C1F24'][i],4)).join('');
+/* brushless motor + ESC — vented outrunner can, three phase wires, small board */
+PKG.bldc=()=>_r(50,8,12,26,AC.sil2,2)
+ +_c(56,66,44,'#2A2E33')+_c(56,66,34,'#3F464E')
+ +[0,1,2,3,4,5].map(i=>{const a=i*Math.PI/3;
+   return _r(52+Math.cos(a)*30,57+Math.sin(a)*30,8,18,'#12151A',3);}).join('')
+ +_c(56,66,11,AC.sil)
+ +[0,1,2].map(i=>_p(`M 100 ${54+i*12} C 124 ${54+i*12} 126 ${40+i*26} 150 ${40+i*26}`,null,['#1C1F24','#C0392B','#E8B31E'][i],5)).join('')
+ +_r(148,24,42,86,AC.grn,4)+_r(156,38,26,30,AC.blk,3)+_c(169,90,11,'#1C1F24');
 PKG.seg=()=>{
   const seg=(x,y,w,h)=>_r(x,y,w,h,'#E0483A',3);
   return _r(52,18,96,110,'#17191C',5)
@@ -537,6 +583,26 @@ PKG.bread=()=>{
 };
 PKG.wire=()=>[0,1,2].map(i=>_p(`M 18 ${44+i*26} C 70 ${18+i*26} 130 ${72+i*26} 182 ${44+i*26}`,null,[AC.red,'#2E6FB8','#E8B31E'][i],7)).join('')
  +[0,1,2].map(i=>_r(12,36+i*26,14,16,'#2A2E33',3)+_r(174,36+i*26,14,16,'#2A2E33',3)).join('');
+/* ---- things on a reel ----
+   `wire` (three loose leads with crimped housings) is a Dupont lead and
+   nothing else. Solder, jumper kits, hookup wire and heat shrink are four
+   other objects that happen to be sold by the metre. */
+/* solder reel — flange, wound wire, hub, and the end pulled off the spool */
+PKG.solder=()=>_c(82,68,54,'#2A2E33')+_c(82,68,44,AC.sil)+_c(82,68,30,'#98A0A9')+_c(82,68,14,'#EDEFF2')
+ +_p('M 128 92 C 152 104 158 74 186 82',null,AC.sil,6)
+ +_tx('63/37',82,74,16,'#2A2E33');
+/* jumper kit — pre-bent solid-core staples nested in their tray */
+PKG.jumper=()=>[0,1,2,3].map(i=>_p(`M ${32+i*14} ${30+i*9} V ${104-i*12} H ${168-i*14} V ${30+i*9}`,
+   null,[AC.red,'#2E6FB8','#E8B31E',AC.grn2][i],7)).join('')
+ +_r(18,108,164,20,'#3A4046',4)+_gloss(24,112,152,7);
+/* hookup wire — three loose hanks, one per colour */
+const _hank=(x,y,c)=>_p(`M ${x-26} ${y} c 0 -19 52 -19 52 0 c 0 19 -52 19 -52 0 z`,null,c,10);
+PKG.hookup=()=>_hank(56,44,AC.red)+_hank(144,44,'#2E6FB8')+_hank(100,100,'#1C1F24')
+ +_p('M 82 36 C 100 26 108 32 120 26',null,AC.red,4);
+/* heat shrink kit — cut lengths in four diameters, bore facing you */
+PKG.shrink=()=>[0,1,2,3].map(i=>{const h=28-i*5,y=18+i*30,w=164-i*20;
+   return _r(20,y,w,h,['#C0392B','#1C1F24','#2E6FB8','#E8B31E'][i],h/2)
+    +_e(20,y+h/2,6,h/2-1.5,'#000000',.55);}).join('');
 PKG.conn=(it)=>{
   if(/socket/i.test(it.n))return _r(40,46,120,48,'#1C1F24',3)+_r(52,54,96,32,'#0E1114',2)
    +[...Array(8)].map((_,i)=>_r(46+i*14,38,7,10,AC.sil,1)+_r(46+i*14,92,7,10,AC.sil,1)).join('');
@@ -550,6 +616,41 @@ PKG.meter=()=>_r(38,12,124,116,'#E8B31E',10)+_r(46,20,108,10,'#FFFFFF',6,.35)
  +_r(50,26,100,36,'#1C1F24',4)+_r(56,32,88,24,'#5FA37A',2)+_tx('8.8.8',100,50,15,'#16301F')
  +_c(100,92,26,'#2A2E33')+_p('M 100 92 L 100 72',null,AC.sil,4)
  +[0,1].map(i=>_c(64+i*72,116,6,'#3A4046')).join('');
+/* ---- the other four instruments ----
+   a handheld DMM, a bare-board component tester, a USB stick and a
+   temperature gun are not the same yellow box. */
+/* LCR-T4 component tester — big LCD over a blue ZIF socket and one button */
+PKG.lcr=()=>_r(16,14,168,112,AC.grn,5)+_gloss(22,18,156,10)
+ +_r(28,24,142,46,'#D7E3CB',3)+_p('M 40 42 H 124 M 40 56 H 98',null,'#2A3B23',5)
+ +_r(28,80,98,36,'#1F4E9C',3)+_row(36,86,7,12,7,24,'#0E1114')
+ +_p('M 122 80 L 136 66',null,AC.sil2,6)
+ +_c(156,98,15,'#C0392B');
+/* USB power meter — a stick with a plug at one end and a socket at the other */
+PKG.usbm=()=>_r(10,50,42,40,AC.sil,3)+_r(16,57,30,26,AC.pin2,2)
+ +_r(52,32,98,76,'#1C1F24',6)+_gloss(58,36,86,10)
+ +_r(62,46,78,40,'#0B2A1C',3)+_tx('5.02V',101,74,19,'#4AE08A')
+ +_r(150,42,38,56,AC.sil,3)+_r(157,50,24,40,'#2A2E33',2);
+/* IR thermometer — pistol grip, lens barrel, laser dot */
+PKG.irgun=()=>_p('M 46 68 H 98 L 80 130 H 28 Z',AC.blk)
+ +_r(22,16,126,56,'#E8EAED',9)+_gloss(28,20,112,10)
+ +_p('M 148 26 L 178 38 V 58 L 148 68 Z',AC.blk2)+_c(174,48,8,AC.glass)
+ +_p('M 186 48 H 194',null,'#C0392B',4)
+ +_r(36,28,78,32,'#1C1F24',3)+_r(42,33,66,22,'#5FA37A',2)+_tx('36.5',75,51,15,'#16301F')
+ +_r(88,64,18,16,AC.blk,2);
+/* logic analyser — small pod with a fan of channel wires */
+PKG.logan=()=>_r(8,52,34,34,AC.sil,3)+_r(14,59,22,20,AC.pin2,2)
+ +_r(42,34,74,72,AC.blu,5)+_gloss(48,38,62,10)+_tx('LA8',79,82,20,AC.wht)
+ +[0,1,2,3,4,5,6,7].map(i=>{const y=22+i*13;
+   return _p(`M 116 ${48+i*6} C 144 ${48+i*6} 148 ${y} 172 ${y}`,null,
+     ['#C0392B','#E8B31E','#2FA85A','#2E6FB8','#8C6ADF','#B87333','#EEF0F3','#8D949D'][i],4)
+    +_r(172,y-5,16,11,'#1C1F24',2);}).join('');
+/* function generator — small screen, one big frequency knob, BNC output */
+PKG.funcgen=()=>_r(12,20,176,100,'#2A2E33',6)+_gloss(18,24,164,10)
+ +_r(22,32,88,46,AC.glass,3)
+ +_p('M 30 55 C 42 28 54 82 66 55 S 90 28 102 55',null,'#E8B31E',3)
+ +_c(150,54,28,'#3F464E')+_c(150,54,19,AC.sil2)+_p('M 150 54 L 150 34',null,'#1C1F24',5)
+ +_c(46,98,12,'#1C1F24')+_c(46,98,5,AC.gold)
+ +_r(72,88,58,18,'#1C1F24',3);
 PKG.iron=()=>_p('M 22 122 L 60 84',null,AC.sil2,6)
  +_p('M 58 86 L 116 28 L 150 62 L 92 120 Z',AC.blk)+_gloss(66,44,60,12)
  +_p('M 116 28 L 150 62',null,'#B87333',10)+_r(146,58,22,22,AC.sil,4);
@@ -565,16 +666,71 @@ PKG.scope=()=>_r(16,20,168,100,'#2A2E33',6)
  +_r(26,30,104,72,AC.glass,3)+_p('M 34 66 C 50 66 50 42 62 42 S 74 90 86 90 S 98 46 110 46 122 66 126 66',null,'#4AE08A',3)
  +[0,1,2,3].map(i=>_c(150+(i%2)*20,44+Math.floor(i/2)*24,8,'#3F464E')).join('')
  +_r(140,86,38,22,'#1C1F24',3);
+/* `tool` is the pliers / cutters / strippers set; tweezers and screwdrivers
+   are close enough to keep as name branches. Everything else that used to
+   land here is a different object with its own key below. */
 PKG.tool=(it)=>{
-  const s=it.n.toLowerCase();
+  const s=(it&&it.n||'').toLowerCase();
   if(/tweezer/.test(s))return _p('M 60 22 L 96 108 M 140 22 L 104 108',null,AC.sil,7)+_p('M 96 108 L 104 108',null,AC.sil2,7);
-  if(/flux|paste|alcohol|isopropyl/.test(s))return _r(66,34,68,92,'#3A4046',8)+_r(78,14,44,22,'#C0392B',4)
-   +_r(74,58,52,40,'#EDEFF2',3)+_tx('FLUX',100,84,13,'#2A2E33');
   if(/screwdriver/.test(s))return _p('M 100 18 L 100 78',null,AC.sil,9)+_r(84,78,32,46,'#C0392B',6)+_p('M 100 12 L 100 24',null,AC.sil2,12);
-  if(/heat sink|thermal/.test(s))return [...Array(7)].map((_,i)=>_r(36+i*20,26,12,72,AC.sil,2)).join('')+_r(30,96,140,16,AC.sil2,3);
   return _p('M 42 118 L 92 68 M 158 118 L 108 68',null,'#C0392B',12)
    +_p('M 92 68 L 60 30 M 108 68 L 140 30',null,AC.sil2,10)+_c(100,72,7,'#3A4046');
 };
+/* ---- one drawing per hand tool ----
+   Eight rows used to share the pliers picture, which is what the user was
+   looking at when they said the top category is all the same icon. */
+/* desoldering pump — nozzle, barrel, side release button, plunger */
+PKG.pump=()=>_p('M 32 54 L 6 70 L 32 86 Z',AC.blk)
+ +_r(30,50,116,40,'#2E6FB8',10)+_gloss(36,54,102,10)
+ +_r(56,34,32,18,'#EDEFF2',3)
+ +_r(144,64,26,12,AC.sil,3)+_r(168,50,20,40,'#C0392B',5);
+/* brass wool tip cleaner — a ball of shavings in its steel cup */
+PKG.brass=()=>_c(100,56,42,'#B87333')
+ +[0,1,2].map(i=>_p(`M ${64+i*6} ${34+i*16} C ${104} ${18+i*22} ${142} ${64+i*10} ${118-i*10} ${90}`,null,'#DBA260',3)).join('')
+ +_p('M 34 74 L 44 128 H 156 L 166 74 Z',AC.sil2)+_r(30,68,140,12,AC.sil,4);
+/* IC extractor — sprung arch whose hooked jaws grip a DIP chip */
+PKG.icext=()=>_p('M 72 30 A 28 24 0 0 1 128 30 L 128 92 M 72 30 L 72 92',null,AC.sil,8)
+ +_p('M 72 92 L 60 106 M 128 92 L 140 106',null,AC.sil2,8)
+ +_r(62,102,76,24,AC.blk,3)+_row(70,126,5,15,7,8,AC.pin);
+/* helping hands — weighted base, two clip arms and the magnifier */
+PKG.hands=()=>_r(30,112,140,16,'#3A4046',4)
+ +_p('M 100 112 L 100 74 M 100 86 L 54 64 M 100 86 L 146 64',null,'#70787F',7)
+ +_p('M 54 64 L 34 50 M 44 58 L 26 60',null,'#3A4046',6)
+ +_p('M 146 64 L 166 50 M 156 58 L 174 60',null,'#3A4046',6)
+ +_c(100,40,34,'#70787F')+_c(100,40,26,'#CFE3EE')+_e(90,32,10,6,'#FFFFFF',.65);
+/* digital calipers — beam, fixed and sliding jaws, small LCD on the slider */
+PKG.caliper=()=>_r(12,60,176,14,AC.sil,2)
+ +_r(12,24,14,36,AC.sil2,2)+_r(12,74,14,42,AC.sil2,2)
+ +_r(96,22,12,38,AC.pin2,2)+_r(96,74,12,44,AC.pin2,2)
+ +_r(88,36,88,38,'#2A2E33',4)+_r(96,42,72,24,'#5FA37A',2)+_tx('12.70',132,61,16,'#16301F');
+/* ESD wrist strap — band, coiled lead, crocodile clip */
+PKG.esd=()=>_p('M 56 96 c -34 0 -34 -68 0 -68 c 34 0 34 68 0 68 z',null,'#2E6FB8',16)
+ +_r(42,14,28,18,AC.sil,3)
+ +_p('M 90 62 C 110 84 116 46 134 64 C 148 78 152 88 166 92',null,'#1C1F24',6)
+ +_r(146,82,42,22,'#C0392B',4)+_p('M 188 86 L 198 93 L 188 100 Z',AC.sil);
+/* USB microscope — barrel with its LED ring, on a post and base */
+PKG.micro=()=>_r(116,116,74,14,'#3A4046',4)+_r(146,26,12,92,AC.sil2,3)
+ +_p('M 78 22 C 70 8 44 10 26 16',null,AC.blk2,5)
+ +_r(74,20,50,66,'#2A2E33',10)+_gloss(80,24,38,10)
+ +_c(99,98,28,AC.sil)+_c(99,98,18,AC.glass)
+ +[0,1,2,3,4,5].map(i=>{const a=i*Math.PI/3;
+   return _c(99+Math.cos(a)*23,98+Math.sin(a)*23,4,'#EDEFF2');}).join('');
+/* flux jar */
+PKG.flux=()=>_r(66,34,68,92,'#3A4046',8)+_r(78,14,44,22,'#C0392B',4)
+ +_r(74,58,52,40,'#EDEFF2',3)+_tx('FLUX',100,84,13,'#2A2E33');
+/* heat sinks + a syringe of thermal compound */
+PKG.hsink=()=>[0,1,2,3,4].map(i=>_r(26+i*22,24,14,68,AC.sil,2)).join('')+_r(20,90,124,16,AC.sil2,3)
+ +_r(158,32,28,62,'#EDEFF2',5)+_r(164,18,16,16,AC.pin2,3)+_p('M 172 96 L 172 116',null,AC.pin2,6);
+/* isopropyl — tall clear bottle with a long dispensing spout */
+PKG.ipa=()=>_p('M 100 30 L 152 12',null,'#1F4E9C',7)
+ +_r(70,44,60,84,'#D9E4EC',8)+_r(70,84,60,44,'#7FC4E8',8)
+ +_r(84,24,32,22,'#1F4E9C',3)
+ +_r(76,56,48,24,'#EEF0F3',3)+_tx('99%',100,74,15,'#2A2E33');
+/* solder paste + stencil — the aperture sheet is the recognisable half */
+PKG.spaste=()=>_r(16,24,124,102,AC.sil,4)+_r(16,24,124,10,'#FFFFFF',4,.35)
+ +[0,1,2].map(r=>[0,1,2,3].map(c=>_r(32+c*26,46+r*28,14,12,AC.ink,1)).join('')).join('')
+ +_r(152,18,32,70,'#EDEFF2',5)+_r(158,4,20,16,AC.pin2,3)
+ +_r(158,88,20,24,AC.pin2,3)+_p('M 168 112 L 168 130',null,AC.pin2,6);
 PKG.opamp=PKG.dip;
 PKG.dip8=PKG.dip;
 PKG.ic=PKG.dip;
