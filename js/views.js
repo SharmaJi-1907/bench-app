@@ -98,11 +98,21 @@ function thumb(it){
   const p=S.photos[it.i];
   return `<div class="thumb">${p?`<img src="${p}" alt="">`:art(it)}</div>`;
 }
+/* The condition side of a stock line. A single condition needs no number — the
+   row already shows "×3" on the right, so "×3 · working" is complete. A mix is
+   the case the old single tag could not express, and there the count is the
+   whole point: "×2 · 1 working, 1 damaged". */
+function condTags(id){
+  const c=conds(id),nz=CONDS.filter(k=>c[k]>0);
+  const cls=k=>k==='working'?'t-have':'t-bad';
+  if(nz.length<2){const k=nz[0]||'working';
+    return `<span class="tag ${cls(k)}">${CONDN[k]}</span>`}
+  return nz.map(k=>`<span class="tag ${cls(k)}">${c[k]} ${CONDN[k]}</span>`).join('');
+}
 function row(it,mode,swipe){
   const u=U(it.i),s=st(it.i);let line='';
   if(mode==='stock'){
-    const c=u.cond||'working';
-    line=(c!=='working'?`<span class="tag t-bad">${c==='repair'?'needs repair':c}</span>`:`<span class="tag t-have">working</span>`)
+    line=condTags(it.i)
       +(u.tested?'':'<span class="tag t-warn">not tested</span>')
       +(u.project?`<span>${esc(u.project)}</span>`:'')
       +(u.loc?`<span>· ${esc(u.loc)}</span>`:'');
@@ -198,8 +208,19 @@ function bindSwipe(){
    Closing is centralised in closeQuick(), which reports whether it actually
    closed something. Escape and the Android back button in main.js both lean
    on that return value to decide whether they still have work to do — a
-   second sheet that back-handling does not know about would exit the app. */
+   second sheet that back-handling does not know about would exit the app.
+
+   It deliberately stays status + quantity after Issue 4. Splitting a quantity
+   across conditions is a considered edit, not a one-tap-from-the-list one, and
+   three more steppers would turn a short panel into a second detail sheet. The
+   current split is shown read-only so nothing here silently contradicts it, and
+   setItemQty() keeps the counts in step with the total it writes. */
 let quickFor=null;
+function condLine(id){
+  const c=conds(id),nz=CONDS.filter(k=>c[k]>0);
+  if(nz.length<2)return CONDN[nz[0]||'working'];
+  return nz.map(k=>`${c[k]} ${CONDN[k]}`).join(', ');
+}
 function openQuick(id){
   const it=byId(id);if(!it)return;
   const u=U(id),s=u.st||'';
@@ -207,7 +228,8 @@ function openQuick(id){
   quickFor=id;
   $('#qpanel').innerHTML=`<div class="qgrab"></div>
     <div class="qhead"><div class="qnm">${esc(it.n)}</div>
-      <div class="qsub">${esc(it.d||CATS[it.c])}</div></div>
+      <div class="qsub">${esc(it.d||CATS[it.c])}</div>
+      <div class="qsub qcond" id="qcond" style="display:${s==='have'?'block':'none'}">${esc(condLine(id))}</div></div>
     <label class="f">Status</label>
     <div class="seg" id="qsg">
       <button type="button" data-v="have" class="${s==='have'?'on':''}">I have it</button>
@@ -226,13 +248,15 @@ function openQuick(id){
      panel: a re-render would blow away a quantity the user is mid-way through
      typing. The stepper is re-synced by hand afterwards because a first-ever
      status write seeds qty from the catalog default. */
+  const qc=$('#qcond');
+  const syncCond=()=>{if(qc){qc.style.display=U(id).st==='have'?'block':'none';qc.textContent=condLine(id)}};
   $('#qsg').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
     $('#qsg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
     await setItemStatus(id,b.dataset.v);
     qi.value=qty(id);
-    refreshUnder()});
-  const qupd=async()=>{qi.value=await setItemQty(id,qi.value);refreshUnder()};
+    syncCond();refreshUnder()});
+  const qupd=async()=>{qi.value=await setItemQty(id,qi.value);syncCond();refreshUnder()};
   qi.onchange=qupd;
   $('#qqm').onclick=()=>{qi.value=Math.max(0,(+qi.value||0)-1);qupd()};
   $('#qqp').onclick=()=>{qi.value=(+qi.value||0)+1;qupd()};
@@ -286,17 +310,22 @@ function brandRow(){
   </div>`;
 }
 
-/* Starred items: owned, in working condition, and not tied to a project -
-   i.e. parts that are actually free to grab off the bench right now. */
+/* Starred items: owned, with at least one working unit, and not tied to a
+   project - i.e. parts that are actually free to grab off the bench right now.
+   Per-condition counts make "working" a quantity: a part where one of three is
+   damaged is still something you can grab, so the test is working>0 rather than
+   "the part's single condition is working". */
 const isFav=id=>!!U(id).fav;
 function favItems(){
   return all().filter(x=>{
     const u=U(x.i);
-    return u.fav&&st(x.i)==='have'&&(u.cond||'working')==='working'&&!(u.project||'').trim();
+    return u.fav&&st(x.i)==='have'&&conds(x.i).working>0&&!(u.project||'').trim();
   });
 }
 function favGrid(){
-  const f=favItems().slice(0,4);
+  /* how many cells fit is a setting (Issue 5); the grid is 2-up, so 4/6/8 all
+     land on whole rows */
+  const f=favItems().slice(0,SET.pinned);
   if(!f.length)return `<div class="g4empty">
     <p>Star a component to pin it here — your go-to parts, one tap away.</p>
     <button class="btn sec" id="goStock">Browse my stock</button></div>`;
@@ -325,7 +354,7 @@ function vHome(){
       act:'Browse all items',id:'goAll'})}
   ${(s.untested||s.bad)?`<h2>Check these</h2>
     ${s.untested?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body)"><b>${s.untested}</b> item${s.untested===1?'':'s'} not tested yet</span></div>`:''}
-    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body);color:var(--red)"><b>${s.bad}</b> damaged or need repair</span></div>`:''}`:''}`;
+    ${s.bad?`<div class="row" style="padding:14px"><span style="font-size:var(--fs-body);color:var(--red)"><b>${s.bad}</b> unit${s.bad===1?'':'s'} damaged or needing repair</span></div>`:''}`:''}`;
 }
 /* Ranked magnitude across categories: a single series, so one hue and direct
    labels - not a rainbow, and no legend (the row label carries identity).

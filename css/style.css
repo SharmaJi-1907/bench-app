@@ -377,3 +377,51 @@ textarea.f{min-height:76px;resize:vertical}
 @media(prefers-reduced-motion:reduce){.intro-in{animation:none}}
 /* First heading after the brand row does not need the full 32px lead-in. */
 h2.first{margin-top:var(--sp-2)}
+
+/* ── Explanatory line under a control ───────────────────────────────────
+   One shared class for the "what does this do" sentence that now sits under
+   every Settings control and under the condition counts. Was three separate
+   inline style blocks; a token-only rule keeps both themes correct for free. */
+.hint{font-size:var(--fs-label);color:var(--ink2);line-height:1.55;
+  margin:var(--sp-2) 0 0}
+
+/* ── Settings: section headings ─────────────────────────────────────────
+   The panel used to be a flat run of field labels, so nothing said where one
+   group ended. A heading a size up from the labels under it does that with
+   type alone — no dividers, per §Typography (hierarchy from size and weight). */
+.sethd{font-size:var(--fs-section);font-weight:700;letter-spacing:-.02em;color:var(--ink);
+  margin:var(--sp-7) 0 var(--sp-1)}
+.sethd+label.f{margin-top:var(--sp-3)}
+/* Destructive action, kept alone at the bottom behind a real break in the page
+   so it can never be mistaken for one more preference. */
+.danger{margin-top:var(--sp-8);padding-top:var(--sp-2);border-top:1px solid var(--line)}
+.danger .sethd.dgr{color:var(--red)}
+.danger .btn{margin-top:var(--sp-4)}
+
+/* ── Detail: per-condition unit counts (Issue 4) ────────────────────────
+   One row per condition: a status dot, the name, the count, and a ± pair. The
+   count is the thing being read, so it is the heaviest text in the row; the
+   steppers are quiet until used. Reuses --green/--red/--amber as *status*
+   colours only (§Color) — no new hues. */
+.conds{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r);
+  box-shadow:var(--shadow);padding:0 var(--sp-4)}
+.condrow{display:grid;grid-template-columns:10px 1fr auto auto auto;align-items:center;
+  gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--line)}
+.condrow:last-child{border-bottom:0}
+/* a row at zero is still shown — it is how you add one — but it recedes */
+.condrow.zero .cnm,.condrow.zero .cn{color:var(--ink3)}
+.cdot{width:10px;height:10px;border-radius:50%;background:var(--soft)}
+.condrow:not(.zero) .cdot.working{background:var(--green)}
+.condrow:not(.zero) .cdot.damaged{background:var(--red)}
+.condrow:not(.zero) .cdot.repair{background:var(--amber)}
+.cnm{font-size:var(--fs-body);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.cn{font-size:var(--fs-body);font-weight:700;font-variant-numeric:tabular-nums;
+  min-width:1.4em;text-align:right}
+/* 20px is a glyph metric for the −/+ controls, matching .stepper's intent */
+.cstep{width:40px;height:40px;border-radius:var(--r-sm);background:var(--card);
+  border:1px solid var(--line);font-size:20px;line-height:1;color:var(--ink);
+  font-family:inherit;cursor:pointer}
+.cstep:disabled{color:var(--ink3);opacity:.5;cursor:default}
+.cstep:active:not(:disabled){background:var(--soft)}
+/* the read-only condition summary in the quick sheet */
+.qhead .qcond{font-weight:600;color:var(--ink)}

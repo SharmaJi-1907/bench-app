@@ -168,21 +168,70 @@ async function setItemStatus(id,v){
   const o=Object.assign({},U(id),{st:v});
   if(!v)delete o.st;
   if(o.qty===undefined)o.qty=it.q;
+  /* Issue 4: the record leaves here in the new shape whatever it arrived in —
+     normConds() reads a legacy scalar `cond` as "all of them", and the scalar is
+     dropped so the two can never disagree. */
+  o.conds=fitConds(normConds(o),qtyU(o));delete o.cond;
   haptic();S.u[id]=o;await save();
 }
 /* Floor at 0 is enforced here rather than at each ±/input, so no caller can
-   write a negative quantity even by typing one straight into the field. */
+   write a negative quantity even by typing one straight into the field.
+   qty is the total, so changing it has to move the per-condition counts with it:
+   units gained are working, units lost come off working first (fitConds). */
 async function setItemQty(id,n){
   const v=Math.max(0,parseInt(n,10)||0);
-  S.u[id]=Object.assign({},U(id),{qty:v});
+  const u=U(id);
+  S.u[id]=Object.assign({},u,{qty:v,conds:fitConds(normConds(u),v)});
   haptic();await save();
   return v;
+}
+/* ---- condition counts (Issue 4) ---------------------------------------
+   The model the UI presents: working is the pool an owned part sits in, and
+   damaged / needs-repair are units *marked out of* that pool.
+
+   +working / -working change how many you own (qty follows).
+   +damaged  takes a unit out of the pool (working, else the other marked
+             bucket); only when there is genuinely nothing left to take does it
+             add a unit, so "mark one of my 2 as damaged" is one tap and never
+             silently inflates the total.
+   -damaged  puts that unit back in the pool — the exact inverse, so the control
+             is safe to experiment with.
+   qty is recomputed from the counts every time, which keeps the invariant
+   working+damaged+repair === qty true by construction rather than by promise. */
+async function setItemCond(id,key,d){
+  if(CONDS.indexOf(key)<0||!d)return;
+  const u=U(id),c=normConds(u);
+  if(d>0){
+    if(key==='working')c.working++;
+    else{
+      /* CONDS is working-first, so the pool is preferred automatically */
+      const from=CONDS.filter(k=>k!==key&&c[k]>0)[0];
+      if(from)c[from]--;
+      c[key]++;
+    }
+  }else{
+    if(!c[key])return;
+    c[key]--;
+    if(key!=='working')c.working++;
+  }
+  const q=c.working+c.damaged+c.repair;
+  S.u[id]=Object.assign({},u,{qty:q,conds:c});
+  haptic();await save();
 }
 
 function open(id){
   const it=byId(id);if(!it)return;
   const u=U(id),ph=S.photos[id],s=u.st||'';
   const pin=pinout(it);
+  /* Issue 4: the condition block is counts, so it needs the numbers, which of
+     them are actually in play, and one line saying how the two relate. The
+     common case ("I have 3, all fine") still needs no interaction at all —
+     setting the quantity puts every unit in working by itself. */
+  const cc=conds(id),cmix=condMix(id),cq=qty(id);
+  const condHint=!cq?'Nothing in stock — set a quantity above first.'
+    :cmix.length>1?`Adds up to the ×${cq} above: ${esc(cmix.map(k=>cc[k]+' '+CONDN[k]).join(', '))}.`
+    :cmix[0]==='working'?`All ×${cq} count as working. Mark one damaged or needing repair and it comes out of that — the total stays the same.`
+    :`All ×${cq} are ${CONDN[cmix[0]]}.`;
   // "Meaningful" = a pin diagram, real descriptive text, or a note the user
   // already wrote. Type/Level/Suggested qty alone (always present, derived from
   // the catalog row) don't earn a collapsed section of their own.
@@ -223,9 +272,16 @@ function open(id){
 
     <div id="own" style="display:${s==='have'?'block':'none'}">
       <label class="f">Condition</label>
-      <div class="seg ${(u.cond&&u.cond!=='working')?'r':'g'}" id="sc">
-        ${['working','damaged','repair'].map(c=>`<button data-v="${c}" class="${(u.cond||'working')===c?'on':''}">${c==='repair'?'repair':c}</button>`).join('')}
+      <div class="conds${cmix.length>1?' mixed':''}" id="sc">
+        ${CONDS.map(k=>`<div class="condrow${cc[k]?'':' zero'}" data-cond="${k}">
+          <span class="cdot ${k}"></span>
+          <span class="cnm">${CONDN[k]}</span>
+          <span class="cn">${cc[k]}</span>
+          <button type="button" class="cstep" data-cond-d="-1" data-cond="${k}" aria-label="One fewer ${CONDN[k]}"${cc[k]?'':' disabled'}>−</button>
+          <button type="button" class="cstep" data-cond-d="1" data-cond="${k}" aria-label="One more ${CONDN[k]}">+</button>
+        </div>`).join('')}
       </div>
+      <p class="hint">${condHint}</p>
       <label class="f">Tested</label>
       <div class="seg g" id="stst"><button data-v="1" class="${u.tested?'on':''}">Tested OK</button><button data-v="0" class="${!u.tested?'on':''}">Not tested</button></div>
       <div class="two">
@@ -267,7 +323,8 @@ function open(id){
   };
   $('#sg').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
     await setItemStatus(id,b.dataset.v);open(id)});
-  const sc=$('#sc');if(sc)sc.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{cond:b.dataset.v});await save();open(id)});
+  const sc=$('#sc');if(sc)sc.querySelectorAll('button[data-cond-d]').forEach(b=>b.onclick=async()=>{
+    await setItemCond(id,b.dataset.cond,+b.dataset.condD);open(id)});
   const stg=$('#stst');if(stg)stg.querySelectorAll('button').forEach(b=>b.onclick=async()=>{S.u[id]=Object.assign({},U(id),{tested:b.dataset.v==='1'});await save();open(id)});
   const qq=$('#qq');
   const upd=async()=>{await setItemQty(id,qq.value);open(id)};
@@ -315,7 +372,7 @@ async function addComponent(o){
   const id=newItemId(),q=Math.max(1,parseInt(o.qty,10)||1);
   S.custom.push(I(id,String(o.name).trim(),o.cat||'mech',o.lvl||'B',o.sym||'ic',0,q,
     String(o.why||'').trim(),String(o.spec||'').trim(),''));
-  S.u[id]={st:o.st==='need'?'need':'have',qty:q,cond:'working',tested:false};
+  S.u[id]={st:o.st==='need'?'need':'have',qty:q,conds:{working:q,damaged:0,repair:0},tested:false};
   haptic();/* DESIGN-SYSTEM §Haptics — once, exactly at "it worked" */
   await save();
   return id;
@@ -342,7 +399,10 @@ async function submitAdd(o,btn){
 let addDraft=null;
 function openAdd(mode){
   const keep=(mode==='quick'||mode==='full');
-  const d=addDraft=(keep&&addDraft)?addDraft:{name:'',qty:1,st:'have'};
+  /* Issue 5: which side the form starts on is a setting now. Only a *fresh*
+     open reads it — a quick <-> all-fields flip keeps whatever the user has
+     already picked for this run of adds. */
+  const d=addDraft=(keep&&addDraft)?addDraft:{name:'',qty:1,st:SET.addas};
   const full=(mode==='full'),qv=Math.max(1,parseInt(d.qty,10)||1);
   /* keyLabel: SYM's values are SVG path data, so that select shows its keys */
   const opts=(m,sel,keyLabel)=>Object.keys(m).map(k=>`<option value="${k}"${sel===k?' selected':''}>${keyLabel?k:m[k]}</option>`).join('');
@@ -415,34 +475,80 @@ function showIntro(){
   $('#cl').onclick=close;$('#cl2').onclick=close;
 }
 
+/* ---- Settings (Issue 5) ------------------------------------------------
+   Was "More": four bare labels in a flat run, which read as a maintenance
+   drawer. Now grouped into named sections, each control followed by one line
+   saying what it does, ordered most-used first with the destructive action
+   alone at the bottom under its own heading.
+
+   Deliberately only three new controls (docs/update.md decision 6). Text size,
+   show/hide Home sections and confirm-deletes were considered and dropped.
+
+   Still called openMore() because io.js re-opens this sheet by that name after
+   a bulk photo import, and io.js is not ours to touch. */
 function openMore(){
-  $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">More</div></div>
+  const seg=(id,opts,cur)=>`<div class="seg" id="${id}">`
+    +opts.map(o=>`<button type="button" data-v="${o[0]}" class="${String(cur)===String(o[0])?'on':''}">${o[1]}</button>`).join('')
+    +`</div>`;
+  $('#sheet').innerHTML=`<div class="sheet-top"><button class="x" id="cl">✕</button><div class="t">Settings</div></div>
   <div class="sheet-in">
-    <label class="f">Appearance</label>
+    <div class="sethd">Appearance</div>
+    <label class="f">Theme</label>
     <div class="seg">
       <button data-theme-opt="light" class="${S.theme==='light'?'on':''}">Light</button>
       <button data-theme-opt="dark" class="${S.theme==='dark'?'on':''}">Dark</button>
       <button data-theme-opt="system" class="${S.theme==='system'?'on':''}">Auto</button>
     </div>
-    <label class="f">Photos</label>
+    <p class="hint">Auto follows whatever your phone is set to, and switches with it.</p>
+
+    <div class="sethd">Home screen</div>
+    <label class="f">Pinned parts</label>
+    ${seg('setpin',[[4,'4'],[6,'6'],[8,'8']],SET.pinned)}
+    <p class="hint">How many starred parts fill the “Ready to grab” grid on Home. The grid is two across, so every option ends on a full row.</p>
+
+    <div class="sethd">Adding a part</div>
+    <label class="f">Add as</label>
+    ${seg('setadd',[['have','I have it'],['need','Need to buy']],SET.addas)}
+    <p class="hint">Which side the Add form starts on. Pick <b>Need to buy</b> if you mostly build a shopping list.</p>
+
+    <div class="sethd">Feedback</div>
+    <label class="f">Vibration</label>
+    ${seg('setvib',[[1,'On'],[0,'Off']],SET.vibrate?1:0)}
+    <p class="hint">A short buzz when something is saved — a status change, a new part, a swipe action. Never on plain navigation.</p>
+
+    <div class="sethd">Photos</div>
     <button class="btn sec wide" id="bulk">Add many photos at once</button>
-    <p style="font-size:var(--fs-label);color:var(--ink2);line-height:1.55;margin-top:8px">
-      Pick several image files together. Each file is matched to a component by its file name —
+    <p class="hint">Pick several image files together. Each file is matched to a component by its file name —
       name a file <b>LM358.jpg</b> or <b>NE555 timer.png</b> and it lands on the right part.</p>
     <input type="file" id="bulkf" accept="image/*" multiple hidden>
-    <label class="f">Backup</label>
+
+    <div class="sethd">My data</div>
     <div class="list"><div class="kv"><span class="k">Photos saved</span><span class="v">${Object.keys(S.photos).length}</span></div>
       <div class="kv"><span class="k">My own items</span><span class="v">${S.custom.length}</span></div>
       <div class="kv"><span class="k">Items tracked</span><span class="v">${Object.keys(S.u).length}</span></div>
       <div class="kv"><span class="k">Storage</span><span class="v">${DB.ok?'Saved on device':'Preview only'}</span></div></div>
     <div class="btnrow"><button class="btn" id="ex1">Export backup</button><button class="btn sec" id="im1">Import</button></div>
     <input type="file" id="imf" accept="application/json" hidden>
-    <p style="font-size:var(--fs-label);color:var(--ink2);line-height:1.55">Export keeps your photos and all your data in one file. Do this often — clearing app data will erase everything.</p>
-    <label class="f">Reset</label>
-    <button class="btn red wide" id="rs">Erase all my data</button><div style="height:30px"></div></div>`;
+    <p class="hint">Export keeps your photos and all your data in one file. Do this often — clearing app data will erase everything.</p>
+
+    <div class="danger">
+      <div class="sethd dgr">Danger zone</div>
+      <p class="hint">Removes every part you have marked, every project and every photo on this device. There is no undo, and no copy anywhere else. Export a backup first if you are unsure.</p>
+      <button class="btn red wide" id="rs">Erase all my data</button>
+    </div>
+    <div style="height:30px"></div></div>`;
   $('#sheet').classList.add('open');document.body.style.overflow='hidden';
   $('#cl').onclick=close;
   document.querySelectorAll('[data-theme-opt]').forEach(b=>b.onclick=async()=>{await setTheme(b.dataset.themeOpt);openMore()});
+  /* Each new control writes through setSetting() — one flat key, one place that
+     normalises the value — then redraws the sheet so the pressed segment and its
+     hint line always agree with what was stored. */
+  const wire=(sel,key,map)=>{const e=$(sel);if(!e)return;
+    e.querySelectorAll('button').forEach(b=>b.onclick=async()=>{
+      await setSetting(key,map?map(b.dataset.v):b.dataset.v);openMore()})};
+  wire('#setpin','pinned',v=>+v);
+  wire('#setadd','addas');
+  wire('#setvib','vibrate',v=>v==='1');
   $('#bulk').onclick=()=>$('#bulkf').click();
   $('#bulkf').onchange=bulkPhotos;
   $('#ex1').onclick=doExport;

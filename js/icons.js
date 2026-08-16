@@ -35,7 +35,10 @@ const SYM={
  scope:'<rect x="4" y="5" width="40" height="22" rx="3"/><path d="M9 18c4 0 4-7 8-7s4 12 8 12 4-9 7-9 3 4 6 4"/>',
  psu:'<rect x="4" y="6" width="40" height="20" rx="3"/><path d="M11 12h12v8H11z"/><circle cx="32" cy="16" r="4"/>',
  ic:'<rect x="9" y="5" width="30" height="22" rx="2"/><path d="M15 5V2M23 5V2M31 5V2M15 27v3M23 27v3M31 27v3"/><circle cx="14" cy="10" r="1.6"/>'};
-const sym=(k,c)=>'<svg class="'+(c===''?'':'sym')+'" viewBox="0 0 48 32">'+(SYM[k]||SYM.ic)+'</svg>';
+/* many package keys (dip16, modbuck, …) have no schematic symbol of their own —
+   fall back to the nearest family symbol rather than the generic IC block */
+const _symKey=k=>SYM[k]?k:(/^mod/.test(k)?'module':(/^dip/.test(k)?'dip14':'ic'));
+const sym=(k,c)=>'<svg class="'+(c===''?'':'sym')+'" viewBox="0 0 48 32">'+SYM[_symKey(k)]+'</svg>';
 
 /* ================= default component pictures =================
    Draws a realistic package picture for every part, from its own
@@ -53,7 +56,10 @@ const _p=(d,f,s,w)=>`<path d="${d}"${f?` fill="${f}"`:' fill="none"'}${s?` strok
 const _tx=(s,x,y,sz,f,a)=>s?`<text x="${x}" y="${y}" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="${sz}" font-weight="700" fill="${f}" text-anchor="${a||'middle'}" letter-spacing=".4">${esc(s)}</text>`:'';
 const _legs=(xs,y1,y2,w,c)=>xs.map(x=>_r(x-(w||4.4)/2,y1,w||4.4,y2-y1,c||AC.pin,1)).join('');
 const _gloss=(x,y,w,h)=>_r(x,y,w,h,'#FFFFFF',3,.07);
-const _fit=(t,w,max)=>Math.max(7,Math.min(max||14,w/(Math.max(1,t.length)*.66)));
+const _fit=(t,w,max)=>Math.max(8,Math.min(max||20,w/(Math.max(1,t.length)*.66)));
+/* a run of identical pads / fins / pins */
+const _row=(x,y,n,step,w,h,c)=>[...Array(n)].map((_,i)=>_r(x+i*step,y,w,h,c||AC.gold,1)).join('');
+const _col=(x,y,n,step,w,h,c)=>[...Array(n)].map((_,i)=>_r(x,y+i*step,w,h,c||AC.gold,1)).join('');
 
 /* pick a printable part marking out of the name: "NE555 timer" -> NE555 */
 function _mark(n){
@@ -66,6 +72,34 @@ function _mark(n){
     return w.toUpperCase();
   }
   return '';
+}
+/* the marking actually printed on a chip / module: "7400 quad NAND" -> 7400,
+   "74HC595 shift register" -> 74HC595, "L293D motor driver IC" -> L293D.
+   _mark() alone throws away bare-number part codes like 7400, which is why
+   ten 74-series chips used to render with no marking at all. */
+function _partNo(n){
+  const t=String(n).replace(/[()+]/g,'').split(/[\s,\/]+/).filter(w=>w.length>2&&w.length<12);
+  for(const w of t)if(/^(74[A-Z]{0,4}\d{2,4}[A-Z]?|CD4\d{3}[A-Z]?|[A-Z]{2,4}\d{2,5}[A-Z]{0,3})$/i.test(w))return w.toUpperCase();
+  for(const w of t)if(/\d/.test(w)&&/[A-Za-z]/.test(w))return w.toUpperCase();
+  for(const w of t)if(/^\d{4,5}$/.test(w))return w;
+  return _mark(n);
+}
+/* real chips print long codes on two lines — so do we, it doubles the
+   legible size of an 8-character marking at thumbnail scale */
+function _lab2(t){
+  if(t.length<7)return [t];
+  const m=t.match(/^([A-Za-z]{2,})(\d.*)$/);
+  if(m&&m[2].length>1)return [m[1].toUpperCase(),m[2].toUpperCase()];
+  const h=Math.ceil(t.length/2);
+  return [t.slice(0,h),t.slice(h)];
+}
+/* module boards: prefer the part code, else a hand-picked short name */
+const _MODLAB=[[/level shift|level convert/i,'LEVEL'],[/sd card/i,'SD CARD'],[/st-?link/i,'ST-LINK'],
+ [/breadboard power/i,'POWER'],[/\bBMS\b/i,'BMS'],[/433\s?-?MHz/i,'433MHZ'],[/A4988/i,'A4988'],
+ [/load cell/i,'HX711']];
+function _modLab(n){
+  for(const p of _MODLAB)if(p[0].test(n))return p[1];
+  return _partNo(n)||String(n).split(/[\s\/]+/)[0].toUpperCase().slice(0,9);
 }
 function _boardLab(n){
   const P=['ESP32-CAM','ESP32-S3','ESP32-C3','ESP32-C6','ESP8266','ESP32','Tang Nano','Zero 2','Pico 2','Pico',
@@ -114,31 +148,47 @@ function _ledCol(n){
 /* ---- packages ---- */
 const PKG={};
 
-PKG.dip=(it)=>{
-  const n=_pins(it),per=Math.max(2,Math.ceil(n/2));
-  const bw=Math.max(52,Math.min(158,per*12+14)),bh=50,x=(200-bw)/2,y=45,step=(bw-12)/per;
+/* one DIP drawing, sized by real pin count. Body length and the number of
+   legs down each side are the genuine visual difference between a DIP-8 and
+   a DIP-40; the 0.6" wide-body parts (DIP-40) also get a taller body. */
+function _dipArt(it,pins,wide){
+  const per=Math.max(2,Math.round(pins/2));
+  const bw=Math.min(178,76+per*7),bh=wide?72:54;
+  const x=(200-bw)/2,y=(140-bh)/2,cy=y+bh/2,step=(bw-14)/per;
   let p='';
-  for(let i=0;i<per;i++){const px=x+6+step*(i+.5);
-    p+=_r(px-2.7,y-13,5.4,14,AC.pin,1)+_r(px-2.7,y+bh-1,5.4,14,AC.pin,1);}
-  const lab=_mark(it.n);
-  return p+_r(x,y,bw,bh,AC.blk,4)+_gloss(x+4,y+4,bw-8,11)
-   +_p(`M ${x} ${y+bh/2-9} A 9 9 0 0 0 ${x} ${y+bh/2+9} Z`,AC.ink)
-   +_c(x+16,y+bh-13,3.2,AC.ink)
-   +_tx(lab,100,y+bh/2+5,_fit(lab,bw-26,15),'#E9ECEF');
-};
+  for(let i=0;i<per;i++){const px=x+7+step*(i+.5);
+    p+=_r(px-2.6,y-14,5.2,15,AC.pin,1)+_r(px-2.6,y+bh-1,5.2,15,AC.pin,1);}
+  const one=_partNo(it.n),two=_lab2(one);
+  const f1=_fit(one,bw-22,28),f2=two.length>1?_fit('x'.repeat(two.reduce((a,s)=>Math.max(a,s.length),0)),bw-22,24):0;
+  const ln=f2>f1?two:[one],f=f2>f1?f2:f1;
+  const tx=ln.length>1
+   ?_tx(ln[0],100,cy-3,f,AC.wht)+_tx(ln[1],100,cy+f*.92,f,AC.wht)
+   :_tx(ln[0],100,cy+f*.36,f,AC.wht);
+  return p+_r(x,y,bw,bh,AC.blk,4)+_gloss(x+5,y+4,bw-10,10)
+   +_p(`M ${x} ${cy-10} A 10 10 0 0 0 ${x} ${cy+10} Z`,AC.ink)
+   +_c(x+15,y+bh-12,3,AC.ink)+tx;
+}
+PKG.dip=(it)=>_dipArt(it,_pins(it),_pins(it)>=32);
+PKG.dip14=(it)=>_dipArt(it,14);
+PKG.dip16=(it)=>_dipArt(it,16);
+PKG.dip18=(it)=>_dipArt(it,18);
+PKG.dip20=(it)=>_dipArt(it,20);
+PKG.dip24=(it)=>_dipArt(it,24);
+PKG.dip28=(it)=>_dipArt(it,28);
+PKG.dip40=(it)=>_dipArt(it,40,1);
 PKG.to92=(it)=>{
   const lab=_mark(it.n);
   return _legs([82,100,118],96,130)
    +_p('M 68 98 L 68 64 A 32 27 0 0 1 132 64 L 132 98 Z',AC.blk)
    +_r(70,44,18,54,'#FFFFFF',8,.06)
-   +_tx(lab,100,80,_fit(lab,54,12),'#D8DCE1');
+   +_tx(lab,100,80,_fit(lab,54,16),'#D8DCE1');
 };
 PKG.to220=(it)=>{
   const lab=_mark(it.n);
   return _legs([80,100,120],92,132)
    +_r(66,20,68,32,AC.sil,3)+_c(100,33,6.5,AC.pad)+_r(66,20,68,8,'#FFFFFF',3,.35)
    +_r(66,48,68,46,AC.blk,3)+_gloss(70,52,60,9)
-   +_tx(lab,100,76,_fit(lab,58,13),'#DDE1E6');
+   +_tx(lab,100,76,_fit(lab,58,17),'#DDE1E6');
 };
 PKG.res=(it)=>{
   const v=_ohms(it.n),b=_bands(v);
@@ -175,14 +225,14 @@ PKG.xtal=(it)=>{
   const lab=(it.n.match(/([\d.]+\s?[MK]?Hz)/i)||[])[1]||_mark(it.n);
   return _legs([84,116],92,132)
    +_r(60,42,80,50,AC.sil,24)+_r(60,42,80,16,'#FFFFFF',24,.45)+_r(64,46,72,42,AC.sil2,22,.35)
-   +_tx(lab?lab.replace(/\s/g,''):'',100,74,_fit(lab||'',62,13),'#3B4148');
+   +_tx(lab?lab.replace(/\s/g,''):'',100,74,_fit(lab||'',62,15),'#3B4148');
 };
 PKG.diode=(it)=>{
   const lab=_mark(it.n);
   return _r(10,66,180,5,AC.pin,2)
    +_r(62,50,76,38,'#1C1F24',5)+_gloss(66,54,68,9)
    +_r(122,50,8,38,AC.sil,1)
-   +_tx(lab,96,74,_fit(lab,52,11),'#D6DAE0');
+   +_tx(lab,96,74,_fit(lab,52,14),'#D6DAE0');
 };
 PKG.zener=PKG.diode;
 PKG.led=(it)=>{
@@ -216,7 +266,7 @@ PKG.board=(it)=>{
    +_r(76,52,62,40,AC.blk,3)+_c(84,60,2.6,'#4A5058')
    +_r(16,48,26,26,AC.sil,3)
    +_c(158,52,5,'#2FA85A')+_c(158,68,5,'#D2402F')
-   +_tx(lab,100,104,_fit(lab,120,12),'#F2F5F8');
+   +_tx(lab,100,104,_fit(lab,120,15),'#F2F5F8');
 };
 PKG.mcu=(it)=>{
   const lab=_boardLab(it.n);
@@ -226,7 +276,7 @@ PKG.mcu=(it)=>{
    +_r(158,20,10,100,AC.blk2,2)+[...Array(9)].map((_,i)=>_r(159,26+i*11,8,7,AC.gold,1)).join('')
    +_r(62,30,76,44,AC.sil,3)+_r(62,30,76,10,'#FFFFFF',3,.3)
    +_r(84,80,32,16,AC.sil2,2)
-   +_tx(lab,100,110,_fit(lab,96,12),'#EDF0F3');
+   +_tx(lab,100,110,_fit(lab,96,15),'#EDF0F3');
 };
 PKG.module=(it)=>{
   const lab=_mark(it.n)||it.n.split(' ')[0].toUpperCase();
@@ -234,8 +284,172 @@ PKG.module=(it)=>{
    +_r(34,96,132,8,AC.blk,2)+[...Array(9)].map((_,i)=>_r(38+i*15,97,8,6,AC.gold,1)).join('')
    +_r(70,44,60,34,AC.blk,3)+_c(77,51,2.4,'#4A5058')
    +_c(44,50,5,AC.sil2)+_c(44,70,5,AC.sil2)
-   +_tx(lab,100,90,_fit(lab,120,12),'#DCE6F5');
+   +_tx(lab,100,90,_fit(lab,120,18),'#DCE6F5');
 };
+
+/* ---- module boards ----
+   The old single `module` drawing covered 37 very different boards. These
+   split it by what the real board looks like: outline, where the header
+   sits, and the one big part that identifies it on sight (inductor, coin
+   cell, card slot, heatsink, antenna, metal can, screw terminals…). */
+const _bd=(c,x,y,w,h)=>{x=x==null?18:x;y=y==null?18:y;w=w==null?164:w;h=h==null?100:h;
+  return _r(x,y,w,h,c,6)+_gloss(x+6,y+4,w-12,10);};
+const _mlab=(it,x,y,w,max)=>{const l=_modLab(it.n);
+  return _tx(l,x==null?100:x,y==null?112:y,_fit(l,w==null?150:w,max||26),AC.wht);};
+
+/* buck / boost regulator board — big shielded inductor + electrolytic + trimpot */
+PKG.modbuck=(it)=>_bd(AC.blu)
+ +_r(30,30,48,44,AC.blk,6)+_r(34,34,40,10,'#FFFFFF',3,.1)
+ +_c(112,52,22,AC.sil)+_c(112,52,15,AC.sil2)+_p('M 94 44 A 22 22 0 0 1 130 44',null,AC.pin2,3)
+ +_r(142,30,32,30,AC.blu2,3)+_p('M 149 45 H 167',null,AC.wht,4)
+ +_r(24,78,20,14,AC.gold,2)+_r(156,78,20,14,AC.gold,2)
+ +_mlab(it);
+/* Li-ion charger board — micro-USB shell on one edge, charge / done LEDs */
+PKG.modchg=(it)=>_bd(AC.blu)
+ +_p('M 12 46 L 22 36 H 58 V 78 H 22 L 12 68 Z',AC.sil)+_r(24,46,30,22,AC.pin2,2)
+ +_r(74,32,56,36,AC.blk,3)+_c(81,39,2.6,'#4A5058')
+ +_c(150,40,8,AC.red)+_c(150,66,8,AC.grn2)
+ +_r(74,78,20,12,AC.gold,2)+_r(106,78,20,12,AC.gold,2)
+ +_mlab(it);
+/* battery protection board — narrow strip, row of MOSFETs, big B+/B- pads */
+PKG.modbms=(it)=>_bd(AC.blk2,18,36,164,68)
+ +_row(46,46,3,38,30,26,AC.sil2)+_row(46,46,3,38,30,7,AC.pin)
+ +_r(24,46,16,26,AC.gold,2)+_r(160,46,16,26,AC.gold,2)
+ +_mlab(it,100,97,130,26);
+/* breadboard power module — barrel jack, USB, two long rails, jumpers */
+PKG.modpsu=(it)=>_bd(AC.blu)
+ +_r(18,24,164,10,AC.blk,2)+_row(24,25,11,14,8,8)
+ +_r(18,76,164,10,AC.blk,2)+_row(24,77,11,14,8,8)
+ +_c(42,58,16,AC.blk)+_c(42,58,7,AC.pin2)
+ +_r(74,44,36,26,AC.sil,2)+_r(80,50,24,14,AC.pin2,1)
+ +_r(126,44,24,26,AC.blu2,3)+_r(156,44,24,26,AC.blu2,3)
+ +_mlab(it,100,110,150,26);
+/* small I2C / SPI breakout — header along the top, one chip, two mount holes */
+PKG.modbrk=(it)=>_bd(AC.blu,30,18,140,100)
+ +_r(36,20,128,10,AC.blk,2)+_row(40,21,8,15,9,8)
+ +_r(60,42,80,42,AC.blk,3)+_c(67,49,2.8,'#4A5058')
+ +_r(38,44,12,9,AC.sil2,1)+_r(38,60,12,9,AC.sil2,1)
+ +_c(154,36,4.5,AC.blk2)
+ +_mlab(it,100,112,132,26);
+/* IMU breakout — squarer board, header on the long edge, crystal, mount holes */
+PKG.modimu=(it)=>_bd(AC.blu2,44,18,112,100)
+ +_r(50,20,100,10,AC.blk,2)+_row(54,21,6,16,9,8)
+ +_c(54,42,6,AC.blk2)+_c(146,42,6,AC.blk2)
+ +_r(78,50,44,34,AC.blk,3)+_c(84,56,2.4,'#4A5058')
+ +_r(58,62,14,10,AC.sil,2)
+ +_mlab(it,100,112,102,22);
+/* logic level shifter — pads out of both long edges, a row of tiny FETs */
+PKG.modlvl=(it)=>_bd(AC.grn,34,32,132,74)
+ +_r(40,34,120,10,AC.blk,2)+_row(44,35,4,29,18,8)
+ +_r(40,94,120,10,AC.blk,2)+_row(44,95,4,29,18,8)
+ +_row(50,52,4,28,18,20,AC.blk)
+ +_mlab(it,100,89,110,24);
+/* RTC board — the coin cell is the whole silhouette */
+PKG.modrtc=(it)=>_bd(AC.blu)
+ +_r(24,22,110,10,AC.blk,2)+_row(28,23,6,17,10,8)
+ +_c(140,58,32,AC.sil)+_c(140,58,24,AC.pin2)+_tx('3V',140,64,17,'#3B4148')
+ +_r(38,42,54,32,AC.blk,3)+_c(45,49,2.4,'#4A5058')
+ +_mlab(it,100,112,150,26);
+/* SD / microSD board — the card slot fills it */
+PKG.modsd=(it)=>_bd(AC.blu)
+ +_r(34,24,132,52,AC.sil,3)+_r(42,30,116,40,AC.pin2,2)+_p('M 42 30 H 58 L 42 46 Z',AC.blu)
+ +_r(34,82,132,10,AC.blk,2)+_row(38,83,8,16,9,8)
+ +_mlab(it,100,112,150,26);
+/* USB dongle / programmer — USB-A shell hanging off one end */
+PKG.modusb=(it)=>_r(12,44,52,42,AC.sil,3)+_r(18,50,40,30,AC.pin2,2)
+ +_bd(AC.blu,62,26,120,84)
+ +_r(86,40,60,34,AC.blk,3)+_c(93,47,2.4,'#4A5058')
+ +_r(150,30,28,10,AC.blk,2)+_row(153,31,3,9,7,8)
+ +_mlab(it,122,100,108,24);
+/* big motor driver board — finned heatsink over screw terminal blocks */
+PKG.moddrv=(it)=>_bd(AC.blu,16,20,168,98)
+ +_row(48,24,6,17,11,42,AC.sil2)+_r(42,64,116,8,AC.pin2,2)
+ +_r(18,78,46,30,AC.grn,3)+_c(30,93,7,AC.sil)+_c(52,93,7,AC.sil)
+ +_r(136,78,46,30,AC.grn,3)+_c(148,93,7,AC.sil)+_c(170,93,7,AC.sil)
+ +_mlab(it,100,101,68,24);
+/* stepper driver stick — square heatsink pad, current trimpot, pads both sides */
+PKG.modstep=(it)=>_bd(AC.grn,52,20,96,98)
+ +_r(54,22,10,94,AC.blk,2)+_col(55,26,8,11,8,7)
+ +_r(136,22,10,94,AC.blk,2)+_col(137,26,8,11,8,7)
+ +_r(76,32,48,40,AC.sil,3)+_r(76,32,48,10,'#FFFFFF',3,.3)
+ +_r(84,78,32,18,AC.blu2,2)+_p('M 92 87 H 108',null,AC.wht,3)
+ +_mlab(it,100,112,68,22);
+/* SPI radio module — meandering PCB antenna down one side */
+PKG.modrf=(it)=>_bd(AC.blu,20,22,160,94)
+ +_p('M 122 34 H 170 V 46 H 122 V 58 H 170 V 70 H 122 V 82 H 170',null,AC.gold,5)
+ +_r(46,42,58,36,AC.blk,3)+_c(53,49,2.6,'#4A5058')
+ +_r(24,30,12,10,AC.sil,1)+_r(24,80,12,10,AC.sil,1)
+ +_r(42,86,50,10,AC.blk,2)+_row(45,87,4,12,8,8)
+ +_mlab(it,100,110,150,24);
+/* 433MHz ASK pair — small board with a wire whip antenna */
+PKG.modrf433=(it)=>_bd(AC.grn,40,38,118,80)
+ +_p('M 150 40 C 172 28 182 44 168 52 C 154 60 168 72 184 60',null,AC.cop,4)
+ +_r(54,48,46,30,AC.blk,3)+_r(108,48,28,18,AC.sil,2)
+ +_r(54,86,60,10,AC.blk,2)+_row(57,87,4,15,9,8)
+ +_mlab(it,100,113,112,24);
+/* shielded radio board (BT / GSM) — metal can plus castellated edge pads */
+PKG.modbt=(it)=>_bd(AC.blu,32,22,136,96)
+ +_col(34,28,6,10,8,7)+_col(158,28,6,10,8,7)
+ +_r(52,30,96,52,AC.sil,3)+_r(52,30,96,12,'#FFFFFF',3,.3)+_r(60,48,80,26,AC.sil2,2,.55)
+ +_c(56,92,5,AC.red)
+ +_mlab(it,100,110,124,24);
+/* GPS module — board plus its ceramic patch antenna on a short cable */
+PKG.modgps=(it)=>_bd(AC.blu,10,52,112,64)
+ +_r(16,56,100,10,AC.blk,2)+_row(20,57,5,20,12,8)
+ +_r(34,74,64,18,AC.blk,3)
+ +_p('M 120 72 C 144 72 134 42 156 42',null,AC.blk2,4)
+ +_r(126,12,64,50,AC.wht,4)+_r(132,18,52,38,AC.pin,3)+_c(158,37,5,AC.blk2)
+ +_mlab(it,66,110,104,24);
+/* Ethernet module — RJ45 jack is unmistakable */
+PKG.modeth=(it)=>_bd(AC.blu,16,20,168,98)
+ +_r(24,26,84,62,AC.sil,4)+_r(32,34,68,40,AC.pin2,2)+_r(52,26,28,12,AC.sil,2)
+ +_c(36,80,4.5,AC.grn2)+_c(96,80,4.5,AC.ylw)
+ +_r(118,34,48,40,AC.blk,3)+_c(125,41,2.4,'#4A5058')
+ +_r(170,32,10,56,AC.blk,2)+_col(171,36,5,10,8,7)
+ +_mlab(it,100,110,140,24);
+/* RFID reader — big rectangular spiral antenna trace */
+PKG.modrfid=(it)=>_bd(AC.grn,16,18,168,100)
+ +[0,1,2].map(i=>_p(`M ${30+i*7} ${30+i*7} H ${136-i*7} V ${88-i*7} H ${30+i*7} Z`,null,AC.cop,3)).join('')
+ +_r(146,30,32,44,AC.blk,3)
+ +_r(146,80,32,10,AC.blk,2)+_row(147,81,3,10,8,8)
+ +_mlab(it,86,110,110,24);
+/* microphone board — electret can with its mesh */
+PKG.modmic=(it)=>_bd(AC.blu,34,22,132,96)
+ +_c(70,54,26,AC.sil)+_c(70,54,19,AC.blk2)+_row(60,52,3,9,5,5,AC.pin2)
+ +_r(108,36,46,32,AC.blk,3)+_c(115,43,2.4,'#4A5058')
+ +_r(108,78,46,10,AC.blk,2)+_row(111,79,3,15,9,8)
+ +_mlab(it,100,110,124,24);
+/* optical sensor board — sensor window ringed by illumination LEDs */
+PKG.modopt=(it)=>_bd(AC.blu,36,20,128,98)
+ +_r(66,34,68,50,AC.blk,3)+_r(78,44,44,30,AC.wht,2)+_c(100,59,9,AC.blk2)
+ +_c(50,34,7,AC.wht)+_c(150,34,7,AC.wht)+_c(50,80,7,AC.wht)+_c(150,80,7,AC.wht)
+ +_mlab(it,100,110,120,24);
+/* IR thermometer board — TO-39 metal can with a lens window */
+PKG.modir=(it)=>_bd(AC.blu,40,22,120,96)
+ +_c(100,54,30,AC.sil)+_c(100,54,23,AC.pin2)+_c(100,54,11,AC.glass)
+ +_r(72,48,56,6,AC.sil2,2,.6)
+ +_r(46,26,22,10,AC.blk,2)+_row(47,27,2,11,9,8)
+ +_mlab(it,100,110,110,24);
+/* load cell + amplifier — the aluminium beam is the giveaway */
+PKG.modload=(it)=>_r(10,30,124,44,AC.pin2,5)+_r(10,30,124,13,'#FFFFFF',5,.4)
+ +_c(34,52,11,AC.ink)+_c(110,52,11,AC.ink)
+ +_r(58,42,28,20,AC.blk,3)+_p('M 62 52 H 82',null,AC.pin,3)
+ +_bd(AC.grn,102,76,82,44)
+ +_r(112,84,62,20,AC.blk,3)
+ +_mlab(it,143,114,74,22);
+/* hall current sensor — heavy screw terminals feeding the sense chip */
+PKG.modcur=(it)=>_bd(AC.blu,20,24,160,94)
+ +_r(24,32,56,44,AC.grn,3)+_c(38,54,10,AC.sil)+_c(66,54,10,AC.sil)
+ +_r(96,34,60,36,AC.blk,3)+_c(103,41,2.6,'#4A5058')
+ +_r(96,78,60,10,AC.blk,2)+_row(99,79,4,15,9,8)
+ +_mlab(it,100,110,150,24);
+/* RS-485 / CAN transceiver board — through-hole chip plus a screw terminal */
+PKG.modbus=(it)=>_bd(AC.grn,24,22,152,96)
+ +_r(30,80,52,28,AC.blu,3)+_c(43,94,7,AC.sil)+_c(69,94,7,AC.sil)
+ +_r(62,34,66,32,AC.blk,3)+_row(70,28,4,17,7,7,AC.pin)+_row(70,66,4,17,7,7,AC.pin)
+ +_r(138,38,26,20,AC.sil,3)
+ +_r(140,74,28,10,AC.blk,2)+_row(141,75,3,9,7,8)
+ +_mlab(it,100,112,140,24);
 PKG.sensor=(it)=>{
   const s=it.n.toLowerCase();
   if(/hc-sr04|ultrasonic/.test(s))return _r(24,34,152,70,AC.blu,5)
@@ -363,7 +577,6 @@ PKG.tool=(it)=>{
 };
 PKG.opamp=PKG.dip;
 PKG.dip8=PKG.dip;
-PKG.dip14=PKG.dip;
 PKG.ic=PKG.dip;
 
 /* resolver: symbol key first, then a few name overrides */
