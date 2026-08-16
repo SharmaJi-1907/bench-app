@@ -5,28 +5,32 @@ Discussion and agreement first; code only on an explicit go-ahead.
 
 ---
 
-## ▶ START HERE — decisions needed before any work resumes
+## ▶ DECISIONS — agreed 2026-08-16
 
-**Ask these first, in this order. Do not begin implementation until they are
-answered.** Each links to the section that explains the trade-off.
+All settled. These are what to build.
 
-| # | Decision | Options | Suggested | Blocks |
-|---|---|---|---|---|
-| 1 | Remove "add photo" from every list, keeping it only on the component page? | Yes / No | **Yes** | Issue 1 |
-| 2 | How should the project part-picker show all 253 parts? | A grouped by category / B flat list / C "show more" button | **A** | Issue 2 |
-| 3 | Add category filter chips to the part picker too? | Yes / No | **No** — keeps a narrow sheet simple | Issue 2 |
-| 4 | Category tree depth? | 2 levels / 3 levels | **Draft the full taxonomy for approval first**, then decide depth | Issue 3 |
-| 5 | Multiple units of one part in different conditions? | A condition counts / B individual units | **A** — "1 working, 1 damaged" | Issue 4 |
-| 6 | Which optional settings to include? | see list | **Vibration toggle + default "Add as" only**; skip text size, section toggles, confirm-deletes | Issue 5 |
-| 7 | How to fix repeated icons? | A readable labels / B category colours / C more shapes / D photos in lists | **A now, B after the category tree** | Issue 6 |
+| # | Decision | Agreed |
+|---|---|---|
+| 1 | Camera button in lists | **Remove from every list.** Adding a photo lives only on the component's own page. |
+| 2 | Project part-picker | **Show all 253, grouped by category** — same headings as the All tab. |
+| 3 | Filter chips in the picker | **Not for now.** Grouping alone; revisit if it still feels slow to find things. |
+| 4 | Category tree | **Draft the full taxonomy as a document first** for approval. Depth (2 vs 3 levels) decided on that draft, before any re-tagging. |
+| 5 | Two units, different conditions | **Count per condition** — "×2 · 1 working, 1 damaged". Also fixes the wrong damaged count on Home. |
+| 6 | Extra settings | **Vibration on/off**, **default "Add as"**, and **pinned-parts count (4/6/8)**. Text size dropped. |
+| 7 | Repeated icons | **Draw new distinct icons for the ~92 duplicated parts only** (the 55 on `dip14`, 37 on `module`). Keep every icon that is already distinctive. New drawings should resemble the real product and carry the part name legibly. |
 
-### Also needs a decision, not yet asked as a question
-- **Photo credits are a licence obligation, not a preference.** 167 bundled
-  photos are CC BY / CC BY-SA / FAL and legally require attribution, but the
-  author/licence data was never saved to the repo. It must be recovered and
-  shipped. Confirm this is in scope. → Issue 5.
-- **Data migration** is mandatory for Issue 4 — existing records on the phone
-  must convert automatically or real data is lost.
+### Deferred by decision
+- **Photo credits — deferred.** The 167 bundled photos are CC BY / CC BY-SA /
+  FAL, which require naming the photographer; that data was never saved to the
+  repo. Raised, and the call is to note it and move on for now. Recorded here
+  so it is not lost: it remains outstanding, and should be settled before the
+  app is shared with anyone else. Recovering it later is still possible — the
+  filenames map back to Commons, so no re-downloading is needed.
+
+### Still mandatory when Issue 4 is built
+- **Data migration.** Records already on the phone use a single `cond` value.
+  Converting them to per-condition counts must happen automatically on first
+  launch, or real data is lost. Not optional, and built with the change.
 
 ---
 
@@ -452,20 +456,20 @@ it should not sit at the back of the queue. Issues 3 and 4 are structural:
 both change the data model and both need a migration path for data already on
 your phone.
 
-| Order | Item | Size | Why here |
+| Step | Item | Size | Why here |
 |---|---|---|---|
-| 1 | Issue 1 — photo picker hijacking taps | Small | Confirmed bug, hits every list |
-| 2 | Issue 2 — 60-item cap in part picker | Small | Confirmed bug, hides 193 of 253 parts |
-| 3 | Issue 5a — recover + ship photo credits | Small | Licence obligation |
-| 4 | Issue 5b — Settings panel restructure | Medium | Self-contained, no data migration |
-| 5 | Issue 6a — readable markings on icons | Small | Cheap, helps the 92 worst parts immediately |
-| 6 | Issue 4 — per-condition quantities | Medium | Data model change + migration |
-| 7 | Issue 3 — category tree | Large | Mostly re-tagging 253 parts |
-| 8 | Issue 6b — category colour-coding | Small | Trivial once the tree from Issue 3 exists |
+| 1 | Issue 1 — remove camera from lists | Small | Confirmed bug, hits every list, one-line-ish fix |
+| 2 | Issue 2 — show all parts, grouped, in the picker | Small | Confirmed bug, 193 of 253 parts unreachable today |
+| 3 | Issue 5 — Settings panel + the three new controls | Medium | Self-contained, no data migration needed |
+| 4 | Issue 4 — per-condition counts | Medium | Data model change; needs the migration above |
+| 5 | Issue 6 — new icons for the ~92 duplicated parts | Large | Bulk illustration work, no dependencies |
+| 6 | Issue 3 — category tree | Large | Taxonomy draft first, then re-tag 253 parts |
 
-Issue 6b sits after Issue 3 deliberately: colour-coding by category is a small
-change on its own, but it is far more useful once the categories are properly
-structured, so doing it first would mean doing it twice.
+Steps 1–2 are quick bug fixes and can ship together. Step 5 is large but
+independent, so it can run alongside the others. Step 6 is last because the
+taxonomy needs approving before the re-tagging work starts.
+
+Photo credits are deferred by decision and are not in this list.
 
 ---
 
@@ -473,10 +477,11 @@ structured, so doing it first would mean doing it twice.
 
 | Item | State |
 |---|---|
-| Issue 1 — photo picker hijacking taps | Root cause confirmed, fix agreed pending your OK |
-| Issue 2 — 60-item cap in project part picker | Root cause confirmed, approach needs your pick |
-| Issue 3 — category tree | Needs taxonomy decisions before any work |
-| Issue 4 — per-condition quantities | Needs A/B decision + migration plan |
-| Issue 5 — settings panel + photo credits | Layout drafted; credits data needs recovering |
-| Issue 6 — repeated icons | Measured (35 shapes for 253 parts); approach needs your pick |
+| Issue 1 — camera button in lists | **Decided** — ready to build |
+| Issue 2 — part picker cap | **Decided** — ready to build |
+| Issue 3 — category tree | **Decided** — taxonomy draft first, then approval |
+| Issue 4 — per-condition counts | **Decided** — build with data migration |
+| Issue 5 — settings panel | **Decided** — three new controls |
+| Issue 6 — repeated icons | **Decided** — redraw the ~92 duplicated only |
+| Photo credits | **Deferred by decision** — still outstanding |
 | Code changes | **None made** — awaiting go-ahead |
