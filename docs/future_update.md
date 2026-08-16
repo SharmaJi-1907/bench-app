@@ -33,8 +33,13 @@ are the questions to answer before any of it is built.
 | 2 | Stock movement history | Medium | **Do it, cut down.** Single-part entries only, not his multi-part movements. |
 | 3 | Real location list | Medium | **Do it.** Makes an existing field actually useful. |
 | 4 | CSV / PDF export | Medium–large | **CSV yes, PDF is the question.** See the cost note. |
+| 5 | A category tree that scales past 253 parts | Medium | **Do it first.** Re-tags every row, so everything else should wait behind it. |
 
-Suggested order: **1 → 3 → 2 → 4**. Reason in [Suggested order](#suggested-order).
+Suggested order: **5 → 1 → 3 → 2 → 4**. Reason in [Suggested order](#suggested-order).
+
+Items 1–4 came from the TechPanda comparison. **Item 5 did not** — it came
+from your point that the tree should hold any component, not just the 253 in
+the catalogue today. It is the one that should be settled first.
 
 ---
 
@@ -247,6 +252,161 @@ breaks and margins.
 
 ---
 
+## Item 5 — A category tree that scales past 253 parts
+
+### What it is
+The current catalogue is 253 parts. The tree should not be designed around
+that number. It should be designed so that **any** electronic component —
+10,000 of them, anything you buy in the next ten years — has an obvious
+category and subcategory to land in, without the tree needing to be
+redesigned again.
+
+### What the big sites actually do
+
+I looked at how the real component shops structure this, because the answer
+turned out to be the opposite of what I expected.
+
+| Site | Top-level categories | Depth to reach a product | Scale |
+|---|---|---|---|
+| **DigiKey** | ~45 | 2 levels (Category → Subcategory → list) | millions of parts |
+| **Robu.in** | 12 | 2–3 levels | 79,186 in Electronic Components alone; 4,172 sensors |
+| **Bench draft today** | 12 | 2 levels | 253 |
+
+DigiKey's top level is things like *Resistors*, *Capacitors*, *Circuit
+Protection*, *Crystals, Oscillators, Resonators*, *Isolators*, *RF and
+Wireless*, *Magnetics*, *Fans/Thermal Management*, *Test and Measurement*,
+*Tools*, *Hardware, Fasteners, Accessories* — each a **kind of part**, never
+a difficulty level or a project type.
+
+### The finding — depth is not what makes a tree scale
+
+This is the important bit, and it changes my earlier advice.
+
+DigiKey holds **millions** of parts in **two** levels of navigation. It does
+not go three or four deep. What lets it scale is two other things:
+
+1. **Breadth at the top.** ~45 top-level categories, not 12. When a new kind
+   of part appears, it gets its own top-level home instead of being crammed
+   into a category it does not belong in.
+2. **Attributes inside a subcategory, not more folders.** Once you are in
+   *Resistors → Through Hole*, you narrow by resistance, tolerance, wattage,
+   package. Those are **filters**, not tree branches. A three-level tree tries
+   to encode as folders what should be filters, and it always collapses.
+
+So: **stay at two levels, but widen the top considerably, and add filters
+later instead of depth.** That is the shape that holds 10,000 parts.
+
+### What this means for Issue 3 — I am revising my own recommendation
+
+[taxonomy-draft.md](taxonomy-draft.md) proposes **12 majors → 46 subs**. I
+recommended two levels and I still do — the research backs that up. But **12
+majors is too few** if the goal is "anything fits". It was sized for 253
+parts, which is exactly the mistake you just called out.
+
+Concretely, 12 majors forces bad homes: circuit protection ends up inside
+Discretes, crystals inside Passives, thermal inside Power IC, radios inside
+Sensors. Each of those is a category DigiKey gives its own top-level slot,
+because each is a thing you shop for on its own.
+
+**Revised recommendation: ~25 majors, still two levels.**
+
+### Proposed tree — 25 majors
+
+Named after the kind of part, so a part you have never bought still has an
+obvious home. Roughly ordered the way a bench is organised, not the way a
+catalogue is alphabetised.
+
+| # | Major | Subcategories |
+|---|---|---|
+| 1 | **Tools & Workshop** | Soldering · Desoldering & rework · Hand tools · Cutting & stripping · Inspection & magnification · ESD control |
+| 2 | **Test & Measurement** | Meters · Oscilloscopes & analysers · Signal sources · Component testers · Bench power · Probes & leads |
+| 3 | **Prototyping & PCB** | Breadboards · Perfboard & stripboard · PCB blanks & etching · Jumpers & test hooks · Sockets & adapters |
+| 4 | **Resistors** | Through-hole fixed · SMD fixed · Precision & metal film · Power & wirewound · Networks & arrays · Shunts & current sense |
+| 5 | **Variable Resistors** | Potentiometers · Trimpots · Rotary encoders · Rheostats |
+| 6 | **Capacitors** | Ceramic · Electrolytic · Film · Tantalum & polymer · Supercapacitors · Variable & trimmer |
+| 7 | **Inductors & Magnetics** | Fixed inductors · Chokes & ferrites · Toroids & cores · Transformers · Magnet wire |
+| 8 | **Crystals & Timing** | Crystals · Oscillators · Resonators · Real-time clocks |
+| 9 | **Diodes & Rectifiers** | Signal · Rectifier & bridge · Zener & references · Schottky · Fast recovery |
+| 10 | **Transistors & Thyristors** | BJT · MOSFET · JFET · IGBT · SCR & TRIAC · Darlington & arrays |
+| 11 | **Optoelectronics** | LEDs · RGB & addressable · Infrared & UV · Displays — 7-seg & matrix · Lasers · Photodiodes, LDRs & phototransistors |
+| 12 | **Analog ICs** | Op-amps · Comparators · Timers & oscillators · Voltage references · Audio & amplifiers · Analog switches |
+| 13 | **Logic ICs** | Gates · Flip-flops & latches · Counters & dividers · Shift registers · Multiplexers & decoders · Buffers & drivers · Arithmetic |
+| 14 | **Data Conversion** | ADC · DAC · Digital potentiometers · Analog front-ends |
+| 15 | **Power Management** | Linear regulators · Switching regulators & modules · Battery charging & BMS · Gate drivers · Power monitoring · References |
+| 16 | **Circuit Protection** | Fuses & resettable · TVS & MOV · Thermistors NTC/PTC · Crowbars & supervisors · EMI & filtering |
+| 17 | **Isolation & Interface** | Optocouplers · Digital isolators · Level shifters · Serial & bus — UART/I²C/SPI/CAN/RS-485 · USB bridges · Port expanders |
+| 18 | **Memory & Storage** | EEPROM · Flash · SRAM & FRAM · Card modules · Storage media |
+| 19 | **Boards & Computers** | Arduino · ESP · Raspberry Pi · STM32 · Other MCU · Bare MCU chips · FPGA & CPLD · Programmers & debuggers |
+| 20 | **Wireless & Comms** | Bluetooth · Wi-Fi · Sub-GHz & LoRa · Cellular · GPS & GNSS · RFID & NFC · Ethernet · Antennas |
+| 21 | **Sensors & Transducers** | Temperature & humidity · Environmental & gas · Distance & proximity · Motion & orientation · Light & colour · Sound · Current & voltage · Force, weight & pressure · Magnetic & Hall · Biometric |
+| 22 | **Motors & Motion** | DC & gear motors · Steppers · Servos · Brushless & ESC · Motor drivers · Solenoids & actuators · Pumps & valves |
+| 23 | **Switches & Relays** | Tactile & pushbutton · Toggle, rocker & slide · DIP & rotary · Reed & magnetic · Limit & micro · Electromechanical relays · Solid-state relays |
+| 24 | **Connectors & Wire** | Headers & sockets · Board-to-wire — JST, Molex, Dupont · Power & barrel · USB & data · Terminal blocks · Hookup wire & cable · Heat shrink & sleeving |
+| 25 | **Power Sources** | Batteries · Holders & clips · Chargers · Adapters & supplies · Solar & harvesting |
+| 26 | **Mechanical & Enclosures** | Fasteners & standoffs · Enclosures & cases · Heatsinks & thermal · Fans & cooling · Brackets & mounts · Belts, gears & wheels |
+| 27 | **Consumables & Chemicals** | Solder & flux · Cleaning & solvents · Adhesives & potting · Thermal compounds · Tape & insulation |
+
+That is 27, not 25 — Data Conversion and Consumables both earned their own
+slot while writing it out. Sitting between Robu's 12 and DigiKey's 45 looks
+about right for a personal bench.
+
+### How the current 253 map onto it
+Every one of today's 12 categories survives — they are split, not replaced:
+
+- **Discretes** splits into Diodes, Transistors, Optoelectronics, Circuit
+  Protection — the four things it is currently pretending to be one of.
+- **Passives** splits into Resistors, Variable Resistors, Capacitors,
+  Inductors, Crystals & Timing.
+- **Interface IC** splits into Isolation & Interface, Data Conversion, Memory.
+- **Power IC** splits into Power Management and Circuit Protection, with
+  heatsinks moving to Mechanical.
+- **Sensors** loses its eight radios to Wireless & Comms, as already proposed
+  in the draft.
+- **Wires & Parts** splits into Prototyping, Connectors & Wire, Power Sources,
+  Mechanical, Consumables.
+- **Tools** splits into Tools & Workshop and Test & Measurement.
+
+Nothing gets deleted and nothing gets orphaned. Around a dozen majors will
+hold only a handful of your parts today — that is the point. They are there
+so the next part you buy has somewhere to go.
+
+### What it costs
+Medium, and it is mostly data entry rather than logic:
+
+- Each `CATALOG` row gains a `sub` field, and its `c` field is re-pointed at
+  the new major. **253 rows, edited once.** `i` and `n` must not change or
+  saved data and `js/photos.js` break — same rule that governed the icon work.
+- `CATS` in `js/catalog.js` grows from 12 to ~27 entries.
+- The All tab renders major → sub headings; the chip strip needs to cope with
+  27 chips instead of 12, which is a real UI question (see below).
+- User-added custom components need a sub too — the Add form gains a second
+  dropdown that filters by the chosen major.
+
+### Worth deciding
+- **27 majors, or trim it?** More majors means a longer chip strip. If that
+  feels like too much on a phone, the answer is a **category screen** rather
+  than fewer categories — a grid of 27 tiles you tap into, which is closer to
+  how Robu and DigiKey actually work than a horizontal scroller is.
+- **Does the chip strip survive?** With 27 it probably should not. Worth
+  deciding whether All becomes "browse by category" first, with search as the
+  fast path for people who know what they want.
+- **Filters instead of depth — later.** Once subcategories fill up, the next
+  step is filtering *inside* a subcategory (package, voltage, value), not a
+  third level. Worth agreeing now that this is the direction, so nobody
+  proposes a deeper tree again in six months.
+- **Do it before or after the four items above?** Strongly **before**. It
+  re-tags all 253 rows; doing it after low-stock or locations means touching
+  the same rows twice.
+
+### Relationship to Issue 3
+This supersedes the 12-major shape in
+[taxonomy-draft.md](taxonomy-draft.md) if you agree with it. The two
+questions still open there — depth, and whether Wireless & Comms is its own
+major — are both answered by this: **two levels**, and **yes**. What is new
+is the width of the top level.
+
+---
+
 ## Deliberately not taking
 
 Recorded so the reasoning is not lost.
@@ -267,15 +427,18 @@ Recorded so the reasoning is not lost.
 
 ## Suggested order
 
-1. **Low-stock warning** — smallest, immediately useful, needs no migration.
-2. **Location list** — medium, and it makes an existing broken field work.
-3. **Stock movement history** — medium, and better built *after* locations so
+1. **The category tree** (Item 5) — first, and not close. It re-tags all 253
+   rows and changes `CATS`. Every other item below touches those same rows or
+   reads that same field, so doing it second means doing parts of it twice.
+2. **Low-stock warning** — smallest, immediately useful, needs no migration.
+3. **Location list** — medium, and it makes an existing broken field work.
+4. **Stock movement history** — medium, and better built *after* locations so
    there is one migration pattern already proven twice.
-4. **CSV export** — small, do it with or ahead of the PDF question.
-5. **PDF / print** — last, and only after the print-to-PDF route is tested on
+5. **CSV export** — small, do it with or ahead of the PDF question.
+6. **PDF / print** — last, and only after the print-to-PDF route is tested on
    your actual phone.
 
-None of this should start until the **category tree** in
-[taxonomy-draft.md](taxonomy-draft.md) is settled — that is the last of the
-six current issues, it re-tags all 253 parts, and doing it after any of the
-above would mean touching the same rows twice.
+The open questions in [taxonomy-draft.md](taxonomy-draft.md) — depth, and
+whether Wireless & Comms stands alone — are answered by Item 5: two levels,
+and yes. What that draft still needs from you is agreement on the **width**
+of the top level: 12 majors as drafted, or ~27 as proposed here.
