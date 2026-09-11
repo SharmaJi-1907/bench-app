@@ -33,7 +33,6 @@ main .grid .gcell .tap{display:block;width:100%;background:none;border:0;padding
 /* reuse the shared .thumb/art rendering, just square + full-bleed here */
 main .grid .gcell .thumb{width:100%;height:auto;flex:none;aspect-ratio:1/1;border-radius:10px;margin-bottom:10px}
 main .grid .gcell .thumb svg.sym{width:70%;height:auto}
-main .grid .gcell .thumb .cam{right:3px;bottom:3px;border-radius:7px}
 
 main .grid .gcell .ginfo{min-width:0}
 main .grid .gcell .gnm{font-size:var(--fs-label);font-weight:600;line-height:1.35;

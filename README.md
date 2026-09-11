@@ -14,7 +14,9 @@ phone, no computer required.
   capacitors, transistors, chips, sensors, boards, motors and more. Most parts
   show a real photograph; the rest show a hand-drawn illustration.
 - **Track what you own** — mark parts as *I have it* or *Need to buy*, with
-  quantity, condition, whether you have tested it, and where you keep it.
+  quantity, whether you have tested it, and where you keep it.
+- **Track condition unit by unit** — own three and one is broken? Record it as
+  *2 working, 1 damaged*, instead of one label for the whole lot.
 - **Plan projects** — a project holds a parts list, and Bench tells you which
   parts you are missing.
 - **Pin your go-to parts** to the Home screen, so the things you reach for most
@@ -38,9 +40,20 @@ A few things worth knowing:
 - Tap the small arrows on a row to change quantity or status without opening
   the part.
 - Open a part and tap the star to pin it to Home.
-- Tap the camera badge on any part to replace its picture with your own photo.
-- Light and dark themes follow your phone, or you can force one in **Settings**
-  (the gear icon, top right).
+- To use your own photo, open the part and tap **Add photo** on its page.
+  Tapping a part in a list always opens it.
+- In a part's **Condition** section, use **+** on *damaged* or *needs repair* to
+  mark a unit as bad. It moves out of *working*, so your total stays the same.
+
+**Settings** (the gear icon, top right) has:
+
+- **Appearance** — light, dark, or follow your phone.
+- **Home screen** — how many pinned parts Home shows: 4, 6 or 8.
+- **Adding a part** — whether new parts start as *I have it* or *Need to buy*.
+- **Feedback** — turn vibration on or off.
+- **Photos** — *Add many photos at once*.
+- **My data** — *Export backup* and *Import*.
+- **Danger zone** — *Erase all my data*. It sits at the bottom, on purpose.
 
 ## What is in this project
 
@@ -115,6 +128,19 @@ the part id (`t1.jpg`), then run the last two commands.
 deliberately out of scope (`PRD.md`), how it is put together (`TRD.md`), the
 design rules and why certain popular trends were rejected
 (`DESIGN-SYSTEM.md`), and how changes are verified (`TEST-PLAN.md`).
+
+What is being worked on:
+
+- `update.md` — the current round of fixes, with the decisions agreed for each.
+- `taxonomy-draft.md` — the proposed category tree. Not agreed yet.
+- `future_update.md` — ideas for the next round. Nothing there is agreed or
+  built.
+
+Existing data is upgraded automatically. When the app starts, `migrateUnits()`
+in `js/store.js` turns the old single condition into per-unit counts. Running
+it twice changes nothing, and it never touches quantity, notes, location or
+project. If you ever change how a record is stored, do it the same way: convert
+old data on startup, before the first screen is drawn.
 
 Two things that will bite you if you skip them:
 
