@@ -1,7 +1,109 @@
 # Bench — pending update
 
-Working notes for the `version_3_update` branch. Nothing here is built yet.
+Working notes for the `version_3_update` branch.
 Discussion and agreement first; code only on an explicit go-ahead.
+
+---
+
+## ▶ START HERE — status as of 2026-09-21
+
+**This document covers the v3 round.** The next round is planned separately in
+**[v4-plan.md](v4-plan.md)** — the category tree, catalogue growth to ~290, two
+v3 bug fixes and the security work, in six phases. Issue 7 below is carried
+into that plan as its Phase 2.
+
+This doc originally described six issues as agreed-but-unbuilt. Five of them
+have since been built and committed. Only the category tree and photo credits
+remain open. Corrected here so this file matches the actual branch state
+instead of the 2026-08-16 snapshot below.
+
+| # | Issue | State |
+|---|---|---|
+| 1 | Camera hijacking list taps | **Built** — `7b32367` |
+| 2 | Part picker 60-item cap | **Built** — `7b32367` |
+| 3 | Category tree | **Not built**, and moved to [v4-plan.md](v4-plan.md) Phase 5. Taxonomy now settled: 22 majors, variable depth |
+| 4 | Per-condition unit counts | **Built** — `5c59710` |
+| 5 | Settings panel + 3 new controls | **Built** — `5c59710` |
+| 6 | Repeated icons | **Built** — `5c59710`, `9ffe3c2` (35→64 package drawings; 243 of 253 icons now distinct) |
+| — | Photo credits | **Still outstanding.** No `assets/photo-credits.json` exists yet; deferred by decision, not forgotten |
+| 7 | Signing workflow self-commits `debug.keystore` and ships debug-signed APKs | **Not built** — new, see below |
+
+**Issue 3 is now settled — decided 2026-09-21.** Neither earlier proposal was
+taken. `taxonomy-draft.md` (12 majors → 46 subs) and `future_update.md` Item 5
+(~27 majors, two levels) are **both superseded** by the tree in
+[v4-plan.md](v4-plan.md): **22 majors, 1–2 word names, depth varying 2–4 per
+branch**, researched against 11 real distributors and retailers. The fixed-depth
+assumption behind both earlier drafts was the thing that was wrong — real stores
+all use ragged depth.
+
+Everything below this point is the original 2026-08-16 write-up, kept as the
+record of each issue's root cause and the fix that was agreed and (for 1, 2,
+4, 5, 6) subsequently built. Treat the "Status" table at the bottom as
+superseded by the table above.
+
+---
+
+## Issue 7 — Signing workflow self-commits a debug keystore
+
+### What you see
+Not visible in the app itself — this is a build-pipeline problem, surfaced by
+an external repo audit and confirmed against `.github/workflows/build-apk.yml`.
+
+### Why it happens
+The "Reuse the same signing key every build" step generates `debug.keystore`
+with the well-known public debug password (`android`), then has CI commit it
+straight back to the repo:
+
+```yaml
+keytool -genkeypair -keystore debug.keystore -alias androiddebugkey \
+  -storepass android -keypass android …
+git add debug.keystore
+git commit -m "Add signing key so updates install over the old app"
+git push
+```
+
+and the build itself runs `./gradlew assembleDebug`, so every release on the
+Releases page is a **debug build signed with a public, well-known key**, not
+a release build. This is also why the workflow needs `permissions:
+contents: write` at all — a build pipeline should not normally need to push
+commits.
+
+### Proposed fix (audit's note, verified against this repo)
+1. Generate a real release keystore **locally, once**, with a private
+   password — not committed to the repo.
+2. Store it as two GitHub Actions secrets: `KEYSTORE_BASE64` (the keystore,
+   base64-encoded) and `KEYSTORE_PASSWORD`.
+3. In the workflow, decode `KEYSTORE_BASE64` to a file at build time and sign
+   with `./gradlew assembleRelease`, passing the password via
+   `${{ secrets.KEYSTORE_PASSWORD }}`.
+4. Delete `debug.keystore` from the repo and stop the self-commit step
+   entirely — the workflow should never push back to the repo.
+5. Drop `permissions: contents: write` down to just what creating a Release
+   needs (`contents: write` is actually required for `gh release create`, so
+   this narrows to "only used for releases," not removed).
+
+### Worth deciding — the part the audit's note didn't cover
+Switching the signing key **breaks update-in-place** for any phone already
+running a debug-signed build — including yours, since `Bench.apk` and
+`Bench _updated.apk` are sitting untracked in this repo, meaning they were
+almost certainly installed from a debug-signed build already. Per
+[README.md](../README.md), "the build reuses the same signing key each time,
+which is what allows Android to install over the existing app instead of
+refusing." Once the key changes, Android will refuse the next update as a
+signature mismatch, forcing an **uninstall + reinstall**, which erases local
+data unless a backup is exported first (Settings → Export backup).
+
+- Confirm this is understood and acceptable before the switch happens — it
+  is a one-time, unavoidable break, not a bug in the fix.
+- Whoever has the app installed should export a backup *before* the first
+  release-signed build goes out, then reinstall and import it after.
+- Should the README's Making changes section get a one-time note about this
+  cutover, so it isn't a surprise later?
+
+### Status
+**Not built.** Root cause confirmed, fix agreed in shape (matches the
+audit's note), but not yet applied — needs the migration question above
+acknowledged first, per this repo's discuss-before-code rule.
 
 ---
 
@@ -443,31 +545,27 @@ third of the catalogue, but it is real artwork effort.
 
 ## Open questions
 
-Moved to **▶ START HERE** at the top of this document, so they are the first
-thing seen when work resumes.
+The only one still live is the major-category count for Issue 3 (12 vs ~27) —
+see **▶ START HERE** at the top of this document. The per-issue "Worth
+deciding" questions above were resolved by the ▶ DECISIONS table once issues
+1, 2, 4, 5 and 6 were built; Issue 3's questions stay open until the taxonomy
+is agreed.
 
 ---
 
 ## Suggested order of work
 
-Issues 1 and 2 are small, self-contained bug fixes with confirmed causes —
-they can ship quickly. Photo credits is small but is a licence obligation, so
-it should not sit at the back of the queue. Issues 3 and 4 are structural:
-both change the data model and both need a migration path for data already on
-your phone.
+Historical — this was the plan before work started. Steps 1–5 are done; see
+**▶ START HERE** for what remains.
 
-| Step | Item | Size | Why here |
-|---|---|---|---|
-| 1 | Issue 1 — remove camera from lists | Small | Confirmed bug, hits every list, one-line-ish fix |
-| 2 | Issue 2 — show all parts, grouped, in the picker | Small | Confirmed bug, 193 of 253 parts unreachable today |
-| 3 | Issue 5 — Settings panel + the three new controls | Medium | Self-contained, no data migration needed |
-| 4 | Issue 4 — per-condition counts | Medium | Data model change; needs the migration above |
-| 5 | Issue 6 — new icons for the ~92 duplicated parts | Large | Bulk illustration work, no dependencies |
-| 6 | Issue 3 — category tree | Large | Taxonomy draft first, then re-tag 253 parts |
-
-Steps 1–2 are quick bug fixes and can ship together. Step 5 is large but
-independent, so it can run alongside the others. Step 6 is last because the
-taxonomy needs approving before the re-tagging work starts.
+| Step | Item | Size | Why here | Done |
+|---|---|---|---|---|
+| 1 | Issue 1 — remove camera from lists | Small | Confirmed bug, hits every list, one-line-ish fix | ✅ |
+| 2 | Issue 2 — show all parts, grouped, in the picker | Small | Confirmed bug, 193 of 253 parts unreachable today | ✅ |
+| 3 | Issue 5 — Settings panel + the three new controls | Medium | Self-contained, no data migration needed | ✅ |
+| 4 | Issue 4 — per-condition counts | Medium | Data model change; needs the migration above | ✅ |
+| 5 | Issue 6 — new icons for the ~92 duplicated parts | Large | Bulk illustration work, no dependencies | ✅ |
+| 6 | Issue 3 — category tree | Large | Taxonomy draft first, then re-tag 253 parts | ⬜ still needs the majors count decided |
 
 Photo credits are deferred by decision and are not in this list.
 
@@ -475,13 +573,17 @@ Photo credits are deferred by decision and are not in this list.
 
 ## Status
 
+Superseded by the table in **▶ START HERE** at the top of this document,
+which reflects what has actually been built. Kept here for the record of
+what was agreed on 2026-08-16, before building started:
+
 | Item | State |
 |---|---|
-| Issue 1 — camera button in lists | **Decided** — ready to build |
-| Issue 2 — part picker cap | **Decided** — ready to build |
-| Issue 3 — category tree | **Decided** — taxonomy draft first, then approval |
-| Issue 4 — per-condition counts | **Decided** — build with data migration |
-| Issue 5 — settings panel | **Decided** — three new controls |
-| Issue 6 — repeated icons | **Decided** — redraw the ~92 duplicated only |
-| Photo credits | **Deferred by decision** — still outstanding |
-| Code changes | **None made** — awaiting go-ahead |
+| Issue 1 — camera button in lists | Decided 2026-08-16 — ready to build |
+| Issue 2 — part picker cap | Decided 2026-08-16 — ready to build |
+| Issue 3 — category tree | Decided 2026-08-16 — taxonomy draft first, then approval |
+| Issue 4 — per-condition counts | Decided 2026-08-16 — build with data migration |
+| Issue 5 — settings panel | Decided 2026-08-16 — three new controls |
+| Issue 6 — repeated icons | Decided 2026-08-16 — redraw the ~92 duplicated only |
+| Photo credits | Deferred by decision — still outstanding |
+| Code changes | None made as of 2026-08-16 — see ▶ START HERE for current state |
